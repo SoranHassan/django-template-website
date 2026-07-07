@@ -1,64 +1,12 @@
-# Python
 __pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-*.so
-
-# Virtual Environment
-venv/
-.venv/
-env/
-ENV/
-
-# Django
-*.log
-local_settings.py
+*.pyc
 db.sqlite3
-db.sqlite3-journal
-media/
-staticfiles/
-
-# Environment Variables
 .env
-.env.local
-.env.production
-.env.staging
-
-# IDE
+venv/
+env/
 .vscode/
 .idea/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
-
-# Celery
-celerybeat-schedule
-celerybeat.pid
-
-# Coverage
-.coverage
-htmlcov/
-coverage.xml
-
-# Pytest
-.pytest_cache/
-
-# Static (collected)
 staticfiles/
-
-# Logs
-logs/*.log
-
-# Backup
-*_backup_*/
-*.sql.gz
-
-# Weasyprint temp
-/tmp/
-
-# Node (اگه بعداً فرانت اضافه شد)
-node_modules/
-npm-debug.log
+media/
+static_backup_20260630/
+structure.txt
