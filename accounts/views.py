@@ -1,14 +1,19 @@
 import random
 from datetime import timedelta
 from django.contrib import messages
+from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.http import JsonResponse
 from django.views import View
 from .models import CustomUser, OTP, Address
 from .tasks import send_otp_sms
+
+OTP_MAX_VERIFY_ATTEMPTS = 5
+OTP_RATE_LIMIT_ERROR = 'تعداد درخواست‌های کد تأیید بیش از حد مجاز است. لطفاً کمی بعد دوباره تلاش کنید'
 
 
 
@@ -28,8 +33,11 @@ class LoginView(View):
 
         if user:
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            next_url = request.GET.get('next', 'catalog:index')
-            return redirect(next_url)
+            # فقط آدرس‌های داخلی سایت مجازند (جلوگیری از Open Redirect)
+            next_url = request.GET.get('next')
+            if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                return redirect(next_url)
+            return redirect('catalog:index')
         return render(request, self.template_name, {'error': 'شماره موبایل یا رمز عبور اشتباه است'})
 
 
@@ -54,6 +62,9 @@ class SignupView(View):
         if CustomUser.objects.filter(mobile=mobile).exists():
             return render(request, self.template_name, {'error': 'این شماره موبایل قبلاً ثبت شده است'})
 
+        if not _send_otp(mobile):
+            return render(request, self.template_name, {'error': OTP_RATE_LIMIT_ERROR})
+
         request.session['signup_data'] = {
             'mobile': mobile,
             'first_name': first_name,
@@ -61,8 +72,6 @@ class SignupView(View):
             'password': password,
         }
 
-        _send_otp(mobile)
-        
         return redirect('accounts:verify_otp')
 
 
@@ -83,8 +92,10 @@ class ForgotPasswordView(View):
         if not CustomUser.objects.filter(mobile=mobile).exists():
             return render(request, self.template_name, {'error': 'کاربری با این شماره موبایل یافت نشد'})
 
+        if not _send_otp(mobile):
+            return render(request, self.template_name, {'error': OTP_RATE_LIMIT_ERROR})
+
         request.session['reset_mobile'] = mobile
-        _send_otp(mobile)
         return redirect('accounts:verify_otp')
 
 
@@ -92,13 +103,14 @@ class ForgotPasswordView(View):
 def _send_otp(mobile):
     """
         Create & Send OTP With Celery
+        برمی‌گرداند True در صورت ارسال؛ False اگر سقف درخواست پر شده باشد
     """
 
-    # Limit On Otp For 5 Min
+    # Limit On Otp For 10 Min
     recent_otps = OTP.objects.filter(mobile=mobile, created_at__gte=timezone.now() - timedelta(minutes=10)).count()
 
     if recent_otps >= 5:
-        raise Exception('تعداد درخواست‌های OTP بیش از حد مجاز است')
+        return False
 
     code = str(random.randint(100000, 999999))
     expires_at = timezone.now() + timedelta(minutes=2)
@@ -108,14 +120,15 @@ def _send_otp(mobile):
     # Send Async With Celery
     send_otp_sms.delay(mobile, code)
 
-    return code
+    return True
 
 
 class SendOTPView(View):
     def post(self, request):
         mobile = request.POST.get('mobile')
         if mobile:
-            _send_otp(mobile)
+            if not _send_otp(mobile):
+                return JsonResponse({'status': 'error', 'message': OTP_RATE_LIMIT_ERROR}, status=429)
             return JsonResponse({'status': 'ok'})
         return JsonResponse({'status': 'error'}, status=400)
 
@@ -130,11 +143,20 @@ class VerifyOTPView(View):
         mobile = request.POST.get('mobile')
         code = request.POST.get('code')
         next_url = request.POST.get('next', '')
+
+        # محدودیت تعداد تلاش برای جلوگیری از حدس زدن کد
+        attempts_key = f'otp_verify_attempts:{mobile}'
+        attempts = cache.get(attempts_key, 0)
+        if attempts >= OTP_MAX_VERIFY_ATTEMPTS:
+            return render(request, self.template_name, {'error': 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفاً کد جدید درخواست کنید', 'mobile': mobile})
+
         otp = OTP.objects.filter(mobile=mobile, code=code, is_used=False).last()
 
         if not otp or not otp.is_valid():
+            cache.set(attempts_key, attempts + 1, timeout=600)
             return render(request, self.template_name, {'error': 'کد وارد شده اشتباه یا منقضی شده است','mobile': mobile})
 
+        cache.delete(attempts_key)
         otp.is_used = True
         otp.save()
 
@@ -204,14 +226,21 @@ class ProfileInfoView(LoginRequiredMixin, View):
 
         current_password = request.POST.get('current_password')
         new_password = request.POST.get('new_password')
+        password_changed = False
 
         if current_password and new_password:
             if user.check_password(current_password):
                 user.set_password(new_password)
+                password_changed = True
             else:
                 return render(request, self.template_name, {'error': 'رمز عبور فعلی اشتباه است'})
 
         user.save()
+
+        # جلوگیری از خروج کاربر بعد از تغییر رمز
+        if password_changed:
+            update_session_auth_hash(request, user)
+
         return render(request, self.template_name, {'success': 'اطلاعات با موفقیت ذخیره شد'})
 
 

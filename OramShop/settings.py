@@ -154,6 +154,9 @@ USE_TZ = True
 # MEDIA FILES & STATIC FILES
 USE_S3 = config('USE_S3', default=False, cast=bool)
 
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 if USE_S3:
     # S3 / MINIO
     AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
@@ -165,19 +168,23 @@ if USE_S3:
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     AWS_S3_FILE_OVERWRITE = False
 
-    # S3 STATIC SETTINGS
-    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    STATIC_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/static/'
+    # از Django 5.1 به بعد STATICFILES_STORAGE و DEFAULT_FILE_STORAGE حذف شده‌اند و باید STORAGES استفاده شود
+    STORAGES = {
+        'default': {'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage'},
+        'staticfiles': {'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage'},
+    }
 
-    # S3 MEDIA SETTINGS
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STATIC_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/static/'
     MEDIA_URL = f'{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/'
 
 else:
+    STORAGES = {
+        'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+        'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+    }
+
     # LOCAL STATIC
     STATIC_URL = 'static/'
-    STATICFILES_DIRS = [BASE_DIR / 'static']
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
 
     # LOCAL MEDIA
     MEDIA_URL = 'media/'

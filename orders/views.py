@@ -6,6 +6,7 @@ from django.db.models.functions import Greatest
 from django.http import JsonResponse
 from django.urls import reverse
 from .pdf import generate_invoice_response
+from cart.models import CartItem
 from cart.views import _get_or_create_cart
 from accounts.models import Address
 from accounts.tasks import send_order_status_sms
@@ -19,6 +20,19 @@ def _decrease_stock(order):
     for item in order.items.select_related('variant'):
         ProductVariant.objects.filter(pk=item.variant_id).update(
             stock=Greatest(F('stock') - item.quantity, 0))
+
+
+def _finalize_paid_order(order):
+    """کارهای پس از پرداخت موفق: کسر موجودی، مصرف کوپن و خالی کردن آیتم‌های خریداری‌شده از سبد"""
+    _decrease_stock(order)
+
+    if order.coupon_id:
+        Coupon.objects.filter(pk=order.coupon_id).update(used_count=F('used_count') + 1)
+        CouponUsage.objects.get_or_create(coupon_id=order.coupon_id, user=order.user, order=order)
+
+    CartItem.objects.filter(
+        cart__user=order.user,
+        variant_id__in=order.items.values_list('variant_id', flat=True)).delete()
 
 
 class ApplyCouponView(LoginRequiredMixin, View):
@@ -133,13 +147,11 @@ class CheckoutView(LoginRequiredMixin, View):
         for item in items:
             OrderItem.objects.create(order=order, variant=item.variant, quantity=item.quantity, price=item.variant.final_price)
 
+        # کوپن به سفارش وصل شد؛ مصرف آن (used_count و CouponUsage) بعد از پرداخت موفق ثبت می‌شود
         if coupon:
-            coupon.used_count += 1
-            coupon.save()
-            CouponUsage.objects.create(coupon=coupon, user=request.user, order=order)
             request.session.pop('coupon_id', None)
 
-        cart.items.all().delete()
+        # سبد خرید تا پرداخت موفق دست‌نخورده می‌ماند تا در صورت انصراف از دست نرود
         callback_url = request.build_absolute_uri(reverse('orders:verify_payment', kwargs={'pk': order.pk}))
         result = request_payment(
             amount=order.final_total,
@@ -180,7 +192,7 @@ class VerifyPaymentView(LoginRequiredMixin, View):
                 order.zarinpal_ref_id = str(result['ref_id'])
                 order.save()
 
-                _decrease_stock(order)
+                _finalize_paid_order(order)
                 send_order_status_sms.delay(request.user.mobile,order.pk,'paid')
                 return redirect('orders:complete_order', pk=order.pk)
             else:
