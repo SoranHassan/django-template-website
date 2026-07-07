@@ -1,14 +1,24 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import F
+from django.db.models.functions import Greatest
 from django.http import JsonResponse
 from django.urls import reverse
 from .pdf import generate_invoice_response
 from cart.views import _get_or_create_cart
 from accounts.models import Address
 from accounts.tasks import send_order_status_sms
+from catalog.models import ProductVariant
 from .models import Order, OrderItem, Coupon, CouponUsage
 from .zarinpal import request_payment, verify_payment
+
+
+def _decrease_stock(order):
+    """کسر موجودی واریانت‌ها بعد از پرداخت موفق"""
+    for item in order.items.select_related('variant'):
+        ProductVariant.objects.filter(pk=item.variant_id).update(
+            stock=Greatest(F('stock') - item.quantity, 0))
 
 
 class ApplyCouponView(LoginRequiredMixin, View):
@@ -90,10 +100,17 @@ class CheckoutView(LoginRequiredMixin, View):
 
     def post(self, request):
         cart = _get_or_create_cart(request)
-        items = cart.items.select_related('variant')
+        items = cart.items.select_related('variant__product')
 
         if not items.exists():
             return redirect('cart:cart')
+
+        # چک موجودی قبل از ثبت سفارش
+        for item in items:
+            if item.quantity > item.variant.stock:
+                return render(request, 'orders/checkout.html', {
+                    'error': f'موجودی «{item.variant.product.name}» کافی نیست (موجودی فعلی: {item.variant.stock})'
+                })
 
         address_id = request.POST.get('address_id')
         address = get_object_or_404(Address, pk=address_id, user=request.user)
@@ -149,6 +166,12 @@ class VerifyPaymentView(LoginRequiredMixin, View):
         authority = request.GET.get('Authority')
         status = request.GET.get('Status')
 
+        # جلوگیری از پردازش دوباره: اگر سفارش قبلاً پرداخت یا لغو شده، دست نزن
+        if order.status in ('paid', 'processing', 'shipped', 'delivered'):
+            return redirect('orders:complete_order', pk=order.pk)
+        if order.status != 'pending':
+            return render(request, 'orders/payment-failed.html', {'order': order, 'error': 'این سفارش قبلاً بسته شده است'})
+
         if status == 'OK' and authority == order.zarinpal_authority:
             result = verify_payment(amount=order.final_total, authority=authority)
 
@@ -157,6 +180,7 @@ class VerifyPaymentView(LoginRequiredMixin, View):
                 order.zarinpal_ref_id = str(result['ref_id'])
                 order.save()
 
+                _decrease_stock(order)
                 send_order_status_sms.delay(request.user.mobile,order.pk,'paid')
                 return redirect('orders:complete_order', pk=order.pk)
             else:

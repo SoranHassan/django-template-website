@@ -43,6 +43,15 @@ class CartAddView(View):
                 'message': 'این محصول موجود نیست'}, status=400)
 
         cart = _get_or_create_cart(request)
+
+        # تعداد درخواستی (به‌علاوه آنچه از قبل در سبد است) نباید از موجودی بیشتر شود
+        existing = CartItem.objects.filter(cart=cart, variant=variant).first()
+        current_quantity = existing.quantity if existing else 0
+        if current_quantity + quantity > variant.stock:
+            return JsonResponse({
+                'status': 'error',
+                'message': f'موجودی کافی نیست (موجودی فعلی: {variant.stock})'}, status=400)
+
         item, created = CartItem.objects.get_or_create(cart=cart, variant=variant, defaults={'quantity': quantity})
 
         if not created:
@@ -84,6 +93,10 @@ class CartUpdateView(View):
         item = get_object_or_404(CartItem,pk=item_id,cart=cart)
 
         if quantity > 0:
+            if quantity > item.variant.stock:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'موجودی کافی نیست (موجودی فعلی: {item.variant.stock})'}, status=400)
             item.quantity = quantity
             item.save()
         else:

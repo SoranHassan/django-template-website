@@ -26,7 +26,7 @@ class DashboardIndexView(StaffRequiredMixin, View):
         orders_count = Order.objects.filter(status='pending').count()
         products_count = Product.objects.filter(is_active=True).count()
         total_revenue = Order.objects.filter(status='delivered').aggregate(total=Sum('total_price'))['total'] or 0
-        revenue_today = Order.objects.filter(status='delivered', ncreated_at__date=now.date()).aggregate(total=Sum('total_price'))['total'] or 0
+        revenue_today = Order.objects.filter(status='delivered', created_at__date=now.date()).aggregate(total=Sum('total_price'))['total'] or 0
         revenue_week = Order.objects.filter(status='delivered', created_at__gte=now - timedelta(days=7)).aggregate(total=Sum('total_price'))['total'] or 0
         revenue_month = Order.objects.filter(status='delivered', created_at__gte=now - timedelta(days=30)).aggregate(total=Sum('total_price'))['total'] or 0
         recent_orders = Order.objects.select_related('user').order_by('-created_at')[:5]
