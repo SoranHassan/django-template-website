@@ -96,9 +96,9 @@
                 <p>مدیر سیستم</p>
             </div>
         </div>
-        <a href="{% url 'accounts:logout' %}">
+        <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">{% csrf_token %}<button type="submit"  style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:inherit">
             <i class="fas fa-sign-out-alt"></i>
-        </a>
+        </button></form>
     </div>
 </aside>
 
@@ -237,7 +237,7 @@
                             <h4>{{ review.product.name }}</h4>
                             <p>{{ review.user.get_full_name }} - {{ review.rating }}★</p>
                         </div>
-                        <a href="{% url 'dashboard:review_approve' review.pk %}" class="btn-secondary">تأیید</a>
+                        <form method="post" action="{% url 'dashboard:review_approve' review.pk %}" style="display:inline">{% csrf_token %}<button type="submit" class="btn-secondary" style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:inherit">تأیید</button></form>
                     </div>
                     {% empty %}
                     <p>نظری در انتظار تأیید نیست</p>

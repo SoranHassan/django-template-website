@@ -167,7 +167,7 @@ class DashboardReviewsListView(StaffRequiredMixin, View):
             'avg_rating': Review.objects.aggregate(avg=Avg('rating'))['avg'] or 0,})
 
 class DashboardReviewApproveView(StaffRequiredMixin, View):
-    def get(self, request, pk):
+    def post(self, request, pk):
         review = get_object_or_404(Review, pk=pk)
         review.is_approved = not review.is_approved
         review.save()

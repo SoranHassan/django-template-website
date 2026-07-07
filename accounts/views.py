@@ -1,6 +1,7 @@
 import random
 from datetime import timedelta
 from django.contrib import messages
+from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -9,6 +10,9 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.http import JsonResponse
 from django.views import View
+from cart.utils import merge_guest_cart
+from .forms import (LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm,
+                    ProfileForm, AddressForm, first_error)
 from .models import CustomUser, OTP, Address
 from .tasks import send_otp_sms
 
@@ -27,12 +31,19 @@ class LoginView(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        mobile = request.POST.get('mobile')
-        password = request.POST.get('password')
-        user = authenticate(request, username=mobile, password=password)
+        form = LoginForm(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'error': first_error(form)})
+
+        user = authenticate(request, username=form.cleaned_data['mobile'],
+                            password=form.cleaned_data['password'])
 
         if user:
+            # کلید سشن قبل از login گرفته می‌شود تا سبد مهمان قابل ادغام باشد
+            old_session_key = request.session.session_key
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            merge_guest_cart(user, old_session_key)
+
             # فقط آدرس‌های داخلی سایت مجازند (جلوگیری از Open Redirect)
             next_url = request.GET.get('next')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
@@ -49,34 +60,27 @@ class SignupView(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        mobile = request.POST.get('mobile')
-        first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        form = SignupForm(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'error': first_error(form)})
 
-
-        if password != confirm_password:
-            return render(request, self.template_name, {'error': 'رمز عبور و تکرار آن یکسان نیستند'})
-
-        if CustomUser.objects.filter(mobile=mobile).exists():
-            return render(request, self.template_name, {'error': 'این شماره موبایل قبلاً ثبت شده است'})
-
+        mobile = form.cleaned_data['mobile']
         if not _send_otp(mobile):
             return render(request, self.template_name, {'error': OTP_RATE_LIMIT_ERROR})
 
+        # رمز به صورت هش‌شده در سشن نگهداری می‌شود، نه متن خام
         request.session['signup_data'] = {
             'mobile': mobile,
-            'first_name': first_name,
-            'last_name': last_name,
-            'password': password,
+            'first_name': form.cleaned_data.get('first_name', ''),
+            'last_name': form.cleaned_data.get('last_name', ''),
+            'password_hash': make_password(form.cleaned_data['password']),
         }
 
         return redirect('accounts:verify_otp')
 
 
 class LogoutView(LoginRequiredMixin, View):
-    def get(self, request):
+    def post(self, request):
         logout(request)
         return redirect('catalog:index')
 
@@ -87,8 +91,11 @@ class ForgotPasswordView(View):
         return render(request, self.template_name)
 
     def post(self, request):
-        mobile = request.POST.get('mobile')
+        form = ForgotPasswordForm(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'error': first_error(form)})
 
+        mobile = form.cleaned_data['mobile']
         if not CustomUser.objects.filter(mobile=mobile).exists():
             return render(request, self.template_name, {'error': 'کاربری با این شماره موبایل یافت نشد'})
 
@@ -163,13 +170,18 @@ class VerifyOTPView(View):
         # Register
         signup_data = request.session.get('signup_data')
         if signup_data and signup_data['mobile'] == mobile:
-            user = CustomUser.objects.create_user(
+            user = CustomUser(
                 mobile=mobile,
-                password=signup_data['password'],
                 first_name=signup_data.get('first_name', ''),
                 last_name=signup_data.get('last_name', ''))
+            user.password = signup_data['password_hash']  # از قبل هش شده
+            user.save()
+
             del request.session['signup_data']
+            old_session_key = request.session.session_key
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            merge_guest_cart(user, old_session_key)
+
             if next_url and next_url.startswith('/'):
                 return redirect(next_url)
             return redirect('catalog:index')
@@ -194,14 +206,12 @@ class ResetPasswordView(View):
         if not mobile:
             return redirect('accounts:forgot_password')
 
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
-
-        if password != confirm_password:
-            return render(request, self.template_name, {'error': 'رمز عبور و تکرار آن یکسان نیستند'})
+        form = ResetPasswordForm(request.POST)
+        if not form.is_valid():
+            return render(request, self.template_name, {'error': first_error(form)})
 
         user = get_object_or_404(CustomUser, mobile=mobile)
-        user.set_password(password)
+        user.set_password(form.cleaned_data['password'])
         user.save()
 
         del request.session['verified_mobile']
@@ -215,14 +225,18 @@ class ProfileInfoView(LoginRequiredMixin, View):
         return render(request, self.template_name)
 
     def post(self, request):
-        user = request.user
-        user.first_name = request.POST.get('first_name', '')
-        user.last_name = request.POST.get('last_name', '')
-        user.email = request.POST.get('email', '')
-        user.bio = request.POST.get('bio', '')
+        form = ProfileForm(request.POST, request.FILES)
+        if not form.is_valid():
+            return render(request, self.template_name, {'error': first_error(form)})
 
-        if request.FILES.get('avatar'):
-            user.avatar = request.FILES['avatar']
+        user = request.user
+        user.first_name = form.cleaned_data['first_name']
+        user.last_name = form.cleaned_data['last_name']
+        user.email = form.cleaned_data['email']
+        user.bio = form.cleaned_data['bio']
+
+        if form.cleaned_data.get('avatar'):
+            user.avatar = form.cleaned_data['avatar']
 
         current_password = request.POST.get('current_password')
         new_password = request.POST.get('new_password')
@@ -300,10 +314,13 @@ class AddressCreateView(LoginRequiredMixin, View):
         return render(request, 'accounts/address-form.html')
 
     def post(self, request):
-        Address.objects.create(user=request.user, first_name=request.POST.get('first_name'), last_name=request.POST.get('last_name'),
-            email=request.POST.get('email', ''), phone=request.POST.get('phone'), address1=request.POST.get('address1'),
-            address2=request.POST.get('address2', ''),
-            city=request.POST.get('city'), zip=request.POST.get('zip'), is_default=request.POST.get('is_default') == 'on')
+        form = AddressForm(request.POST)
+        if not form.is_valid():
+            return render(request, 'accounts/address-form.html', {'error': first_error(form)})
+
+        address = form.save(commit=False)
+        address.user = request.user
+        address.save()
         return redirect('accounts:addresses')
 
 
@@ -314,21 +331,16 @@ class AddressEditView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         address = get_object_or_404(Address, pk=pk, user=request.user)
-        address.first_name = request.POST.get('first_name')
-        address.last_name = request.POST.get('last_name')
-        address.email = request.POST.get('email', '')
-        address.phone = request.POST.get('phone')
-        address.address1 = request.POST.get('address1')
-        address.address2 = request.POST.get('address2', '')
-        address.city = request.POST.get('city')
-        address.zip = request.POST.get('zip')
-        address.is_default = request.POST.get('is_default') == 'on'
-        address.save()
+        form = AddressForm(request.POST, instance=address)
+        if not form.is_valid():
+            return render(request, 'accounts/address-form.html', {'address': address, 'error': first_error(form)})
+
+        form.save()
         return redirect('accounts:addresses')
 
 
 class AddressDeleteView(LoginRequiredMixin, View):
-    def get(self, request, pk):
+    def post(self, request, pk):
         address = get_object_or_404(Address, pk=pk, user=request.user)
         address.delete()
         return redirect('accounts:addresses')

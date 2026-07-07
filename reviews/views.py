@@ -17,7 +17,7 @@ class ReviewCreateView(LoginRequiredMixin, View):
             }, status=400)
 
         rating = request.POST.get('rating')
-        title = request.POST.get('title', '')
+        title = request.POST.get('title', '')[:100]
         body = request.POST.get('body')
 
         if not rating or not body:
@@ -26,7 +26,17 @@ class ReviewCreateView(LoginRequiredMixin, View):
                 'message': 'امتیاز و متن نظر الزامی است'
             }, status=400)
 
-        Review.objects.create(product=product, user=request.user, rating=int(rating), title=title, body=body, is_approved=False)
+        try:
+            rating = int(rating)
+        except (TypeError, ValueError):
+            rating = 0
+        if not 1 <= rating <= 5:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'امتیاز باید عددی بین ۱ تا ۵ باشد'
+            }, status=400)
+
+        Review.objects.create(product=product, user=request.user, rating=rating, title=title, body=body, is_approved=False)
 
         return JsonResponse({
             'status': 'ok',

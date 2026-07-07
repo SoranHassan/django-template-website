@@ -47,8 +47,8 @@
                                 Info</a></li>
                             <li><a href="{% url 'accounts:addresses' %}" class="active"><i
                                     class="lni lni-map-marker me-2"></i>Addresses</a></li>
-                            <li><a href="{% url 'accounts:logout' %}"><i class="lni lni-power-switch me-2"></i>Log
-                                Out</a></li>
+                            <li><form method="post" action="{% url 'accounts:logout' %}" style="display:inline">{% csrf_token %}<button type="submit"  style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:inherit"><i class="lni lni-power-switch me-2"></i>Log
+                                Out</button></form></li>
                         </ul>
                     </div>
 
@@ -73,10 +73,9 @@
                                        class="border p-3 circle text-dark d-inline-flex align-items-center justify-content-center">
                                         <i class="fas fa-pen-nib position-absolute"></i>
                                     </a>
-                                    <a href="{% url 'accounts:addresses_delete' address.pk %}"
-                                       class="border bg-white text-danger p-3 circle text-dark d-inline-flex align-items-center justify-content-center">
+                                    <form method="post" action="{% url 'accounts:addresses_delete' address.pk %}" style="display:inline">{% csrf_token %}<button type="submit" class="border bg-white text-danger p-3 circle text-dark d-inline-flex align-items-center justify-content-center" style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:inherit">
                                         <i class="fas fa-times position-absolute"></i>
-                                    </a>
+                                    </button></form>
                                 </div>
                             </div>
                             <div class="card-wrap-body px-3 py-3">

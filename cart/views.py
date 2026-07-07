@@ -31,10 +31,21 @@ class CartView(View):
             'quantity_range': quantity_range,})
 
 
+def _parse_quantity(value, default=1):
+    """تبدیل امن ورودی تعداد؛ None یعنی نامعتبر"""
+    try:
+        quantity = int(value if value is not None else default)
+    except (TypeError, ValueError):
+        return None
+    return quantity if 0 <= quantity <= 100 else None
+
+
 class CartAddView(View):
     def post(self, request):
         variant_id = request.POST.get('variant_id')
-        quantity = int(request.POST.get('quantity', 1))
+        quantity = _parse_quantity(request.POST.get('quantity', 1))
+        if not quantity:
+            return JsonResponse({'status': 'error', 'message': 'تعداد نامعتبر است'}, status=400)
         variant = get_object_or_404(ProductVariant, pk=variant_id)
 
         if not variant.is_available:
@@ -88,7 +99,9 @@ class CartRemoveView(View):
 class CartUpdateView(View):
     def post(self, request):
         item_id = request.POST.get('item_id')
-        quantity = int(request.POST.get('quantity', 1))
+        quantity = _parse_quantity(request.POST.get('quantity', 1))
+        if quantity is None:
+            return JsonResponse({'status': 'error', 'message': 'تعداد نامعتبر است'}, status=400)
         cart = _get_or_create_cart(request)
         item = get_object_or_404(CartItem,pk=item_id,cart=cart)
 
