@@ -69,16 +69,13 @@
 
                         <select name="sort" class="custom-select"
                                 onchange="document.getElementById('sortForm').submit()">
-                            <option value="newest" {% if current_sort==
-                            'newest' %}selected{% endif %}>
+                            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>
                             جدیدترین
                             </option>
-                            <option value="price_low" {% if current_sort==
-                            'price_low' %}selected{% endif %}>
+                            <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>
                             ارزان‌ترین
                             </option>
-                            <option value="price_high" {% if current_sort==
-                            'price_high' %}selected{% endif %}>
+                            <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>
                             گران‌ترین
                             </option>
                         </select>
@@ -118,7 +115,7 @@
                                         <input class="form-check-input" type="radio"
                                                name="category" value="{{ category.slug }}"
                                                id="cat_{{ category.pk }}"
-                                               {% if current_category== category.slug %}checked{% endif %}>
+                                               {% if current_category == category.slug %}checked{% endif %}>
                                         <label class="form-check-label" for="cat_{{ category.pk }}">
                                             {{ category.name }}
                                         </label>
@@ -134,7 +131,7 @@
                                         <input class="form-check-input" type="radio"
                                                name="brand" value="{{ brand.slug }}"
                                                id="brand_{{ brand.pk }}"
-                                               {% if current_brand== brand.slug %}checked{% endif %}>
+                                               {% if current_brand == brand.slug %}checked{% endif %}>
                                         <label class="form-check-label" for="brand_{{ brand.pk }}">
                                             {{ brand.name }}
                                         </label>
@@ -148,19 +145,19 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
                                                name="gender" value="men" id="gender_men"
-                                               {% if current_gender== 'men' %}checked{% endif %}>
+                                               {% if current_gender == 'men' %}checked{% endif %}>
                                         <label class="form-check-label" for="gender_men">مردانه</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
                                                name="gender" value="women" id="gender_women"
-                                               {% if current_gender== 'women' %}checked{% endif %}>
+                                               {% if current_gender == 'women' %}checked{% endif %}>
                                         <label class="form-check-label" for="gender_women">زنانه</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio"
                                                name="gender" value="kids" id="gender_kids"
-                                               {% if current_gender== 'kids' %}checked{% endif %}>
+                                               {% if current_gender == 'kids' %}checked{% endif %}>
                                         <label class="form-check-label" for="gender_kids">بچگانه</label>
                                     </div>
                                 </div>

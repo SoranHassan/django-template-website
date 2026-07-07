@@ -315,8 +315,7 @@
                                             data-crotch="{{ chart.crotch|default:'' }}"
                                             data-length-bottom="{{ chart.length_bottom|default:'' }}"
                                             {% if forloop.first %}onclick="selectSizeChart(this)"
-                                            style="background:#1a1a2e; color:white;" {% else
-                                            %}onclick="selectSizeChart(this)" {% endif %}>
+                                            style="background:#1a1a2e; color:white;" {% else %}onclick="selectSizeChart(this)" {% endif %}>
                                         {{ chart.size.name }}
                                     </button>
                                     {% endfor %}

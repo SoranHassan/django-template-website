@@ -23,7 +23,7 @@ class DashboardIndexView(StaffRequiredMixin, View):
     def get(self, request):
         now = timezone.now()
         users_count = CustomUser.objects.filter(is_active=True).count()
-        orders_count = Order.objects.filter(status='pending').count()
+        pending_orders_count = Order.objects.filter(status='pending').count()
         products_count = Product.objects.filter(is_active=True).count()
         total_revenue = Order.objects.filter(status='delivered').aggregate(total=Sum('total_price'))['total'] or 0
         revenue_today = Order.objects.filter(status='delivered', created_at__date=now.date()).aggregate(total=Sum('total_price'))['total'] or 0
@@ -32,11 +32,10 @@ class DashboardIndexView(StaffRequiredMixin, View):
         recent_orders = Order.objects.select_related('user').order_by('-created_at')[:5]
         pending_reviews = Review.objects.filter(is_approved=False).select_related('user', 'product')[:5]
         pending_reviews_count = Review.objects.filter(is_approved=False).count()
-        pending_orders_count = Order.objects.filter(status='pending').count()
 
         return render(request, 'dashboard/index.html', {
             'users_count': users_count,
-            'orders_count': orders_count,
+            'orders_count': pending_orders_count,
             'products_count': products_count,
             'total_revenue': total_revenue,
             'revenue_today': revenue_today,

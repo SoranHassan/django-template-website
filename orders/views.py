@@ -80,6 +80,25 @@ class RemoveCouponView(LoginRequiredMixin, View):
         return JsonResponse({'status': 'ok'})
 
 
+def _get_session_coupon(request, cart):
+    """کوپن ذخیره‌شده در سشن را برمی‌گرداند: (coupon, discount_amount)"""
+    coupon = None
+    discount_amount = 0
+    coupon_id = request.session.get('coupon_id')
+
+    if coupon_id:
+        try:
+            coupon = Coupon.objects.get(pk=coupon_id)
+            is_valid, _ = coupon.is_valid()
+            if is_valid:
+                discount_amount = coupon.calculate_discount(cart.subtotal)
+        except Coupon.DoesNotExist:
+            coupon = None
+            request.session.pop('coupon_id', None)
+
+    return coupon, discount_amount
+
+
 class CheckoutView(LoginRequiredMixin, View):
     def get(self, request):
         cart = _get_or_create_cart(request)
@@ -89,19 +108,7 @@ class CheckoutView(LoginRequiredMixin, View):
             return redirect('cart:cart')
 
         addresses = request.user.addresses.all()
-
-        coupon = None
-        discount_amount = 0
-        coupon_id = request.session.get('coupon_id')
-
-        if coupon_id:
-            try:
-                coupon = Coupon.objects.get(pk=coupon_id)
-                is_valid, _ = coupon.is_valid()
-                if is_valid:
-                    discount_amount = coupon.calculate_discount(cart.subtotal)
-            except Coupon.DoesNotExist:
-                request.session.pop('coupon_id', None)
+        coupon, discount_amount = _get_session_coupon(request, cart)
 
         return render(request, 'orders/checkout.html', {
             'cart': items,
@@ -128,18 +135,7 @@ class CheckoutView(LoginRequiredMixin, View):
 
         address_id = request.POST.get('address_id')
         address = get_object_or_404(Address, pk=address_id, user=request.user)
-        coupon = None
-        discount_amount = 0
-        coupon_id = request.session.get('coupon_id')
-
-        if coupon_id:
-            try:
-                coupon = Coupon.objects.get(pk=coupon_id)
-                is_valid, _ = coupon.is_valid()
-                if is_valid:
-                    discount_amount = coupon.calculate_discount(cart.subtotal)
-            except Coupon.DoesNotExist:
-                pass
+        coupon, discount_amount = _get_session_coupon(request, cart)
 
         order = Order.objects.create(user=request.user, address=address, coupon=coupon, total_price=cart.subtotal,
                                         discount_amount=discount_amount, tax=cart.tax, status='pending')

@@ -29,8 +29,7 @@
                     class="fas fa-box"></i><span>محصولات</span></a></li>
             <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
             </li>
-            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if
-                pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
             <li><a href="{% url 'dashboard:analytics' %}"><i
                     class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
         </ul>
@@ -129,29 +128,22 @@
                     <option value="">همه دسته‌بندی‌ها</option>
                     {% for category in categories %}
                     <option value="{{ category.pk }}"
-                            {% if request.GET.category== category.pk|stringformat:
-                    "s" %}selected{% endif %}>
+                            {% if request.GET.category == category.pk|stringformat:"s" %}selected{% endif %}>
                     {{ category.name }}
                     </option>
                     {% endfor %}
                 </select>
                 <select name="status" class="select-dropdown">
                     <option value="">همه وضعیت‌ها</option>
-                    <option value="active" {% if request.GET.status==
-                    'active' %}selected{% endif %}>فعال</option>
-                    <option value="inactive" {% if request.GET.status==
-                    'inactive' %}selected{% endif %}>غیرفعال</option>
+                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>فعال</option>
+                    <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>غیرفعال</option>
                 </select>
                 <select name="gender" class="select-dropdown">
                     <option value="">همه جنسیت‌ها</option>
-                    <option value="men" {% if request.GET.gender==
-                    'men' %}selected{% endif %}>مردانه</option>
-                    <option value="women" {% if request.GET.gender==
-                    'women' %}selected{% endif %}>زنانه</option>
-                    <option value="kids" {% if request.GET.gender==
-                    'kids' %}selected{% endif %}>بچگانه</option>
-                    <option value="unisex" {% if request.GET.gender==
-                    'unisex' %}selected{% endif %}>همه</option>
+                    <option value="men" {% if request.GET.gender == 'men' %}selected{% endif %}>مردانه</option>
+                    <option value="women" {% if request.GET.gender == 'women' %}selected{% endif %}>زنانه</option>
+                    <option value="kids" {% if request.GET.gender == 'kids' %}selected{% endif %}>بچگانه</option>
+                    <option value="unisex" {% if request.GET.gender == 'unisex' %}selected{% endif %}>همه</option>
                 </select>
                 <button type="submit" class="btn-secondary" style="padding: 10px 16px;">
                     <i class="fas fa-filter me-1"></i>اعمال فیلتر

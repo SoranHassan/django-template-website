@@ -35,8 +35,7 @@
                     {% endif %}
                 </a>
             </li>
-            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if
-                pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
             <li><a href="{% url 'dashboard:analytics' %}"><i
                     class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
         </ul>
@@ -194,7 +193,7 @@
                                         {% elif order.status == 'cancelled' %}cancelled
                                         {% elif order.status == 'shipped' %}
                                         {% else %}pending{% endif %}"
-                                          {% if order.status== 'shipped' %}
+                                          {% if order.status == 'shipped' %}
                             style="background: rgba(88,86,214,0.2); color: #5856D6;
                             border: 0.5px solid #5856D6;"
                             {% endif %}>

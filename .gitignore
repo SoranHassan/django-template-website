@@ -10,3 +10,4 @@ staticfiles/
 media/
 static_backup_20260630/
 structure.txt
+logs/*.log

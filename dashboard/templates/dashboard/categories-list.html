@@ -29,8 +29,7 @@
                     class="fas fa-box"></i><span>محصولات</span></a></li>
             <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
             </li>
-            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if
-                pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
             <li><a href="{% url 'dashboard:analytics' %}"><i
                     class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
         </ul>

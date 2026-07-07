@@ -253,7 +253,7 @@
                                     <option value="">انتخاب کنید</option>
                                     {% for category in categories %}
                                     <option value="{{ category.pk }}"
-                                            {% if product and product.category.pk== category.pk %}selected{% endif %}>
+                                            {% if product and product.category.pk == category.pk %}selected{% endif %}>
                                         {% if category.parent %}— {% endif %}{{ category.name }}
                                     </option>
                                     {% endfor %}
@@ -271,7 +271,7 @@
                                     <option value="">بدون برند</option>
                                     {% for brand in brands %}
                                     <option value="{{ brand.pk }}"
-                                            {% if product and product.brand.pk== brand.pk %}selected{% endif %}>
+                                            {% if product and product.brand.pk == brand.pk %}selected{% endif %}>
                                         {{ brand.name }}
                                     </option>
                                     {% endfor %}
@@ -286,14 +286,10 @@
                                 <select name="gender"
                                         style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
                                                    border-radius: 10px; font-family: inherit; font-size: 14px;">
-                                    <option value="unisex" {% if not product or product.gender==
-                                    'unisex' %}selected{% endif %}>همه</option>
-                                    <option value="women" {% if product and product.gender==
-                                    'women' %}selected{% endif %}>زنانه</option>
-                                    <option value="men" {% if product and product.gender==
-                                    'men' %}selected{% endif %}>مردانه</option>
-                                    <option value="kids" {% if product and product.gender==
-                                    'kids' %}selected{% endif %}>بچگانه</option>
+                                    <option value="unisex" {% if not product or product.gender == 'unisex' %}selected{% endif %}>همه</option>
+                                    <option value="women" {% if product and product.gender == 'women' %}selected{% endif %}>زنانه</option>
+                                    <option value="men" {% if product and product.gender == 'men' %}selected{% endif %}>مردانه</option>
+                                    <option value="kids" {% if product and product.gender == 'kids' %}selected{% endif %}>بچگانه</option>
                                 </select>
                                 <div>
                                     <label style="font-size:13px; font-weight:600; margin-bottom:6px; display:block;">
@@ -303,12 +299,10 @@
                                             style="width:100%; padding:10px 14px; border:1px solid #ddd;
                                                    border-radius:10px; font-family:inherit; font-size:14px;">
                                         <option value="">انتخاب کنید</option>
-                                        <option value="top" {% if product and product.category_type==
-                                        'top' %}selected{% endif %}>
+                                        <option value="top" {% if product and product.category_type == 'top' %}selected{% endif %}>
                                         بالاتنه
                                         </option>
-                                        <option value="bottom" {% if product and product.category_type==
-                                        'bottom' %}selected{% endif %}>
+                                        <option value="bottom" {% if product and product.category_type == 'bottom' %}selected{% endif %}>
                                         پایین‌تنه
                                         </option>
                                     </select>
