@@ -1,0 +1,23 @@
+<div class="col-xl-9 col-lg-8 col-md-7 col-sm-12">
+    <div class="filter_wraps elspo_wrap d-flex align-items-center justify-content-end">
+        <div class="single_fitres elspo_filter me-2 br-right">
+            <a href="#filterBox" class="simple-button px-2" data-bs-toggle="collapse" role="button"
+               aria-expanded="false" aria-controls="filterBox"><i class="lni lni-text-align-right me-2"></i><span
+                    class="hide_mob">Filters</span></a>
+        </div>
+        <div class="single_fitres me-2 br-right">
+            <select class="custom-select simple">
+                <option value="1" selected="">Default Sorting</option>
+                <option value="2">Sort by price: Low price</option>
+                <option value="3">Sort by price: Hight price</option>
+                <option value="4">Sort by rating</option>
+                <option value="5">Sort by trending</option>
+            </select>
+        </div>
+        <div class="single_fitres">
+            <a href="{% url 'App:shop_style_4' %}" class="simple-button me-1"><i class="ti-layout-grid3"></i></a>
+            <a href="{% url 'App:shop_grid_3' %}" class="simple-button me-1"><i class="ti-layout-grid2"></i></a>
+            <a href="{% url 'App:shop_list_view' %}" class="simple-button active"><i class="ti-view-list"></i></a>
+        </div>
+    </div>
+</div>

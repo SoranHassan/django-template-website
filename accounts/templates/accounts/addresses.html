@@ -1,0 +1,129 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+<div class="gray py-3">
+    <div class="container">
+        <div class="row">
+            <div class="colxl-12 col-lg-12 col-md-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Addresses</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="middle">
+    <div class="container">
+        <div class="row align-items-start justify-content-between">
+
+            <div class="col-12 col-md-12 col-lg-4 col-xl-4 text-center miliods">
+                <div class="d-block border rounded mfliud-bot">
+                    <div class="dashboard_author px-2 py-5">
+                        <div class="dash_auth_thumb circle p-1 border d-inline-flex mx-auto mb-2">
+                            <img src="{% static 'app/img/team-1.jpg' %}" class="img-fluid circle" width="100" alt=""/>
+                        </div>
+                        <div class="dash_caption">
+                            <h4 class="fs-md ft-medium mb-0 lh-1">Adam Wishnoi</h4>
+                            <span class="text-muted smalls">Australia</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard_author">
+                        <h4 class="px-3 py-2 mb-0 lh-2 gray fs-sm ft-medium text-muted text-uppercase text-left">
+                            Dashboard Navigation</h4>
+                        <ul class="dahs_navbar">
+                            <li><a href="{% url 'accounts:my_orders' %}"><i class="lni lni-shopping-basket me-2"></i>My
+                                Order</a></li>
+                            <li><a href="{% url 'accounts:wishlist' %}"><i class="lni lni-heart me-2"></i>Wishlist</a>
+                            </li>
+                            <li><a href="{% url 'accounts:profile_info' %}"><i class="lni lni-user me-2"></i>Profile
+                                Info</a></li>
+                            <li><a href="{% url 'accounts:addresses' %}" class="active"><i
+                                    class="lni lni-map-marker me-2"></i>Addresses</a></li>
+                            <li><a href="{% url 'accounts:logout' %}"><i class="lni lni-power-switch me-2"></i>Log
+                                Out</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="col-12 col-md-12 col-lg-8 col-xl-8">
+                <div class="row align-items-start">
+
+                    {% for address in addresses %}
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                        <div class="card-wrap border rounded mb-4">
+                            <div class="card-wrap-header px-3 py-2 br-bottom d-flex align-items-center justify-content-between">
+                                <div class="card-header-flex">
+                                    <h4 class="fs-md ft-bold mb-1">Shipping Address</h4>
+                                    <p class="m-0 p-0"><span
+                                            class="text-success bg-light-success small ft-medium px-2 py-1">Primary Account</span>
+                                    </p>
+                                </div>
+                                <div class="card-head-last-flex d-flex align-items-center gap-2">
+                                    <a href="{% url 'accounts:addresses_edit' address.pk %}"
+                                       class="border p-3 circle text-dark d-inline-flex align-items-center justify-content-center">
+                                        <i class="fas fa-pen-nib position-absolute"></i>
+                                    </a>
+                                    <a href="{% url 'accounts:addresses_delete' address.pk %}"
+                                       class="border bg-white text-danger p-3 circle text-dark d-inline-flex align-items-center justify-content-center">
+                                        <i class="fas fa-times position-absolute"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="card-wrap-body px-3 py-3">
+                                <h5 class="ft-medium mb-1">{{ address.first_name }} {{ address.last_name }}</h5>
+                                <p>
+                                    {{ address.address1 }}<br>
+                                    {{ address.address2 }}<br>
+                                    {{ address.city }}, {{ address.zip }}<br>
+                                    {{ address.country }}
+                                </p>
+                                <p class="lh-1"><span class="text-dark ft-medium">Email:</span> {{ address.email }}</p>
+                                <p><span class="text-dark ft-medium">Call:</span> {{ address.phone }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+                <div class="row align-items-start">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <a href="{% url 'accounts:addresses_create' %}"
+                               class="btn stretched-links borders full-width"><i class="fas fa-plus me-2"></i>Add New
+                                Address</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'base/_features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_quickview.html' %}
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}

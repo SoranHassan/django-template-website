@@ -1,0 +1,312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظرات - پنل مدیریت</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
+            <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
+            <li><a href="{% url 'dashboard:products_list' %}"><i class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
+            </li>
+            <li class="active">
+                <a href="{% url 'dashboard:reviews_list' %}">
+                    <i class="fas fa-star"></i>
+                    <span>نظرات</span>
+                    {% if pending_reviews_count %}
+                    <span class="badge">{{ pending_reviews_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li><a href="{% url 'dashboard:analytics' %}"><i
+                    class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="جستجو در نظرات...">
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="{% url 'accounts:profile_info' %}" class="header-btn">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="page-title">
+            <h1>نظرات</h1>
+            <p>مدیریت و تأیید نظرات کاربران</p>
+        </div>
+
+        <!-- آمار -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3>{{ pending_reviews_count }}</h3>
+                    <p>در انتظار تأیید</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ approved_count }}</h3>
+                    <p>تأیید شده</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-star"></i></div>
+                <div class="stat-info">
+                    <h3>{{ avg_rating|floatformat:1 }}</h3>
+                    <p>میانگین امتیاز</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- فیلتر -->
+        <div class="glass-card" style="margin-bottom: 16px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{% url 'dashboard:reviews_list' %}"
+                   class="btn-secondary"
+                   style="{% if not request.GET.approved %}background: rgba(0,122,255,0.2); color: #007AFF;{% endif %}">
+                    همه ({{ total_count }})
+                </a>
+                <a href="?approved=false"
+                   class="btn-secondary"
+                   style="{% if request.GET.approved == 'false' %}background: rgba(255,149,0,0.2); color: #FF9500;{% endif %}">
+                    در انتظار تأیید ({{ pending_reviews_count }})
+                </a>
+                <a href="?approved=true"
+                   class="btn-secondary"
+                   style="{% if request.GET.approved == 'true' %}background: rgba(52,199,89,0.2); color: #34C759;{% endif %}">
+                    تأیید شده ({{ approved_count }})
+                </a>
+            </div>
+        </div>
+
+        <!-- لیست نظرات -->
+        <div style="display: flex; flex-direction: column; gap: 12px;" id="reviewsList">
+
+            {% for review in reviews %}
+            <div class="glass-card review-item" id="review-{{ review.pk }}"
+                 style="{% if not review.is_approved %}border-right: 3px solid #FF9500;{% else %}border-right: 3px solid #34C759;{% endif %}">
+
+                <div style="display: flex; align-items: flex-start; gap: 16px;">
+
+                    <!-- آواتار -->
+                    <div style="flex-shrink: 0;">
+                        {% if review.user.avatar %}
+                        <img src="{{ review.user.avatar.url }}" width="44" height="44"
+                             style="border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                        <div style="width: 44px; height: 44px; border-radius: 50%;
+                                        background: linear-gradient(135deg, #667eea, #764ba2);
+                                        display: flex; align-items: center; justify-content: center;
+                                        color: white; font-weight: 700; font-size: 16px;">
+                            {{ review.user.first_name|first|default:review.user.mobile|first|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- محتوا -->
+                    <div style="flex: 1;">
+
+                        <div style="display: flex; align-items: center;
+                                        justify-content: space-between; margin-bottom: 8px;">
+                            <div>
+                                    <span style="font-weight: 600; font-size: 14px;">
+                                        {{ review.user.get_full_name|default:review.user.mobile }}
+                                    </span>
+                                <span style="color: var(--text-secondary); font-size: 12px; margin-right: 8px;">
+                                        {{ review.created_at|date:"Y/m/d H:i" }}
+                                    </span>
+                            </div>
+
+                            <!-- ستاره‌ها -->
+                            <div style="display: flex; gap: 2px;">
+                                {% for i in "12345" %}
+                                <i class="fas fa-star"
+                                   style="font-size: 13px; color: {% if forloop.counter <= review.rating %}#FF9500{% else %}#ddd{% endif %};"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- محصول -->
+                        <div style="margin-bottom: 8px;">
+                            <a href="{% url 'catalog:product_detail' review.product.id %}"
+                               target="_blank"
+                               style="font-size: 12px; color: var(--primary);
+                                          text-decoration: none; font-weight: 500;">
+                                <i class="fas fa-box me-1"></i>
+                                {{ review.product.name }}
+                            </a>
+                        </div>
+
+                        <!-- عنوان -->
+                        {% if review.title %}
+                        <div style="font-weight: 600; font-size: 14px; margin-bottom: 6px;">
+                            {{ review.title }}
+                        </div>
+                        {% endif %}
+
+                        <!-- متن -->
+                        <div style="font-size: 13px; color: var(--text-secondary);
+                                        line-height: 1.6; margin-bottom: 12px;">
+                            {{ review.body }}
+                        </div>
+
+                        <!-- دکمه‌ها -->
+                        <div style="display: flex; gap: 8px; align-items: center;">
+
+                            <!-- وضعیت -->
+                            <span class="status {% if review.is_approved %}success{% else %}pending{% endif %}">
+                                    {% if review.is_approved %}تأیید شده{% else %}در انتظار تأیید{% endif %}
+                                </span>
+
+                            <!-- تأیید/رد -->
+                            <button class="btn-secondary toggle-review-btn"
+                                    data-id="{{ review.pk }}"
+                                    style="padding: 6px 12px; font-size: 12px;
+                                               {% if review.is_approved %}
+                                               background: rgba(255,59,48,0.1); color: #FF3B30;
+                                               {% else %}
+                                               background: rgba(52,199,89,0.1); color: #34C759;
+                                               {% endif %}">
+                                {% if review.is_approved %}
+                                <i class="fas fa-times me-1"></i>رد نظر
+                                {% else %}
+                                <i class="fas fa-check me-1"></i>تأیید نظر
+                                {% endif %}
+                            </button>
+
+                            <!-- ویرایش در ادمین -->
+                            <a href="{% url 'admin:reviews_review_change' review.pk %}"
+                               class="btn-secondary"
+                               style="padding: 6px 12px; font-size: 12px;" target="_blank">
+                                <i class="fas fa-edit me-1"></i>ویرایش
+                            </a>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+            <div class="glass-card" style="text-align: center; padding: 60px 20px;">
+                <i class="fas fa-star" style="font-size: 48px; color: #ddd; margin-bottom: 16px; display: block;"></i>
+                <h3 style="color: var(--text-secondary);">هیچ نظری یافت نشد</h3>
+            </div>
+            {% endfor %}
+
+        </div>
+
+    </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+<script>
+    const CSRF = '{{ csrf_token }}';
+
+    // جستجو
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('.review-item').forEach(item => {
+            item.style.display = item.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });
+
+    // تأیید/رد نظر
+    document.querySelectorAll('.toggle-review-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const btn = this;
+
+            fetch(`/dashboard/reviews/${id}/approve/`, {
+                method: 'GET',
+                headers: {'X-CSRFToken': CSRF},
+            })
+            .then(res => {
+                if (res.ok) {
+                    const card = document.getElementById(`review-${id}`);
+                    const statusEl = card.querySelector('.status');
+                    const isApproved = btn.textContent.trim().includes('رد');
+
+                    if (isApproved) {
+                        // رد نظر
+                        card.style.borderRightColor = '#FF9500';
+                        statusEl.className = 'status pending';
+                        statusEl.textContent = 'در انتظار تأیید';
+                        btn.style.background = 'rgba(52,199,89,0.1)';
+                        btn.style.color = '#34C759';
+                        btn.innerHTML = '<i class="fas fa-check me-1"></i>تأیید نظر';
+                    } else {
+                        // تأیید نظر
+                        card.style.borderRightColor = '#34C759';
+                        statusEl.className = 'status success';
+                        statusEl.textContent = 'تأیید شده';
+                        btn.style.background = 'rgba(255,59,48,0.1)';
+                        btn.style.color = '#FF3B30';
+                        btn.innerHTML = '<i class="fas fa-times me-1"></i>رد نظر';
+                    }
+
+                    // آپدیت badge
+                    const badge = document.querySelector('.sidebar-nav .badge');
+                    if (badge) {
+                        const count = parseInt(badge.textContent);
+                        badge.textContent = isApproved ? count + 1 : Math.max(0, count - 1);
+                    }
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

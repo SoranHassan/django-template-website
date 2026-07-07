@@ -1,0 +1,102 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+<div class="gray py-3">
+    <div class="container">
+        <div class="row">
+            <div class="colxl-12 col-lg-12 col-md-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
+                        <li class="breadcrumb-item"><a href="javascript:void(0);">صفحات</a></li>
+                        <li class="breadcrumb-item active">ثبت‌نام</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="middle">
+    <div class="container">
+        <div class="row align-items-start justify-content-center">
+            <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 mfliud">
+
+                {% if error %}
+                <div class="alert alert-danger mb-3">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'accounts:signup' %}" class="border p-3 rounded">
+                    {% csrf_token %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="form-group col-md-6">
+                            <label class="mb-2">نام *</label>
+                            <input type="text" name="first_name" class="form-control"
+                                   placeholder="نام" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="mb-2">نام خانوادگی</label>
+                            <input type="text" name="last_name" class="form-control"
+                                   placeholder="نام خانوادگی">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="mb-2">شماره موبایل *</label>
+                        <input type="text" name="mobile" class="form-control"
+                               placeholder="۰۹۱۲۳۴۵۶۷۸۹" maxlength="11" required>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="form-group col-md-6">
+                            <label class="mb-2">رمز عبور *</label>
+                            <input type="password" name="password" class="form-control"
+                                   placeholder="رمز عبور" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label class="mb-2">تکرار رمز عبور *</label>
+                            <input type="password" name="confirm_password" class="form-control"
+                                   placeholder="تکرار رمز عبور" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <p class="small text-muted">با ثبت‌نام، با قوانین و مقررات سایت موافقت می‌کنید.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-md full-width bg-dark text-light fs-md ft-medium">
+                            ایجاد حساب کاربری
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <span class="text-slate-400 me-2">قبلاً ثبت‌نام کرده‌اید؟</span>
+                        <a href="{% url 'accounts:login' %}" class="text-dark font-bold">وارد شوید</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'base/_features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_quickview.html' %}
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}

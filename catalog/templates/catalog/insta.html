@@ -1,0 +1,11 @@
+{% for item in insta %}
+<div class="tiny-slide">
+    <div class="_insta_wrap">
+        <div class="_insta_thumb">
+            <a href="javascript:void(0);" class="open-image" data-img="{{ item.img }}">
+                <img src="{{ item.img }}" class="img-fluid" alt=""/>
+            </a>
+        </div>
+    </div>
+</div>
+{% endfor %}

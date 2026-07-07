@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+            font-size: 13px;
+            color: #1a1a1a;
+            background: #fff;
+            direction: rtl;
+        }
+
+        .invoice-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* هدر */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        .company-info h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .company-info p {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .invoice-meta {
+            text-align: left;
+        }
+
+        .invoice-meta h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+        }
+
+        .invoice-meta table {
+            font-size: 12px;
+            color: #444;
+        }
+
+        .invoice-meta td {
+            padding: 3px 10px 3px 0;
+        }
+
+        .invoice-meta td:first-child {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* اطلاعات مشتری و آدرس */
+        .info-section {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .info-box h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-box p {
+            font-size: 12px;
+            color: #444;
+            margin-bottom: 4px;
+            line-height: 1.6;
+        }
+
+        /* جدول محصولات */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .products-table thead tr {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .products-table thead th {
+            padding: 12px 10px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .products-table tbody tr {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .products-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .products-table tbody td {
+            padding: 12px 10px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        /* جمع‌بندی */
+        .summary-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 30px;
+        }
+
+        .summary-table {
+            width: 300px;
+        }
+
+        .summary-table tr td {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        .summary-table tr td:first-child {
+            color: #666;
+        }
+
+        .summary-table tr td:last-child {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .summary-table .total-row {
+            border-top: 2px solid #1a1a1a;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .summary-table .total-row td {
+            padding-top: 12px;
+            color: #1a1a1a;
+        }
+
+        .summary-table .discount-row td {
+            color: #28a745;
+        }
+
+        /* وضعیت پرداخت */
+        .payment-status {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .payment-status.paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .payment-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* یادداشت‌ها */
+        .notes-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 30px;
+        }
+
+        .notes-section h3 {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .notes-section p {
+            font-size: 12px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        /* فوتر */
+        .invoice-footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            color: #888;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .ref-id {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .ref-id span {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-wrapper">
+
+    <!-- هدر -->
+    <div class="invoice-header">
+        <div class="company-info">
+            <h1>OramShop</h1>
+            <p>فروشگاه اینترنتی پوشاک و اکسسوری</p>
+            <p>تهران، خیابان ولیعصر</p>
+            <p>info@oramshop.ir | ۰۲۱-۱۲۳۴۵۶۷۸</p>
+        </div>
+        <div class="invoice-meta">
+            <h2>فاکتور رسمی</h2>
+            <table>
+                <tr>
+                    <td>شماره فاکتور:</td>
+                    <td>#{{ order.pk }}</td>
+                </tr>
+                <tr>
+                    <td>تاریخ صدور:</td>
+                    <td>{{ order.created_at|date:"Y/m/d" }}</td>
+                </tr>
+                <tr>
+                    <td>وضعیت:</td>
+                    <td>
+                        <span class="payment-status {% if order.status == 'paid' or order.status == 'delivered' %}paid{% else %}pending{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% if order.zarinpal_ref_id %}
+                <tr>
+                    <td>کد مرجع:</td>
+                    <td>{{ order.zarinpal_ref_id }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- اطلاعات مشتری و آدرس -->
+    <div class="info-section">
+        <div class="info-box">
+            <h3>اطلاعات خریدار</h3>
+            <p>{{ order.user.get_full_name }}</p>
+            <p>موبایل: {{ order.user.mobile }}</p>
+            {% if order.user.email %}
+            <p>ایمیل: {{ order.user.email }}</p>
+            {% endif %}
+        </div>
+
+        {% if order.address %}
+        <div class="info-box">
+            <h3>آدرس تحویل</h3>
+            <p>{{ order.address.first_name }} {{ order.address.last_name }}</p>
+            <p>{{ order.address.address1 }}</p>
+            {% if order.address.address2 %}
+            <p>{{ order.address.address2 }}</p>
+            {% endif %}
+            <p>{{ order.address.city }} - کد پستی: {{ order.address.zip }}</p>
+            <p>تلفن: {{ order.address.phone }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- کد مرجع پرداخت -->
+    {% if order.zarinpal_ref_id %}
+    <div class="ref-id">
+        کد پیگیری پرداخت: <span>{{ order.zarinpal_ref_id }}</span>
+    </div>
+    {% endif %}
+
+    <!-- جدول محصولات -->
+    <table class="products-table">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>محصول</th>
+            <th>سایز</th>
+            <th>رنگ</th>
+            <th>تعداد</th>
+            <th>قیمت واحد</th>
+            <th>جمع</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in order.items.all %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ item.variant.product.name }}</td>
+            <td>{{ item.variant.size.name|default:"-" }}</td>
+            <td>{{ item.variant.color.name|default:"-" }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.price }} تومان</td>
+            <td>{{ item.total_price }} تومان</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- جمع‌بندی -->
+    <div class="summary-section">
+        <table class="summary-table">
+            <tr>
+                <td>جمع کالاها:</td>
+                <td>{{ order.total_price }} تومان</td>
+            </tr>
+            {% if order.discount_amount %}
+            <tr class="discount-row">
+                <td>تخفیف
+                    {% if order.coupon %}({{ order.coupon.code }}){% endif %}:
+                </td>
+                <td>- {{ order.discount_amount }} تومان</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td>مالیات (۹٪):</td>
+                <td>{{ order.tax }} تومان</td>
+            </tr>
+            {% if order.shipping_cost %}
+            <tr>
+                <td>هزینه ارسال:</td>
+                <td>{{ order.shipping_cost }} تومان</td>
+            </tr>
+            {% endif %}
+            <tr class="total-row">
+                <td>مبلغ قابل پرداخت:</td>
+                <td>{{ order.final_total }} تومان</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- یادداشت -->
+    {% if order.notes %}
+    <div class="notes-section">
+        <h3>توضیحات سفارش</h3>
+        <p>{{ order.notes }}</p>
+    </div>
+    {% endif %}
+
+    <!-- فوتر -->
+    <div class="invoice-footer">
+        <p>با تشکر از خرید شما از OramShop</p>
+        <p>این فاکتور به صورت سیستماتیک صادر شده و نیاز به مهر و امضا ندارد</p>
+        <p>در صورت هرگونه سوال با ما تماس بگیرید: info@oramshop.ir</p>
+    </div>
+
+</div>
+</body>
+</html>

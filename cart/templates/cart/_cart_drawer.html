@@ -1,0 +1,66 @@
+<!-- Cart -->
+<div class="w3-ch-sideBar w3-bar-block w3-card-2"
+     style="display:none;left:0;right:auto;position:fixed;z-index:99999" id="Cart">
+    <div class="rightMenu-scroll">
+        <div class="d-flex align-items-center justify-content-between slide-head py-3 px-3">
+            <h4 class="cart_heading fs-md ft-medium mb-0">Products List</h4>
+            <button onclick="closeCart()" class="close_sidebar"><i class="ti-close"></i></button>
+        </div>
+        <div class="right-ch-sideBar" id="cart-content">
+
+            <div class="cart_select_items py-2">
+
+                {% if cart %}
+                {% for item in cart %}
+                <!-- Single Item -->
+                <div class="cart-item-wrapper d-flex align-items-center justify-content-between br-bottom px-3 py-3">
+                    <div class="cart_single d-flex align-items-center">
+                        <div class="cart_selected_single_thumb">
+                            <a href="#"><img src="{{ item.image }}" width="60" class="img-fluid" alt=""/></a>
+                        </div>
+                        <div class="cart_single_caption ps-2">
+                            <h4 class="product_title fs-sm ft-medium mb-0 lh-1">{{ item.title }}</h4>
+                            <p class="mb-1"><span class="text-dark ft-medium small">{{ item.size }}</span>, <span
+                                    class="text-dark small">{{ item.color }}</span></p>
+                            <p class="mb-1">
+                                <span class="font-medium text-gray-800 bg-gray-200">Qty: {{ item.quantity }}</span>
+                            </p>
+                            <h4 class="fs-md ft-medium mb-0 lh-1 price" data-price="{{ item.price }}">${{
+                                item.price|floatformat:2 }}</h4>
+                        </div>
+                    </div>
+                    <div class="cart-item">
+                        <button class="close_cart_item gray" data-id="{{ item.id }}">
+                            <i class="ti-close"></i>
+                        </button>
+                    </div>
+                </div>
+
+                {% endfor %}
+                {% else %}
+                <p class="px-3 py-3">Your cart is empty.</p>
+                {% endif %}
+            </div>
+
+            {% if cart and cart|length > 0 %}
+            <div class="d-flex align-items-center justify-content-between br-top br-bottom px-3 py-3">
+                <h6 class="mb-0">Subtotal</h6>
+                <h3 class="mb-0 ft-medium cart-subtotal" id="cart-subtotal">${{ cart_subtotal|floatformat:2 }}</h3>
+            </div>
+            {% endif %}
+
+            <div class="cart_action px-3 py-3">
+                <div class="form-group mb-3">
+                    <button onclick="window.location.href='{% url 'orders:checkout' %}'">تسویه حساب</button>
+
+                </div>
+                <div class="form-group">
+                    <button onclick="window.location.href='/shoping-cart/'"
+                            class="btn d-block full-width btn-dark-light">Edit or View
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیست سفارشات - پنل مدیریت</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
+            <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
+            <li><a href="{% url 'dashboard:products_list' %}"><i class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li class="active">
+                <a href="{% url 'dashboard:orders_list' %}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>سفارشات</span>
+                    {% if pending_orders_count %}
+                    <span class="badge">{{ pending_orders_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if
+                pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'dashboard:analytics' %}"><i
+                    class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="جستجو در سفارشات...">
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="{% url 'accounts:profile_info' %}" class="header-btn">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="page-title">
+            <h1>سفارشات</h1>
+            <p>مدیریت سفارشات فروشگاه</p>
+        </div>
+
+        <!-- آمار سریع -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3>{{ pending_count }}</h3>
+                    <p>در انتظار پرداخت</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-cog"></i></div>
+                <div class="stat-info">
+                    <h3>{{ processing_count }}</h3>
+                    <p>در حال پردازش</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-truck"></i></div>
+                <div class="stat-info">
+                    <h3>{{ shipped_count }}</h3>
+                    <p>ارسال شده</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ delivered_count }}</h3>
+                    <p>تحویل شده</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- فیلتر وضعیت -->
+        <div class="glass-card" style="margin-bottom: 16px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <a href="{% url 'dashboard:orders_list' %}"
+                   class="btn-secondary {% if not current_status %}active{% endif %}"
+                   style="{% if not current_status %}background: rgba(0,122,255,0.2); color: #007AFF;{% endif %}">
+                    همه
+                </a>
+                {% for value, label in status_choices %}
+                <a href="?status={{ value }}"
+                   class="btn-secondary"
+                   style="{% if current_status == value %}background: rgba(0,122,255,0.2); color: #007AFF;{% endif %}">
+                    {{ label }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- جدول سفارشات -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h2>لیست سفارشات ({{ orders|length }})</h2>
+                <select class="select-dropdown" id="sortOrders">
+                    <option value="newest">جدیدترین</option>
+                    <option value="oldest">قدیمی‌ترین</option>
+                    <option value="highest">بیشترین مبلغ</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="ordersTable">
+                    <thead>
+                    <tr>
+                        <th>شماره</th>
+                        <th>مشتری</th>
+                        <th>تاریخ</th>
+                        <th>تعداد اقلام</th>
+                        <th>مبلغ کل</th>
+                        <th>تخفیف</th>
+                        <th>وضعیت</th>
+                        <th>پرداخت</th>
+                        <th>عملیات</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for order in orders %}
+                    <tr style="cursor: pointer;"
+                        onclick="window.location='{% url 'dashboard:order_detail' order.pk %}'">
+                        <td><strong>#{{ order.pk }}</strong></td>
+                        <td>
+                            <div style="font-weight: 600; font-size: 13px;">
+                                {{ order.user.get_full_name|default:"بدون نام" }}
+                            </div>
+                            <div style="font-size: 11px; color: #86868B;">
+                                {{ order.user.mobile }}
+                            </div>
+                        </td>
+                        <td>{{ order.created_at|date:"Y/m/d H:i" }}</td>
+                        <td>{{ order.items.count }} قلم</td>
+                        <td>
+                            <strong>{{ order.final_total }} تومان</strong>
+                        </td>
+                        <td>
+                            {% if order.discount_amount %}
+                            <span style="color: #34C759;">
+                                        -{{ order.discount_amount }} تومان
+                                    </span>
+                            {% else %}
+                            <span style="color: #86868B;">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                                    <span class="status
+                                        {% if order.status == 'delivered' %}success
+                                        {% elif order.status == 'cancelled' %}cancelled
+                                        {% elif order.status == 'shipped' %}
+                                        {% else %}pending{% endif %}"
+                                          {% if order.status== 'shipped' %}
+                            style="background: rgba(88,86,214,0.2); color: #5856D6;
+                            border: 0.5px solid #5856D6;"
+                            {% endif %}>
+                            {{ order.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if order.zarinpal_ref_id %}
+                            <span class="status success" style="font-size: 10px;">
+                                        {{ order.zarinpal_ref_id|truncatechars:10 }}
+                                    </span>
+                            {% else %}
+                            <span style="color: #86868B; font-size: 12px;">-</span>
+                            {% endif %}
+                        </td>
+                        <td onclick="event.stopPropagation();">
+                            <div style="display: flex; gap: 6px;">
+                                <a href="{% url 'dashboard:order_detail' order.pk %}"
+                                   class="btn-secondary"
+                                   style="padding: 5px 8px; font-size: 11px;"
+                                   title="جزئیات">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if order.status in 'paid,processing,shipped,delivered' %}
+                                <a href="{% url 'orders:invoice' order.pk %}"
+                                   class="btn-secondary"
+                                   style="padding: 5px 8px; font-size: 11px;"
+                                   title="فاکتور" target="_blank">
+                                    <i class="fas fa-file-invoice"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9"
+                            style="text-align: center; padding: 40px; color: #86868B;">
+                            <i class="fas fa-shopping-cart"
+                               style="font-size: 32px; margin-bottom: 10px; display: block;"></i>
+                            هیچ سفارشی یافت نشد
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+<script>
+    // جستجو
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });
+</script>
+</body>
+</html>

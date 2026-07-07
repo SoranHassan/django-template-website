@@ -1,0 +1,358 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+<!-- Shop Header -->
+<section class="bg-cover" style="background:url({% static 'app/img/cover-1.jpg' %}) no-repeat;">
+    <div class="container">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                <div class="text-center py-5 mt-3 mb-3">
+                    <h1 class="ft-medium mb-3">فروشگاه</h1>
+                    <ul class="shop_categories_list m-0 p-0">
+                        {% for category in categories %}
+                        <li>
+                            <a href="?category={{ category.slug }}"
+                               class="{% if current_category == category.slug %}active{% endif %}">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Bar -->
+<section class="py-2 br-bottom br-top">
+    <div class="container">
+        <div class="row align-items-center justify-content-between">
+
+            <!-- Breadcrumb -->
+            <div class="col-xl-3 col-lg-4 col-md-5 col-sm-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:shop_style_1' %}">فروشگاه</a></li>
+                        {% if current_category %}
+                        <li class="breadcrumb-item active">{{ current_category }}</li>
+                        {% endif %}
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- فیلتر و مرتب‌سازی -->
+            <div class="col-xl-9 col-lg-8 col-md-7 col-sm-12">
+                <div class="d-flex align-items-center justify-content-end gap-3">
+
+                    <!-- تعداد نتایج -->
+                    <span class="text-muted small">
+                        {{ products.count }} محصول
+                    </span>
+
+                    <!-- مرتب‌سازی -->
+                    <form method="GET" id="sortForm">
+                        <!-- حفظ فیلترهای قبلی -->
+                        {% if current_category %}
+                        <input type="hidden" name="category" value="{{ current_category }}">
+                        {% endif %}
+                        {% if current_brand %}
+                        <input type="hidden" name="brand" value="{{ current_brand }}">
+                        {% endif %}
+                        {% if request.GET.q %}
+                        <input type="hidden" name="q" value="{{ request.GET.q }}">
+                        {% endif %}
+
+                        <select name="sort" class="custom-select"
+                                onchange="document.getElementById('sortForm').submit()">
+                            <option value="newest" {% if current_sort==
+                            'newest' %}selected{% endif %}>
+                            جدیدترین
+                            </option>
+                            <option value="price_low" {% if current_sort==
+                            'price_low' %}selected{% endif %}>
+                            ارزان‌ترین
+                            </option>
+                            <option value="price_high" {% if current_sort==
+                            'price_high' %}selected{% endif %}>
+                            گران‌ترین
+                            </option>
+                        </select>
+                    </form>
+
+                    <!-- دکمه فیلتر -->
+                    <button class="btn btn-sm btn-outline-dark" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#filterBox">
+                        <i class="lni lni-funnel me-1"></i>فیلتر
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- باکس فیلتر -->
+        <div class="row align-items-center justify-content-center">
+            <div class="col-xl-12 col-lg-12 col-md-12">
+                <div class="collapse {% if current_category or current_brand or request.GET.size or request.GET.color or request.GET.min_price %}show{% endif %}"
+                     id="filterBox">
+                    <div class="card py-3 b-0">
+
+                        <form method="GET" action="{% url 'catalog:shop_style_1' %}" id="filterForm">
+
+                            {% if current_sort %}
+                            <input type="hidden" name="sort" value="{{ current_sort }}">
+                            {% endif %}
+
+                            <div class="row">
+
+                                <!-- دسته‌بندی -->
+                                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
+                                    <h6 class="ft-medium mb-2">دسته‌بندی</h6>
+                                    {% for category in categories %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                               name="category" value="{{ category.slug }}"
+                                               id="cat_{{ category.pk }}"
+                                               {% if current_category== category.slug %}checked{% endif %}>
+                                        <label class="form-check-label" for="cat_{{ category.pk }}">
+                                            {{ category.name }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- برند -->
+                                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
+                                    <h6 class="ft-medium mb-2">برند</h6>
+                                    {% for brand in brands %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                               name="brand" value="{{ brand.slug }}"
+                                               id="brand_{{ brand.pk }}"
+                                               {% if current_brand== brand.slug %}checked{% endif %}>
+                                        <label class="form-check-label" for="brand_{{ brand.pk }}">
+                                            {{ brand.name }}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- جنسیت -->
+                                <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12 mb-3">
+                                    <h6 class="ft-medium mb-2">جنسیت</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                               name="gender" value="men" id="gender_men"
+                                               {% if current_gender== 'men' %}checked{% endif %}>
+                                        <label class="form-check-label" for="gender_men">مردانه</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                               name="gender" value="women" id="gender_women"
+                                               {% if current_gender== 'women' %}checked{% endif %}>
+                                        <label class="form-check-label" for="gender_women">زنانه</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio"
+                                               name="gender" value="kids" id="gender_kids"
+                                               {% if current_gender== 'kids' %}checked{% endif %}>
+                                        <label class="form-check-label" for="gender_kids">بچگانه</label>
+                                    </div>
+                                </div>
+
+                                <!-- قیمت -->
+                                <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
+                                    <h6 class="ft-medium mb-2">محدوده قیمت (تومان)</h6>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <input type="number" name="min_price" class="form-control form-control-sm"
+                                               placeholder="از" value="{{ request.GET.min_price }}">
+                                        <span>تا</span>
+                                        <input type="number" name="max_price" class="form-control form-control-sm"
+                                               placeholder="تا" value="{{ request.GET.max_price }}">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- دکمه‌های فیلتر -->
+                            <div class="d-flex gap-2 mt-2">
+                                <button type="submit" class="btn btn-dark btn-sm">
+                                    اعمال فیلتر
+                                </button>
+                                <a href="{% url 'catalog:shop_style_1' %}" class="btn btn-outline-secondary btn-sm">
+                                    حذف فیلترها
+                                </a>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- لیست محصولات -->
+<section class="middle">
+    <div class="container">
+
+        <!-- جستجو -->
+        <form method="GET" action="{% url 'catalog:shop_style_1' %}" class="mb-4">
+            {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+            {% if current_brand %}<input type="hidden" name="brand" value="{{ current_brand }}">{% endif %}
+            {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="جستجو در محصولات..."
+                       value="{{ request.GET.q }}">
+                <button type="submit" class="btn btn-dark">
+                    <i class="lni lni-search-alt"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="row align-items-center rows-products">
+
+            {% for product in products %}
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                <div class="product_grid card b-0 mb-4">
+
+                    {% if product.discount_percent %}
+                    <div class="position-absolute ab-left">
+                        <span class="badge bg-danger">{{ product.discount_percent }}٪</span>
+                    </div>
+                    {% endif %}
+
+                    <button class="btn btn_love position-absolute ab-right theme-cl wishlist-btn"
+                            data-id="{{ product.pk }}"
+                            data-title="{{ product.name }}"
+                            data-price="{{ product.price }}"
+                            data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
+                            data-slug="{{ product.slug }}">
+                        <i class="lni lni-heart"></i>
+                    </button>
+
+                    <div class="card-body p-0">
+                        <div class="shop_thumb position-relative">
+                            <a class="card-img-top d-block overflow-hidden"
+                               href="{% url 'catalog:product_detail' product.id %}">
+                                {% if product.main_image %}
+                                <img class="card-img-top" src="{{ product.main_image.image.url }}"
+                                     alt="{{ product.name }}">
+                                {% else %}
+                                <img class="card-img-top" src="{% static 'app/img/product/1.jpg' %}"
+                                     alt="{{ product.name }}">
+                                {% endif %}
+                            </a>
+                            <div class="product-hover-overlay bg-dark d-flex align-items-center justify-content-center">
+                                <div class="edlio">
+                                    <a href="{% url 'catalog:product_detail' product.id %}"
+                                       class="text-white fs-sm ft-medium">
+                                        <i class="fas fa-eye me-1"></i>مشاهده سریع
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer b-0 pt-3 px-2 bg-white">
+                        <div class="text-left">
+                            {% if product.category %}
+                            <span class="text-muted small">{{ product.category.name }}</span>
+                            {% endif %}
+                            <h5 class="product_title fw-normal fs-md mb-0 lh-1 mb-1">
+                                <a href="{% url 'catalog:product_detail' product.id %}">
+                                    {{ product.name }}
+                                </a>
+                            </h5>
+                            <div class="elis_rty">
+                                {% if product.original_price %}
+                                <span class="ft-medium text-muted line-through fs-sm me-1">
+                                    {{ product.original_price }} تومان
+                                </span>
+                                {% endif %}
+                                <span class="ft-medium fs-md text-dark">
+                                    {{ product.price }} تومان
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="lni lni-search-alt fs-lg text-muted mb-3"></i>
+                <h5 class="text-muted">محصولی با این مشخصات یافت نشد</h5>
+                <a href="{% url 'catalog:shop_style_1' %}" class="btn btn-dark mt-3">
+                    مشاهده همه محصولات
+                </a>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        <!-- دکمه بارگذاری بیشتر (اختیاری - بعداً با pagination جایگزین میشه) -->
+        {% if products.count > 12 %}
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 text-center">
+                <a href="#" class="btn stretched-links borders m-auto">
+                    <i class="lni lni-reload me-2"></i>بارگذاری بیشتر
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+
+<!-- ویژگی‌ها -->
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'catalog/features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_quickview.html' %}
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}
+
+{% block js %}
+<script>
+    // ویشلیست با AJAX
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const b = this;
+            fetch('{% url "accounts:wishlist_add" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${b.dataset.id}&title=${encodeURIComponent(b.dataset.title)}&price=${b.dataset.price}&image=${encodeURIComponent(b.dataset.image)}&slug=${b.dataset.slug}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    b.querySelector('i').classList.add('text-danger');
+                    document.querySelectorAll('.wishlist-count').forEach(el => {
+                        el.textContent = data.count;
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,370 @@
+{% load static %}
+
+<!-- Top Bar -->
+<div class="header-top-bar" style="background: linear-gradient(90deg, #1a1a2e 0%, #e94560 100%); padding: 8px 0; overflow: hidden;">
+    <div class="container">
+        <div class="ticker-wrapper">
+            <div class="ticker-content">
+                {% for announcement in announcements %}
+                <span class="text-white small mx-4">
+                    {{ announcement.text }}
+                    {% if announcement.link %}
+                    <a href="{{ announcement.link }}" class="text-white fw-bold text-decoration-underline ms-2">
+                        {{ announcement.link_text|default:"بیشتر" }}
+                    </a>
+                    {% endif %}
+                    <span class="text-white-50 mx-3">|</span>
+                </span>
+                {% empty %}
+                <span class="text-white small mx-4">
+                    🎉 ارسال رایگان از ۵۰۰ هزار تومان
+                    <span class="text-white-50 mx-3">|</span>
+                    🏷️ تا ۴۰٪ تخفیف روی کالکشن جدید
+                    <span class="text-white-50 mx-3">|</span>
+                    📦 تحویل سریع در سراسر کشور
+                    <span class="text-white-50 mx-3">|</span>
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Navigation -->
+<header class="header header-light dark-text sticky-top bg-white shadow-sm" style="z-index: 999;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center py-3">
+            
+            <!-- سمت راست: لوگو و منو -->
+            <div class="d-flex align-items-center gap-4">
+                <a class="nav-brand" href="{% url 'catalog:index' %}">
+                    <img src="{% static 'app/img/logo.png' %}" style="max-height: 40px;" alt="OramShop">
+                </a>
+                
+                <!-- منوی دسکتاپ -->
+                <ul class="navbar-nav d-none d-lg-flex flex-row gap-4 list-unstyled mb-0 align-items-center">
+                    <li class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                        <a class="nav-link px-0" href="{% url 'catalog:index' %}">خانه</a>
+                    </li>
+                    
+                    <!-- منوی کشویی محصولات (بدون زیر مجموعه) -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link px-0" href="{% url 'catalog:shop_style_1' %}">محصولات</a>
+                        <ul class="dropdown-menu custom-dropdown">
+                            <li><a class="dropdown-item" href="{% url 'catalog:shop_style_1' %}?gender=men">مردانه</a></li>
+                            <li><a class="dropdown-item" href="{% url 'catalog:shop_style_1' %}?gender=women">زنانه</a></li>
+                            <li><a class="dropdown-item" href="{% url 'catalog:shop_style_1' %}?gender=kids">بچگانه</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- منوی کشویی دسته بندی ها (مگامنو 6 ستونه) -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link px-0" href="{% url 'catalog:shop_style_1' %}">دسته بندی ها</a>
+                        <div class="dropdown-menu mega-menu custom-dropdown">
+                            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 p-2">
+                                {% for cat in nav_categories %}
+                                <div class="col">
+                                    <a class="dropdown-item" href="{% url 'catalog:shop_style_1' %}?category={{ cat.slug }}">{{ cat.name }}</a>
+                                </div>
+                                {% empty %}
+                                <div class="col-12 text-center text-muted p-3">دسته‌بندی یافت نشد.</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link px-0" href="#">بلاگ</a>
+                    </li>
+                </ul>
+
+                <!-- دکمه منوی موبایل -->
+                <button class="btn btn-dark btn-sm d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
+                    <i class="lni lni-menu"></i>
+                </button>
+            </div>
+
+            <!-- وسط: فرم جستجو -->
+            <div class="d-none d-lg-flex flex-grow-1 justify-content-center px-5">
+                <form action="{% url 'catalog:shop_style_1' %}" method="GET" class="w-100" style="max-width: 450px;">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control form-control-sm" placeholder="جستجوی محصولات..." aria-label="Search">
+                        <button class="btn btn-dark btn-sm" type="submit"><i class="lni lni-search-alt"></i></button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- سمت چپ: احراز هویت و سبد خرید -->
+            <div class="d-flex align-items-center gap-3">
+                
+                {% if user.is_authenticated %}
+                    <!-- پروفایل کاربر -->
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" width="36" height="36" class="rounded-circle border border-2 border-secondary" alt="{{ user.get_full_name }}">
+                            {% else %}
+                            <div class="user-avatar-nav">{{ user.first_name|first|default:user.mobile|first|upper }}</div>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu user-dropdown">
+                            <li class="user-dropdown-header px-3 py-2 mb-1">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" width="40" height="40" class="rounded-circle">
+                                    {% else %}
+                                    <div class="user-avatar-nav">{{ user.first_name|first|default:user.mobile|first|upper }}</div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="small">{{ user.get_full_name|default:"کاربر" }}</div>
+                                        <div class="text-muted" style="font-size: 11px;">{{ user.mobile }}</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:profile_info' %}"><i class="lni lni-user me-2 text-muted"></i>پروفایل من</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:my_orders' %}"><i class="lni lni-shopping-basket me-2 text-muted"></i>سفارش‌های من</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:wishlist' %}"><i class="lni lni-heart me-2 text-muted"></i>علاقه‌مندی‌ها</a></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts:addresses' %}"><i class="lni lni-map-marker me-2 text-muted"></i>آدرس‌های من</a></li>
+                            {% if user.is_staff %}
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item text-primary" href="{% url 'dashboard:index' %}"><i class="lni lni-dashboard me-2"></i>پنل مدیریت</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="lni lni-power-switch me-2"></i>خروج</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <!-- ورود و ثبت‌نام ساده -->
+                    <a href="{% url 'accounts:login' %}" class="simple-nav-btn">ورود</a>
+                    <span class="text-muted d-none d-md-inline">|</span>
+                    <a href="{% url 'accounts:signup' %}" class="simple-nav-btn d-none d-md-inline">ثبت‌نام</a>
+                {% endif %}
+
+                <!-- ویشلیست (فقط برای لاگین شده‌ها) -->
+                {% if user.is_authenticated %}
+                <a href="javascript:void(0);" onclick="openWishlist()" class="position-relative text-dark fs-4">
+                    <i class="lni lni-heart"></i>
+                    {% if wishlist_count > 0 %}<span class="wishlist-count dn-counter">{{ wishlist_count }}</span>{% endif %}
+                </a>
+                {% endif %}
+
+                <!-- سبد خرید - حالت Dropdown -->
+               <!-- سبد خرید - حالت Dropdown -->
+<div class="dropdown">
+    <a href="javascript:void(0);" class="position-relative text-dark fs-4" data-bs-toggle="dropdown" aria-expanded="false" id="cartDropdown">
+        <i class="lni lni-shopping-basket"></i>
+        {% if cart_count > 0 %}<span class="cart-count dn-counter theme-bg">{{ cart_count }}</span>{% endif %}
+    </a>
+    <div class="dropdown-menu cart-dropdown" aria-labelledby="cartDropdown">
+        <!-- این بخش در لود اولیه پر می‌شود و base.js آن را آپدیت می‌کند -->
+        <div id="cart-content">
+            <div class="cart-items-list">
+                {% for item in nav_cart_items %}
+                <div class="cart-item-wrapper d-flex align-items-center justify-content-between br-bottom px-2 py-3">
+                    <div class="cart_single d-flex align-items-center gap-2">
+                        <div class="cart_selected_single_thumb">
+                            <a href="#">
+                                {% if item.variant.product.main_image %}
+                                    <img src="{{ item.variant.product.main_image.image.url }}" width="50" class="img-fluid rounded" alt="{{ item.variant.product.name }}"/>
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="cart_single_caption">
+                            <h4 class="product_title fs-sm ft-medium mb-0 lh-1">{{ item.variant.product.name }}</h4>
+                            <p class="mb-0 text-muted" style="font-size: 11px;">
+                                {% if item.variant.size %}{{ item.variant.size.name }}{% endif %}
+                                {% if item.variant.color %} - {{ item.variant.color.name }}{% endif %}
+                            </p>
+                            <p class="mb-0 mt-1">
+                                <span class="font-medium text-dark bg-light px-2 py-1 rounded small">تعداد: {{ item.quantity }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="cart-item text-left">
+                        <h4 class="fs-md ft-bold mb-1 price text-danger" data-price="{{ item.variant.final_price }}">
+                            {{ item.variant.final_price }} ت
+                        </h4>
+                        <button class="close_cart_item btn btn-sm btn-link p-0 text-danger" data-id="{{ item.id }}">
+                            <i class="lni lni-close"></i> حذف
+                        </button>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted py-5">سبد خرید شما خالی است.</p>
+                {% endfor %}
+            </div>
+            {% if nav_cart_items %}
+            <div class="cart-footer mt-2">
+                <div class="d-flex align-items-center justify-content-between px-2 py-2 mb-3 bg-light rounded">
+                    <h6 class="mb-0">جمع کل:</h6>
+                    <h4 class="mb-0 ft-bold text-dark cart-subtotal" id="cart-subtotal">
+                        {{ nav_cart_total }} تومان
+                    </h4>
+                </div>
+                <div class="px-2">
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-dark w-100 mb-2">تسویه حساب</a>
+                    <a href="{% url 'cart:cart' %}" class="btn btn-outline-dark w-100">مشاهده و ویرایش سبد</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<!-- منوی کشویی موبایل (Offcanvas) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title" id="mobileNavLabel">منوی OramShop</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form action="{% url 'catalog:shop_style_1' %}" method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="جستجو...">
+                <button class="btn btn-dark" type="submit"><i class="lni lni-search-alt"></i></button>
+            </div>
+        </form>
+        <ul class="list-unstyled">
+            <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'catalog:index' %}">خانه</a></li>
+            <li class="mb-3">
+                <a class="text-dark text-decoration-none fs-5" data-bs-toggle="collapse" href="#mobileProducts" role="button" aria-expanded="false" aria-controls="mobileProducts">محصولات <i class="lni lni-chevron-down float-end"></i></a>
+                <div class="collapse" id="mobileProducts">
+                    <ul class="list-unstyled mt-2 me-3">
+                        <li class="mb-2"><a class="text-muted text-decoration-none" href="{% url 'catalog:shop_style_1' %}?gender=men">مردانه</a></li>
+                        <li class="mb-2"><a class="text-muted text-decoration-none" href="{% url 'catalog:shop_style_1' %}?gender=women">زنانه</a></li>
+                        <li class="mb-2"><a class="text-muted text-decoration-none" href="{% url 'catalog:shop_style_1' %}?gender=kids">بچگانه</a></li>
+                    </ul>
+                </div>
+            </li>
+            <li class="mb-3">
+                <a class="text-dark text-decoration-none fs-5" data-bs-toggle="collapse" href="#mobileCats" role="button" aria-expanded="false" aria-controls="mobileCats">دسته بندی ها <i class="lni lni-chevron-down float-end"></i></a>
+                <div class="collapse" id="mobileCats">
+                    <ul class="list-unstyled mt-2 me-3">
+                        {% for cat in nav_categories %}
+                        <li class="mb-2"><a class="text-muted text-decoration-none" href="{% url 'catalog:shop_style_1' %}?category={{ cat.slug }}">{{ cat.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+            <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="#">بلاگ</a></li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    /* Top bar ticker */
+    .ticker-wrapper { overflow: hidden; white-space: nowrap; }
+    .ticker-content { display: inline-flex; animation: ticker 20s linear infinite; white-space: nowrap; }
+    .ticker-content:hover { animation-play-state: paused; }
+    @keyframes ticker { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    /* تضمین شناور شدن منوها */
+    .navbar-nav .nav-item.dropdown { position: relative; }
+
+    /* حذف فلش‌های کوچک */
+    .dropdown-toggle::after { display: none !important; }
+
+    /* باز شدن منوها با هاور */
+    @media (min-width: 992px) {
+        .navbar-nav .nav-item.dropdown:hover > .dropdown-menu { display: block; }
+        .navbar-nav .nav-item.dropdown > .dropdown-menu { margin-top: 0 !important; }
+        .nav-item.dropdown::before {
+            content: ''; position: absolute; bottom: -10px; left: 0; right: 0; height: 10px; z-index: 1000;
+        }
+    }
+
+    /* استایل لینک‌های منوی اصلی */
+    .nav-link {
+        font-size: 1.05rem !important; font-weight: 400 !important;
+        color: #333 !important; transition: color 0.2s;
+    }
+    .nav-item.active > a, .nav-item > a.active { color: #e94560 !important; }
+    .nav-link:hover { color: #e94560 !important; }
+
+    /* استایل دکمه‌های ساده ورود و ثبت‌نام */
+    .simple-nav-btn {
+        background: none; border: none; color: #333; font-size: 1rem; font-weight: 400;
+        padding: 0 5px; text-decoration: none; cursor: pointer; transition: color 0.2s;
+    }
+    .simple-nav-btn:hover { color: #e94560; }
+
+    /* استایل منوی کشویی اصلی */
+    .custom-dropdown {
+        position: absolute !important; top: 100% !important; right: 0 !important; left: auto !important;
+        text-align: right !important; border: none !important; box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+        border-radius: 12px !important; padding: 8px; min-width: 200px; margin-top: 15px !important;
+    }
+    .custom-dropdown .dropdown-item {
+        border-radius: 8px; padding: 10px 15px; font-size: 1rem; font-weight: 400; color: #444; transition: all 0.2s ease;
+    }
+    .custom-dropdown .dropdown-item:hover {
+        background-color: #f8f9fa; color: #e94560; transform: translateX(-3px);
+    }
+
+    /* استایل مگامنو دسته‌بندی‌ها (عرض بیشتر برای 6 ستون) */
+    .mega-menu {
+        min-width: 600px !important;
+    }
+
+    /* آواتار کاربر */
+    .user-avatar-nav {
+        width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 400;
+        cursor: pointer; border: 2px solid #eee;
+    }
+
+    /* dropdown منوی داشبورد */
+    .user-dropdown {
+        position: absolute !important; top: 100% !important; min-width: 250px; border: none !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; border-radius: 14px !important; padding: 10px;
+        right: 0 !important; left: auto !important; margin-top: 15px !important; text-align: right;
+    }
+    .user-dropdown-header { background: #f8f9fa; border-radius: 10px; }
+    .user-dropdown .dropdown-item i { margin-inline-end: 12px !important; }
+    .user-dropdown .dropdown-item {
+        border-radius: 8px; padding: 10px 14px; font-size: 1rem; font-weight: 400; color: #444; transition: all 0.2s ease;
+    }
+    .user-dropdown .dropdown-item:hover { background: #f0f0f0; color: #e94560; }
+
+    /* شمارنده آیکون‌ها */
+    .dn-counter {
+        position: absolute; top: -8px; left: -10px; background: #e94560; color: white; border-radius: 50%;
+        width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center;
+        font-weight: 400; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .theme-bg { background: #1a1a2e !important; }
+
+        .cart-dropdown {
+        position: absolute !important;
+        top: 100% !important;
+        min-width: 350px !important;
+        padding: 15px !important;
+        border: none !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+        border-radius: 14px !important;
+        right: 0 !important;
+        left: auto !important;
+        margin-top: 15px !important;
+        text-align: right;
+    }
+    .cart-items-list {
+        max-height: 300px;
+        overflow-y: auto;
+        padding-left: 5px;
+    }
+    /* اسکرول‌بار خوشگل */
+    .cart-items-list::-webkit-scrollbar { width: 5px; }
+    .cart-items-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+    
+    .cart-footer {
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+        margin-top: 10px;
+    }
+</style>

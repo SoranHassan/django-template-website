@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیست کاربران - پنل مدیریت</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li>
+                <a href="{% url 'dashboard:index' %}">
+                    <i class="fas fa-home"></i>
+                    <span>داشبورد</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="{% url 'dashboard:users_list' %}">
+                    <i class="fas fa-users"></i>
+                    <span>کاربران</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:products_list' %}">
+                    <i class="fas fa-box"></i>
+                    <span>محصولات</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:orders_list' %}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>سفارشات</span>
+                    {% if pending_orders_count %}
+                    <span class="badge">{{ pending_orders_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:reviews_list' %}">
+                    <i class="fas fa-star"></i>
+                    <span>نظرات</span>
+                    {% if pending_reviews_count %}
+                    <span class="badge">{{ pending_reviews_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:analytics' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>تحلیل و گزارش</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="جستجو در کاربران...">
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="{% url 'accounts:profile_info' %}" class="header-btn">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="page-title">
+            <h1>کاربران</h1>
+            <p>مدیریت کاربران سیستم</p>
+        </div>
+
+        <!-- آمار سریع -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ users.count }}</h3>
+                    <p>کل کاربران</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ users|length }}</h3>
+                    <p>کاربران فعال</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ staff_count }}</h3>
+                    <p>مدیران</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- جدول کاربران -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h2>لیست کاربران</h2>
+                <div class="d-flex gap-2">
+                    <select id="filterStatus" class="select-dropdown">
+                        <option value="all">همه</option>
+                        <option value="active">فعال</option>
+                        <option value="staff">مدیران</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>کاربر</th>
+                        <th>موبایل</th>
+                        <th>ایمیل</th>
+                        <th>تاریخ عضویت</th>
+                        <th>نقش</th>
+                        <th>وضعیت</th>
+                        <th>عملیات</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in users %}
+                    <tr data-status="{% if user.is_staff %}staff{% elif user.is_active %}active{% else %}inactive{% endif %}">
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                {% if user.avatar %}
+                                <img src="{{ user.avatar.url }}" width="36" height="36"
+                                     style="border-radius: 50%; object-fit: cover;">
+                                {% else %}
+                                <div style="width: 36px; height: 36px; border-radius: 50%;
+                                                    background: linear-gradient(135deg, #667eea, #764ba2);
+                                                    display: flex; align-items: center; justify-content: center;
+                                                    color: white; font-weight: 700; font-size: 14px;">
+                                    {{ user.first_name|first|default:user.mobile|first|upper }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div style="font-weight: 600; font-size: 14px;">
+                                        {{ user.get_full_name|default:"بدون نام" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.mobile }}</td>
+                        <td>{{ user.email|default:"-" }}</td>
+                        <td>{{ user.date_joined|date:"Y/m/d" }}</td>
+                        <td>
+                            {% if user.is_superuser %}
+                            <span class="status" style="background: rgba(88,86,214,0.2);
+                                                                color: #5856D6; border: 0.5px solid #5856D6;">
+                                        سوپر ادمین
+                                    </span>
+                            {% elif user.is_staff %}
+                            <span class="status" style="background: rgba(0,122,255,0.2);
+                                                                color: #007AFF; border: 0.5px solid #007AFF;">
+                                        مدیر
+                                    </span>
+                            {% else %}
+                            <span class="status" style="background: rgba(134,134,139,0.2);
+                                                                color: #86868B; border: 0.5px solid #86868B;">
+                                        کاربر عادی
+                                    </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="status success">فعال</span>
+                            {% else %}
+                            <span class="status cancelled">غیرفعال</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="{% url 'admin:accounts_customuser_change' user.pk %}"
+                                   class="btn-secondary" style="padding: 6px 10px; font-size: 11px;"
+                                   title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'accounts:my_orders' %}?user={{ user.pk }}"
+                                   class="btn-secondary" style="padding: 6px 10px; font-size: 11px;"
+                                   title="سفارشات">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px; color: #86868B;">
+                            <i class="fas fa-users" style="font-size: 32px; margin-bottom: 10px; display: block;"></i>
+                            هیچ کاربری یافت نشد
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+<script>
+    // جستجو
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('#usersTable tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });
+
+    // فیلتر
+    document.getElementById('filterStatus').addEventListener('change', function() {
+        const val = this.value;
+        document.querySelectorAll('#usersTable tbody tr').forEach(row => {
+            if (val === 'all' || row.dataset.status === val) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
+</body>
+</html>

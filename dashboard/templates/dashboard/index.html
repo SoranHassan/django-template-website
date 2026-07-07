@@ -1,0 +1,303 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت - OramShop</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li class="active">
+                <a href="{% url 'dashboard:index' %}">
+                    <i class="fas fa-home"></i>
+                    <span>داشبورد</span>
+                </a>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle">
+                    <i class="fas fa-users"></i>
+                    <span>کاربران</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-list"></i> لیست کاربران</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle">
+                    <i class="fas fa-box"></i>
+                    <span>محصولات</span>
+                    <i class="fas fa-chevron-down arrow"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{% url 'dashboard:products_list' %}"><i class="fas fa-list"></i> لیست محصولات</a></li>
+                    <li><a href="{% url 'dashboard:product_create' %}"><i class="fas fa-plus"></i> افزودن محصول</a></li>
+                    <li><a href="{% url 'dashboard:categories_list' %}"><i class="fas fa-tags"></i> دسته‌بندی‌ها</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="{% url 'dashboard:orders_list' %}">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>سفارشات</span>
+                    {% if pending_orders_count %}
+                    <span class="badge">{{ pending_orders_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'dashboard:reviews_list' %}">
+                    <i class="fas fa-star"></i>
+                    <span>نظرات</span>
+                    {% if pending_reviews_count %}
+                    <span class="badge">{{ pending_reviews_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+
+            <li>
+                <a href="{% url 'dashboard:analytics' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>تحلیل و گزارش</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main-content">
+    <!-- Top Header -->
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="جستجو...">
+        </div>
+
+        <div class="header-actions">
+            <button class="header-btn">
+                <i class="fas fa-bell"></i>
+                <span class="notification-dot"></span>
+            </button>
+            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="{% url 'accounts:profile_info' %}" class="header-btn">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <div class="page-title">
+            <h1>داشبورد</h1>
+            <a class="btn-info" href="{% url 'catalog:index' %}"> مشاهده سایت </a>
+            <p>به پنل مدیریت خوش آمدید</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ users_count }}</h3>
+                    <p>کاربران فعال</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_revenue }}</h3>
+                    <p>درآمد (تومان)</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ orders_count }}</h3>
+                    <p>سفارشات جدید</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ products_count }}</h3>
+                    <p>محصولات فعال</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Tables Section -->
+        <div class="content-grid">
+
+            <!-- Recent Orders -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>سفارشات اخیر</h2>
+                    <a href="{% url 'dashboard:orders_list' %}" class="btn-secondary">مشاهده همه</a>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>شماره سفارش</th>
+                            <th>مشتری</th>
+                            <th>مبلغ</th>
+                            <th>وضعیت</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for order in recent_orders %}
+                        <tr onclick="window.location='{% url 'dashboard:order_detail' order.pk %}'">
+                            <td>#{{ order.pk }}</td>
+                            <td>{{ order.user.get_full_name }}</td>
+                            <td>{{ order.final_total }} تومان</td>
+                            <td>
+                                        <span class="status {% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}cancelled{% else %}pending{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">سفارشی وجود ندارد</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Reviews -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>نظرات در انتظار تأیید</h2>
+                    <a href="{% url 'dashboard:reviews_list' %}" class="btn-secondary">مشاهده همه</a>
+                </div>
+                <div class="activities-list">
+                    {% for review in pending_reviews %}
+                    <div class="activity-item">
+                        <div class="activity-icon purple">
+                            <i class="fas fa-comment"></i>
+                        </div>
+                        <div class="activity-info">
+                            <h4>{{ review.product.name }}</h4>
+                            <p>{{ review.user.get_full_name }} - {{ review.rating }}★</p>
+                        </div>
+                        <a href="{% url 'dashboard:review_approve' review.pk %}" class="btn-secondary">تأیید</a>
+                    </div>
+                    {% empty %}
+                    <p>نظری در انتظار تأیید نیست</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>عملیات سریع</h2>
+                </div>
+                <div class="quick-actions">
+                    <a href="{% url 'dashboard:product_create' %}" class="action-btn">
+                        <i class="fas fa-plus"></i>
+                        <span>افزودن محصول</span>
+                    </a>
+                    <a href="{% url 'dashboard:orders_list' %}" class="action-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>مدیریت سفارشات</span>
+                    </a>
+                    <a href="{% url 'dashboard:reviews_list' %}" class="action-btn">
+                        <i class="fas fa-star"></i>
+                        <span>بررسی نظرات</span>
+                    </a>
+                    <a href="{% url 'dashboard:users_list' %}" class="action-btn">
+                        <i class="fas fa-users"></i>
+                        <span>مدیریت کاربران</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Revenue Summary -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>خلاصه درآمد</h2>
+                </div>
+                <div class="revenue-summary">
+                    <div class="revenue-item">
+                        <div class="revenue-label">امروز</div>
+                        <div class="revenue-value">{{ revenue_today }} تومان</div>
+                    </div>
+                    <div class="revenue-item">
+                        <div class="revenue-label">این هفته</div>
+                        <div class="revenue-value">{{ revenue_week }} تومان</div>
+                    </div>
+                    <div class="revenue-item">
+                        <div class="revenue-label">این ماه</div>
+                        <div class="revenue-value">{{ revenue_month }} تومان</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- Overlay for mobile -->
+<div class="overlay" id="overlay"></div>
+
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!-- Choose Category -->
+<div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+    <div class="single_filter_title mb-2"><h6 class="mb-0 fs-sm ft-medium text-muted">Choose Size</h6></div>
+    <div class="text-left pb-0 pt-2">
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="size" id="a26">
+            <label class="form-option-label" for="a26">26</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="size" id="a28">
+            <label class="form-option-label" for="a28">28</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="sizes" id="a30" checked>
+            <label class="form-option-label" for="a30">30</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="sizes" id="a32">
+            <label class="form-option-label" for="a32">32</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="sizes" id="a34">
+            <label class="form-option-label" for="a34">34</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="sizes" id="a36">
+            <label class="form-option-label" for="a36">36</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="sizes" id="a38">
+            <label class="form-option-label" for="a38">38</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="sizes" id="a40">
+            <label class="form-option-label" for="a40">40</label>
+        </div>
+        <div class="form-check form-option form-check-inline mb-2">
+            <input class="form-check-input" type="radio" name="sizes" id="a42">
+            <label class="form-option-label" for="a42">42</label>
+        </div>
+    </div>
+</div>

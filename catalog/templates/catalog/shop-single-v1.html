@@ -1,0 +1,685 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+
+<!-- Breadcrumb -->
+<div class="gray py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'catalog:shop_style_1' %}">فروشگاه</a>
+                        </li>
+                        {% if product.category %}
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'catalog:shop_style_1' %}?category={{ product.category.slug }}">
+                                {{ product.category.name }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li class="breadcrumb-item active">{{ product.name }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Detail -->
+<section class="middle">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <!-- تصاویر محصول -->
+            <div class="col-xl-5 col-lg-6 col-md-12 col-sm-12">
+                <div class="sp-loading">
+                    <img src="{% static 'app/img/product/15.png' %}" alt=""><br>در حال بارگذاری
+                </div>
+                <div class="sp-wrap">
+                    {% if product.main_image %}
+                    <a href="{{ product.main_image.image.url }}">
+                        <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
+                    </a>
+                    {% for image in product.images.all %}
+                    {% if not image.is_main %}
+                    <a href="{{ image.image.url }}">
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                    {% else %}
+                    <a href="{% static 'app/img/product/16.png' %}">
+                        <img src="{% static 'app/img/product/16.png' %}" alt="{{ product.name }}">
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- اطلاعات محصول -->
+            <div class="col-xl-7 col-lg-6 col-md-12 col-sm-12">
+                <div class="prd_details ps-xl-5">
+
+                    <!-- دسته‌بندی -->
+                    <div class="prt_01 mb-2">
+                        <span class="text-success bg-light-success rounded px-2 py-1">
+                            {{ product.category.name|default:"پوشاک" }}
+                        </span>
+                        {% if product.brand %}
+                        <span class="text-primary bg-light-primary rounded px-2 py-1 ms-1">
+                            {{ product.brand.name }}
+                        </span>
+                        {% endif %}
+                        {% if product.discount_percent %}
+                        <span class="text-danger bg-light-danger rounded px-2 py-1 ms-1">
+                            {{ product.discount_percent }}٪ تخفیف
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- نام و امتیاز -->
+                    <div class="prt_02 mb-3">
+                        <h2 class="ft-bold mb-1">{{ product.name }}</h2>
+                        <div class="text-left">
+                            <!-- ستاره‌های امتیاز -->
+                            <div class="star-rating align-items-center d-flex justify-content-left mb-1 p-0">
+                                {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating %}
+                                <i class="fas fa-star filled"></i>
+                                {% else %}
+                                <i class="fas fa-star"></i>
+                                {% endif %}
+                                {% endfor %}
+                                <span class="small">({{ reviews.count }} نظر)</span>
+                            </div>
+                            <!-- قیمت -->
+                            <div class="elis_rty">
+                                {% if product.original_price %}
+                                <span class="ft-medium text-muted line-through fs-md me-2">
+                                    {{ product.original_price }} تومان
+                                </span>
+                                {% endif %}
+                                <span class="ft-bold theme-cl fs-lg">
+                                    {{ product.price }} تومان
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- توضیحات کوتاه -->
+                    <div class="prt_03 mb-4">
+                        <p>{{ product.description|truncatewords:40 }}</p>
+                    </div>
+
+                    <!-- اطلاعات بیشتر -->
+                    <div class="prt_04 mb-4">
+                        {% if product.category %}
+                        <p class="d-flex align-items-center mb-1">
+                            دسته‌بندی:
+                            <strong class="fs-sm text-dark ft-medium ms-1">
+                                {{ product.category.name }}
+                            </strong>
+                        </p>
+                        {% endif %}
+                        {% if product.gender %}
+                        <p class="d-flex align-items-center mb-1">
+                            جنسیت:
+                            <strong class="fs-sm text-dark ft-medium ms-1">
+                                {{ product.get_gender_display }}
+                            </strong>
+                        </p>
+                        {% endif %}
+                        <p class="d-flex align-items-center mb-0">
+                            کد محصول:
+                            <strong class="fs-sm text-dark ft-medium ms-1">
+                                {{ product.pk }}
+                            </strong>
+                        </p>
+                    </div>
+
+                    <!-- انتخاب واریانت و افزودن به سبد -->
+                    <div class="prt_05 mb-4">
+                        <form method="POST" action="{% url 'cart:add' %}" id="addToCartForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="variant_id" id="selected_variant_id" value="">
+
+                            <div class="form-row row g-3 mb-3">
+
+                                <!-- انتخاب سایز -->
+                                {% if sizes %}
+                                <div class="col-12 col-md-12 col-lg-6">
+                                    <label class="small ft-medium mb-2">سایز:</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for size in sizes %}
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-dark size-btn"
+                                                data-size="{{ size.pk }}">
+                                            {{ size.name }}
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- انتخاب رنگ -->
+                                {% if colors %}
+                                <div class="col-12 col-md-12 col-lg-6">
+                                    <label class="small ft-medium mb-2">رنگ:</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        {% for color in colors %}
+                                        <button type="button"
+                                                class="btn btn-sm color-btn"
+                                                style="background-color: {{ color.hex_code }}; width: 30px; height: 30px; border-radius: 50%; border: 2px solid #ddd;"
+                                                data-color="{{ color.pk }}"
+                                                title="{{ color.name }}">
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                            </div>
+
+                            <!-- موجودی -->
+                            <div id="stock-info" class="mb-3 d-none">
+                                <span class="small text-success">
+                                    <i class="lni lni-checkmark-circle me-1"></i>
+                                    موجود در انبار: <span id="stock-count">0</span> عدد
+                                </span>
+                            </div>
+
+                            <div class="form-row row g-3">
+                                <!-- تعداد -->
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <select class="mb-2 custom-select" name="quantity" id="quantity">
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                    </select>
+                                </div>
+
+                                <!-- افزودن به سبد -->
+                                <div class="col-12 col-md-12 col-lg-6">
+                                    <button type="submit" id="add-to-cart-btn"
+                                            class="btn btn-block custom-height bg-dark mb-2 w-100">
+                                        <i class="lni lni-shopping-basket me-2"></i>افزودن به سبد خرید
+                                    </button>
+                                </div>
+
+                                <!-- ویشلیست -->
+                                <div class="col-12 col-md-6 col-lg-3">
+                                    <button type="button"
+                                            class="btn custom-height btn-default btn-block mb-2 text-dark w-100 wishlist-btn"
+                                            data-id="{{ product.pk }}"
+                                            data-title="{{ product.name }}"
+                                            data-price="{{ product.price }}"
+                                            data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
+                                            data-slug="{{ product.slug }}">
+                                        <i class="lni lni-heart me-2"></i>علاقه‌مندی
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- پیام موفقیت/خطا -->
+                        <div id="cart-message" class="mt-2 d-none"></div>
+                    </div>
+
+                    <!-- اشتراک‌گذاری -->
+                    <div class="prt_06">
+                        <p class="mb-0 d-flex align-items-center">
+                            <span class="me-4">اشتراک‌گذاری:</span>
+                            <a class="d-inline-flex align-items-center justify-content-center p-3 gray circle fs-sm text-muted me-2"
+                               href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}"
+                               target="_blank">
+                                <i class="fab fa-twitter position-absolute"></i>
+                            </a>
+                            <a class="d-inline-flex align-items-center justify-content-center p-3 gray circle fs-sm text-muted me-2"
+                               href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+                               target="_blank">
+                                <i class="fab fa-facebook-f position-absolute"></i>
+                            </a>
+                            <a class="d-inline-flex align-items-center justify-content-center p-3 gray circle fs-sm text-muted"
+                               href="https://pinterest.com/pin/create/button/?url={{ request.build_absolute_uri }}"
+                               target="_blank">
+                                <i class="fab fa-pinterest-p position-absolute"></i>
+                            </a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- توضیحات، اطلاعات، نظرات -->
+<section class="middle">
+    <div class="container">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-xl-11 col-lg-12 col-md-12 col-sm-12">
+
+                <ul class="nav nav-tabs b-0 d-flex align-items-center justify-content-center simple_tab_links mb-4"
+                    id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="description-tab" href="#description-tab"
+                           data-bs-toggle="tab" data-bs-target="#description" role="tab">توضیحات</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" href="#information-tab" id="information-tab"
+                           data-bs-toggle="tab" data-bs-target="#information" role="tab">اطلاعات تکمیلی</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" href="#reviews-tab" id="reviews-tab"
+                           data-bs-toggle="tab" data-bs-target="#reviews" role="tab">
+                            نظرات ({{ reviews.count }})
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="myTabContent">
+
+                    <!-- توضیحات -->
+                    <div class="tab-pane fade show active" id="description" role="tabpanel">
+                        <div class="description_info">
+                            <p>{{ product.description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- اطلاعات تکمیلی -->
+                    <div class="tab-pane fade" id="information" role="tabpanel">
+                        <div class="additionals">
+                            {% if product.size_charts.exists %}
+
+                            <!-- انتخاب سایز برای نمایش جدول -->
+                            <div class="mb-3">
+                                <label class="ft-medium mb-2 d-block">انتخاب سایز برای مشاهده اندازه‌ها:</label>
+                                <div class="d-flex flex-wrap gap-2" id="sizeChartSelector">
+                                    {% for chart in product.size_charts.all %}
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-dark size-chart-btn"
+                                            data-size="{{ chart.size.name }}"
+                                            data-shoulder="{{ chart.shoulder|default:'' }}"
+                                            data-sleeve="{{ chart.sleeve|default:'' }}"
+                                            data-chest="{{ chart.chest|default:'' }}"
+                                            data-length-top="{{ chart.length_top|default:'' }}"
+                                            data-waist="{{ chart.waist|default:'' }}"
+                                            data-hip="{{ chart.hip|default:'' }}"
+                                            data-crotch="{{ chart.crotch|default:'' }}"
+                                            data-length-bottom="{{ chart.length_bottom|default:'' }}"
+                                            {% if forloop.first %}onclick="selectSizeChart(this)"
+                                            style="background:#1a1a2e; color:white;" {% else
+                                            %}onclick="selectSizeChart(this)" {% endif %}>
+                                        {{ chart.size.name }}
+                                    </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- جدول اندازه‌ها -->
+                            <div id="sizeChartTable">
+                                {% with chart=product.size_charts.first %}
+                                {% if product.category_type == 'top' %}
+                                <!-- بالاتنه -->
+                                <table class="table table-bordered text-center">
+                                    <thead class="table-dark">
+                                    <tr>
+                                        <th>سایز</th>
+                                        <th>عرض شانه (cm)</th>
+                                        <th>طول آستین (cm)</th>
+                                        <th>عرض سینه (cm)</th>
+                                        <th>قد (cm)</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="chartBody">
+                                    <tr>
+                                        <td class="ft-bold" id="chart-size">{{ chart.size.name }}</td>
+                                        <td id="chart-shoulder">{{ chart.shoulder|default:'-' }}</td>
+                                        <td id="chart-sleeve">{{ chart.sleeve|default:'-' }}</td>
+                                        <td id="chart-chest">{{ chart.chest|default:'-' }}</td>
+                                        <td id="chart-length-top">{{ chart.length_top|default:'-' }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                {% elif product.category_type == 'bottom' %}
+                                <!-- پایین‌تنه -->
+                                <table class="table table-bordered text-center">
+                                    <thead class="table-dark">
+                                    <tr>
+                                        <th>سایز</th>
+                                        <th>عرض کمر (cm)</th>
+                                        <th>عرض ران (cm)</th>
+                                        <th>فاق (cm)</th>
+                                        <th>قد (cm)</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="chartBody">
+                                    <tr>
+                                        <td class="ft-bold" id="chart-size">{{ chart.size.name }}</td>
+                                        <td id="chart-waist">{{ chart.waist|default:'-' }}</td>
+                                        <td id="chart-hip">{{ chart.hip|default:'-' }}</td>
+                                        <td id="chart-crotch">{{ chart.crotch|default:'-' }}</td>
+                                        <td id="chart-length-bottom">{{ chart.length_bottom|default:'-' }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+
+                            {% else %}
+                            <p class="text-muted">جدول سایزبندی برای این محصول موجود نیست.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- نظرات -->
+                    <div class="tab-pane fade" id="reviews" role="tabpanel">
+                        <div class="reviews_info">
+                            {% include 'reviews/reviews.html' %}
+                        </div>
+
+                        <!-- فرم ثبت نظر -->
+                        {% if user.is_authenticated %}
+                        <div class="reviews_rate mt-4">
+                            <form method="POST" action="{% url 'reviews:add' product.slug %}" class="row g-3">
+                                {% csrf_token %}
+
+                                <div class="col-xl-12">
+                                    <h4>ثبت نظر</h4>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <div class="revie_stars d-flex align-items-center justify-content-between px-2 py-2 gray rounded">
+                                        <div class="srt_013">
+                                            <div class="submit-rating">
+                                                <input id="star-5" type="radio" name="rating" value="5">
+                                                <label for="star-5" title="5 ستاره">
+                                                    <i class="active fa fa-star"></i>
+                                                </label>
+                                                <input id="star-4" type="radio" name="rating" value="4">
+                                                <label for="star-4" title="4 ستاره">
+                                                    <i class="active fa fa-star"></i>
+                                                </label>
+                                                <input id="star-3" type="radio" name="rating" value="3">
+                                                <label for="star-3" title="3 ستاره">
+                                                    <i class="active fa fa-star"></i>
+                                                </label>
+                                                <input id="star-2" type="radio" name="rating" value="2">
+                                                <label for="star-2" title="2 ستاره">
+                                                    <i class="active fa fa-star"></i>
+                                                </label>
+                                                <input id="star-1" type="radio" name="rating" value="1">
+                                                <label for="star-1" title="1 ستاره">
+                                                    <i class="active fa fa-star"></i>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="srt_014">
+                                            <h6 class="mb-0" id="rating-label">امتیاز بدهید</h6>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <div class="form-group">
+                                        <label class="medium text-dark ft-medium mb-2">عنوان نظر</label>
+                                        <input type="text" name="title" class="form-control rounded-2"
+                                               placeholder="عنوان نظر (اختیاری)">
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <div class="form-group">
+                                        <label class="medium text-dark ft-medium mb-2">متن نظر *</label>
+                                        <textarea name="body" class="form-control rounded-2" rows="4"
+                                                  placeholder="نظر خود را بنویسید..." required></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <div class="form-group m-0">
+                                        <button type="submit" class="btn btn-dark rounded-2">
+                                            ثبت نظر <i class="lni lni-arrow-right ms-1"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info mt-4">
+                            برای ثبت نظر لطفاً
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}">وارد شوید</a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- محصولات مشابه -->
+<section class="middle pt-0">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                <div class="sec_title position-relative text-center">
+                    <h2 class="off_title">محصولات مشابه</h2>
+                    <h3 class="ft-bold pt-3">پیشنهاد ویژه</h3>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                <div class="slide_items">
+                    {% include 'catalog/_deals.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ویژگی‌ها -->
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'catalog/features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_quickview.html' %}
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}
+
+{% block js %}
+<script>
+    // داده‌های واریانت‌ها از بک‌اند
+    const variants = [
+        {% for variant in variants %}
+        {
+            id: {{ variant.pk }},
+            sizeId: {{ variant.size.pk|default:"null" }},
+            colorId: {{ variant.color.pk|default:"null" }},
+            stock: {{ variant.stock }},
+            price: {{ variant.final_price }},
+        },
+        {% endfor %}
+    ];
+
+    let selectedSize = null;
+    let selectedColor = null;
+
+    // انتخاب سایز
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('btn-dark'));
+            this.classList.add('btn-dark');
+            selectedSize = parseInt(this.dataset.size);
+            updateVariant();
+        });
+    });
+
+    // انتخاب رنگ
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.color-btn').forEach(b => b.style.border = '2px solid #ddd');
+            this.style.border = '3px solid #000';
+            selectedColor = parseInt(this.dataset.color);
+            updateVariant();
+        });
+    });
+
+    // پیدا کردن واریانت مناسب
+    function updateVariant() {
+        const variant = variants.find(v => {
+            const sizeMatch = !v.sizeId || v.sizeId === selectedSize;
+            const colorMatch = !v.colorId || v.colorId === selectedColor;
+            return sizeMatch && colorMatch;
+        });
+
+        const stockInfo = document.getElementById('stock-info');
+        const stockCount = document.getElementById('stock-count');
+        const variantInput = document.getElementById('selected_variant_id');
+        const addBtn = document.getElementById('add-to-cart-btn');
+
+        if (variant) {
+            variantInput.value = variant.id;
+            stockInfo.classList.remove('d-none');
+            stockCount.textContent = variant.stock;
+
+            if (variant.stock > 0) {
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="lni lni-shopping-basket me-2"></i>افزودن به سبد خرید';
+            } else {
+                addBtn.disabled = true;
+                addBtn.innerHTML = 'ناموجود';
+            }
+        } else {
+            stockInfo.classList.add('d-none');
+            variantInput.value = '';
+        }
+    }
+
+    // ارسال فرم با AJAX
+    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const variantId = document.getElementById('selected_variant_id').value;
+        if (!variantId) {
+            showMessage('لطفاً سایز و رنگ مورد نظر را انتخاب کنید', 'danger');
+            return;
+        }
+
+        fetch('{% url "cart:add" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `variant_id=${variantId}&quantity=${document.getElementById('quantity').value}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                showMessage('محصول به سبد خرید اضافه شد ✓', 'success');
+                // آپدیت تعداد سبد در navbar
+                document.querySelectorAll('.cart-count').forEach(el => {
+                    el.textContent = data.count;
+                });
+            } else {
+                showMessage(data.message || 'خطا در افزودن به سبد', 'danger');
+            }
+        })
+        .catch(() => showMessage('خطا در ارتباط با سرور', 'danger'));
+    });
+
+    // ویشلیست با AJAX
+    document.querySelector('.wishlist-btn').addEventListener('click', function() {
+        const btn = this;
+        fetch('{% url "accounts:wishlist_add" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id=${btn.dataset.id}&title=${encodeURIComponent(btn.dataset.title)}&price=${btn.dataset.price}&image=${encodeURIComponent(btn.dataset.image)}&slug=${btn.dataset.slug}`
+        })
+        .then(res => res.json())
+        .then(data => {
+        if (data.status === 'ok') {
+            btn.querySelector('i').classList.replace('lni-heart', 'lni-heart-filled');
+            // اضافه کن:
+            btn.classList.add('active');
+            btn.style.color = '#e94560';
+            document.querySelectorAll('.wishlist-count').forEach(el => el.textContent = data.count);
+        }
+        });
+    });
+
+    // امتیاز ستاره
+    document.querySelectorAll('input[name="rating"]').forEach(input => {
+        input.addEventListener('change', function() {
+            document.getElementById('rating-label').textContent = this.value + ' ستاره';
+        });
+    });
+
+    function showMessage(msg, type) {
+        const el = document.getElementById('cart-message');
+        el.className = `alert alert-${type} mt-2`;
+        el.textContent = msg;
+        el.classList.remove('d-none');
+        setTimeout(() => el.classList.add('d-none'), 3000);
+    }
+
+    function selectSizeChart(btn) {
+        // reset دکمه‌ها
+        document.querySelectorAll('.size-chart-btn').forEach(b => {
+            b.style.background = '';
+            b.style.color = '';
+        });
+        btn.style.background = '#1a1a2e';
+        btn.style.color = 'white';
+
+        const d = btn.dataset;
+
+        // آپدیت جدول
+        const sizeEl = document.getElementById('chart-size');
+        if (sizeEl) sizeEl.textContent = d.size;
+
+        // بالاتنه
+        const shoulder = document.getElementById('chart-shoulder');
+        const sleeve = document.getElementById('chart-sleeve');
+        const chest = document.getElementById('chart-chest');
+        const lengthTop = document.getElementById('chart-length-top');
+        if (shoulder) shoulder.textContent = d.shoulder || '-';
+        if (sleeve) sleeve.textContent = d.sleeve || '-';
+        if (chest) chest.textContent = d.chest || '-';
+        if (lengthTop) lengthTop.textContent = d.lengthTop || '-';
+
+        // پایین‌تنه
+        const waist = document.getElementById('chart-waist');
+        const hip = document.getElementById('chart-hip');
+        const crotch = document.getElementById('chart-crotch');
+        const lengthBottom = document.getElementById('chart-length-bottom');
+        if (waist) waist.textContent = d.waist || '-';
+        if (hip) hip.textContent = d.hip || '-';
+        if (crotch) crotch.textContent = d.crotch || '-';
+        if (lengthBottom) lengthBottom.textContent = d.lengthBottom || '-';
+    }
+</script>
+{% endblock %}

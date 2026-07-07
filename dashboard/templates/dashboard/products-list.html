@@ -1,0 +1,314 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیست محصولات - پنل مدیریت</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
+            <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
+            <li class="active"><a href="{% url 'dashboard:products_list' %}"><i
+                    class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
+            </li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if
+                pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'dashboard:analytics' %}"><i
+                    class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="جستجو در محصولات...">
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:product_create' %}" class="header-btn" title="محصول جدید">
+                <i class="fas fa-plus"></i>
+            </a>
+            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="{% url 'accounts:profile_info' %}" class="header-btn">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="page-title">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h1>محصولات</h1>
+                    <p>مدیریت محصولات فروشگاه</p>
+                </div>
+                <a href="{% url 'dashboard:product_create' %}"
+                   class="btn-secondary" style="padding: 12px 20px; font-size: 14px;">
+                    <i class="fas fa-plus me-2"></i>محصول جدید
+                </a>
+            </div>
+        </div>
+
+        <!-- آمار سریع -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-box"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_products }}</h3>
+                    <p>کل محصولات</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ active_products }}</h3>
+                    <p>فعال</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="stat-info">
+                    <h3>{{ low_stock }}</h3>
+                    <p>موجودی کم</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-tags"></i></div>
+                <div class="stat-info">
+                    <h3>{{ categories_count }}</h3>
+                    <p>دسته‌بندی</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- فیلتر -->
+        <div class="glass-card" style="margin-bottom: 16px;">
+            <form method="GET" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <select name="category" class="select-dropdown">
+                    <option value="">همه دسته‌بندی‌ها</option>
+                    {% for category in categories %}
+                    <option value="{{ category.pk }}"
+                            {% if request.GET.category== category.pk|stringformat:
+                    "s" %}selected{% endif %}>
+                    {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <select name="status" class="select-dropdown">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="active" {% if request.GET.status==
+                    'active' %}selected{% endif %}>فعال</option>
+                    <option value="inactive" {% if request.GET.status==
+                    'inactive' %}selected{% endif %}>غیرفعال</option>
+                </select>
+                <select name="gender" class="select-dropdown">
+                    <option value="">همه جنسیت‌ها</option>
+                    <option value="men" {% if request.GET.gender==
+                    'men' %}selected{% endif %}>مردانه</option>
+                    <option value="women" {% if request.GET.gender==
+                    'women' %}selected{% endif %}>زنانه</option>
+                    <option value="kids" {% if request.GET.gender==
+                    'kids' %}selected{% endif %}>بچگانه</option>
+                    <option value="unisex" {% if request.GET.gender==
+                    'unisex' %}selected{% endif %}>همه</option>
+                </select>
+                <button type="submit" class="btn-secondary" style="padding: 10px 16px;">
+                    <i class="fas fa-filter me-1"></i>اعمال فیلتر
+                </button>
+                {% if request.GET %}
+                <a href="{% url 'dashboard:products_list' %}" class="btn-secondary"
+                   style="padding: 10px 16px; background: rgba(255,59,48,0.1); color: #FF3B30;">
+                    <i class="fas fa-times me-1"></i>حذف فیلتر
+                </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- جدول محصولات -->
+        <div class="glass-card">
+            <div class="card-header">
+                <h2>لیست محصولات ({{ products|length }})</h2>
+                <a href="{% url 'dashboard:categories_list' %}" class="btn-secondary">
+                    <i class="fas fa-tags me-1"></i>دسته‌بندی‌ها
+                </a>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="productsTable">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>محصول</th>
+                        <th>دسته‌بندی</th>
+                        <th>برند</th>
+                        <th>جنسیت</th>
+                        <th>قیمت</th>
+                        <th>موجودی</th>
+                        <th>وضعیت</th>
+                        <th>عملیات</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                {% if product.main_image %}
+                                <img src="{{ product.main_image.image.url }}"
+                                     width="45" height="45"
+                                     style="border-radius: 10px; object-fit: cover;
+                                                    border: 0.5px solid rgba(0,0,0,0.1);">
+                                {% else %}
+                                <div style="width: 45px; height: 45px; border-radius: 10px;
+                                                    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+                                                    display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image" style="color: #ccc; font-size: 16px;"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div style="font-weight: 600; font-size: 13px; margin-bottom: 2px;">
+                                        {{ product.name|truncatechars:30 }}
+                                    </div>
+                                    <div style="font-size: 11px; color: #86868B;">
+                                        {{ product.slug }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ product.category.name|default:"-" }}</td>
+                        <td>{{ product.brand.name|default:"-" }}</td>
+                        <td>{{ product.get_gender_display }}</td>
+                        <td>
+                            <div style="font-weight: 600;">{{ product.price }} تومان</div>
+                            {% if product.original_price %}
+                            <div style="font-size: 11px; color: #86868B; text-decoration: line-through;">
+                                {{ product.original_price }} تومان
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% with total_stock=product.variants.all %}
+                            {% if total_stock %}
+                            {% with stock=product.variants.all|length %}
+                            <span class="status {% if stock > 5 %}success{% elif stock > 0 %}pending{% else %}cancelled{% endif %}">
+                                            {{ stock }} واریانت
+                                        </span>
+                            {% endwith %}
+                            {% else %}
+                            <span class="status cancelled">ناموجود</span>
+                            {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            {% if product.is_active %}
+                            <span class="status success">فعال</span>
+                            {% else %}
+                            <span class="status cancelled">غیرفعال</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <a href="{% url 'catalog:product_detail' product.id %}"
+                                   class="btn-secondary" style="padding: 5px 8px; font-size: 11px;"
+                                   title="مشاهده" target="_blank">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:product_edit' product.pk %}"
+                                   class="btn-secondary" style="padding: 5px 8px; font-size: 11px;"
+                                   title="ویرایش">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn-secondary delete-product-btn"
+                                        style="padding: 5px 8px; font-size: 11px;
+                                                       background: rgba(255,59,48,0.1); color: #FF3B30;"
+                                        data-id="{{ product.pk }}"
+                                        data-name="{{ product.name }}"
+                                        title="غیرفعال کردن">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #86868B;">
+                            <i class="fas fa-box" style="font-size: 32px; margin-bottom: 10px; display: block;"></i>
+                            هیچ محصولی یافت نشد
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+<script>
+    // جستجو
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('#productsTable tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });
+
+    // غیرفعال کردن محصول
+    document.querySelectorAll('.delete-product-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const name = this.dataset.name;
+            if (confirm(`آیا از غیرفعال کردن "${name}" مطمئن هستید؟`)) {
+                fetch(`/admin/catalog/product/${this.dataset.id}/change/`, {
+                    method: 'GET',
+                }).then(() => location.reload());
+            }
+        });
+    });
+</script>
+</body>
+</html>

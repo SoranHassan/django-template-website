@@ -1,0 +1,397 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}OramShop - فروشگاه پوشاک و اکسسوری{% endblock %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+
+<!-- Hero Banner -->
+<div class="home-slider hide-navigation margin-bottom-0">
+    <div class="position-relative overflow-hidden"
+         style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                min-height: 500px;">
+        <div class="container h-100">
+            <div class="row align-items-center" style="min-height: 500px;">
+
+                <!-- متن -->
+                <div class="col-xl-6 col-lg-6 col-md-7 col-sm-12">
+                    <div class="py-5 text-white">
+                        <span class="badge bg-danger mb-3 fs-sm px-3 py-2">جدیدترین کالکشن</span>
+                        <h1 class="ft-bold mb-3 lh-1" style="font-size: 3rem;">
+                            مد روز<br>
+                            <span style="color: #e94560;">برای شما</span>
+                        </h1>
+                        <p class="fs-md mb-4" style="color: rgba(255,255,255,0.7);">
+                            بهترین برندهای پوشاک و اکسسوری با قیمت مناسب
+                        </p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="{% url 'catalog:shop_style_1' %}"
+                               class="btn btn-danger btn-lg px-4">
+                                خرید کنید
+                                <i class="lni lni-arrow-left ms-2"></i>
+                            </a>
+                            <a href="{% url 'catalog:shop_style_1' %}?gender=women"
+                               class="btn btn-outline-light btn-lg px-4">
+                                کالکشن زنانه
+                            </a>
+                        </div>
+                        <!-- آمار -->
+                        <div class="d-flex gap-4 mt-5">
+                            <div>
+                                <h3 class="ft-bold text-white mb-0">+۵۰۰</h3>
+                                <span style="color: rgba(255,255,255,0.5); font-size: 13px;">محصول</span>
+                            </div>
+                            <div class="border-start border-secondary ps-4">
+                                <h3 class="ft-bold text-white mb-0">+۱۰۰۰۰</h3>
+                                <span style="color: rgba(255,255,255,0.5); font-size: 13px;">مشتری</span>
+                            </div>
+                            <div class="border-start border-secondary ps-4">
+                                <h3 class="ft-bold text-white mb-0">%۹۸</h3>
+                                <span style="color: rgba(255,255,255,0.5); font-size: 13px;">رضایت</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تصویر / اسکلت -->
+                <div class="col-xl-6 col-lg-6 col-md-5 col-sm-12 d-none d-md-flex justify-content-center">
+                    <div class="position-relative">
+                        <div style="width: 320px; height: 400px;
+                                    background: rgba(255,255,255,0.05);
+                                    border-radius: 24px;
+                                    border: 2px dashed rgba(255,255,255,0.15);
+                                    display: flex; align-items: center;
+                                    justify-content: center; flex-direction: column; gap: 12px;">
+                            <i class="lni lni-image"
+                               style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
+                            <span style="color: rgba(255,255,255,0.2); font-size: 13px;">
+                                تصویر اصلی
+                            </span>
+                        </div>
+                        <!-- دایره‌های تزئینی -->
+                        <div style="position: absolute; width: 80px; height: 80px;
+                                    background: rgba(233,69,96,0.3); border-radius: 50%;
+                                    top: -20px; right: -20px;"></div>
+                        <div style="position: absolute; width: 50px; height: 50px;
+                                    background: rgba(255,255,255,0.08); border-radius: 50%;
+                                    bottom: 30px; left: -10px;"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Hero Banner End -->
+
+<!-- ۴ دسته‌بندی اصلی — ثابت -->
+<section class="p-0">
+    <div class="container">
+        <div class="row overlio g-3 py-4">
+
+            <!-- زنانه -->
+            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
+                <a href="{% url 'catalog:shop_style_1' %}?gender=women"
+                   class="text-decoration-none">
+                    <div class="category-card text-center p-4 rounded-3"
+                         style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
+                        <div class="mx-auto mb-3"
+                             style="width: 70px; height: 70px;
+                                    background: rgba(255,255,255,0.4);
+                                    border-radius: 50%; display: flex;
+                                    align-items: center; justify-content: center;">
+                            <i class="lni lni-woman" style="font-size: 32px; color: #c2185b;"></i>
+                        </div>
+                        <h5 class="ft-bold mb-1" style="color: #880e4f;">زنانه</h5>
+                        <span style="color: #c2185b; font-size: 12px;">کالکشن جدید</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- مردانه -->
+            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
+                <a href="{% url 'catalog:shop_style_1' %}?gender=men"
+                   class="text-decoration-none">
+                    <div class="category-card text-center p-4 rounded-3"
+                         style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
+                        <div class="mx-auto mb-3"
+                             style="width: 70px; height: 70px;
+                                    background: rgba(255,255,255,0.4);
+                                    border-radius: 50%; display: flex;
+                                    align-items: center; justify-content: center;">
+                            <i class="lni lni-man" style="font-size: 32px; color: #1565c0;"></i>
+                        </div>
+                        <h5 class="ft-bold mb-1" style="color: #0d47a1;">مردانه</h5>
+                        <span style="color: #1565c0; font-size: 12px;">استایل روز</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- بچگانه -->
+            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
+                <a href="{% url 'catalog:shop_style_1' %}?gender=kids"
+                   class="text-decoration-none">
+                    <div class="category-card text-center p-4 rounded-3"
+                         style="background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);
+                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
+                        <div class="mx-auto mb-3"
+                             style="width: 70px; height: 70px;
+                                    background: rgba(255,255,255,0.4);
+                                    border-radius: 50%; display: flex;
+                                    align-items: center; justify-content: center;">
+                            <i class="lni lni-star" style="font-size: 32px; color: #f57f17;"></i>
+                        </div>
+                        <h5 class="ft-bold mb-1" style="color: #e65100;">بچگانه</h5>
+                        <span style="color: #f57f17; font-size: 12px;">شاد و رنگارنگ</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- اکسسوری -->
+            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
+                <a href="{% url 'catalog:shop_style_1' %}?category=accessories"
+                   class="text-decoration-none">
+                    <div class="category-card text-center p-4 rounded-3"
+                         style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
+                        <div class="mx-auto mb-3"
+                             style="width: 70px; height: 70px;
+                                    background: rgba(255,255,255,0.4);
+                                    border-radius: 50%; display: flex;
+                                    align-items: center; justify-content: center;">
+                            <i class="lni lni-diamond" style="font-size: 32px; color: #2e7d32;"></i>
+                        </div>
+                        <h5 class="ft-bold mb-1" style="color: #1b5e20;">اکسسوری</h5>
+                        <span style="color: #2e7d32; font-size: 12px;">تکمیل استایل</span>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+<!-- دسته‌بندی‌ها End -->
+
+<!-- محصولات پرفروش -->
+<section class="middle">
+    <div class="container">
+
+        <div class="row justify-content-center mb-4">
+            <div class="col-xl-12 text-center">
+                <h2 class="off_title">محصولات ویژه</h2>
+                <h3 class="ft-bold pt-2">پرفروش‌ترین‌ها</h3>
+            </div>
+        </div>
+
+        <div class="row align-items-center rows-products">
+            {% for product in products %}
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6">
+                <div class="product_grid card b-0 mb-4">
+
+                    {% if product.discount_percent %}
+                    <div class="position-absolute ab-left">
+                        <span class="badge bg-danger">{{ product.discount_percent }}٪</span>
+                    </div>
+                    {% endif %}
+
+                    <button class="btn btn_love position-absolute ab-right theme-cl wishlist-btn"
+                            data-id="{{ product.pk }}"
+                            data-title="{{ product.name }}"
+                            data-price="{{ product.price }}"
+                            data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
+                            data-slug="{{ product.slug }}">
+                        <i class="lni lni-heart"></i>
+                    </button>
+
+                    <div class="card-body p-0">
+                        <div class="shop_thumb position-relative">
+                            <a href="{% url 'catalog:product_detail' product.pk %}">
+                                {% if product.main_image %}
+                                <img class="card-img-top"
+                                     src="{{ product.main_image.image.url }}"
+                                     alt="{{ product.name }}">
+                                {% else %}
+                                <div style="width: 100%; height: 220px;
+                                            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                                            display: flex; align-items: center;
+                                            justify-content: center; flex-direction: column; gap: 8px;">
+                                    <i class="lni lni-image"
+                                       style="font-size: 36px; color: #ccc;"></i>
+                                    <span style="color: #ccc; font-size: 11px;">تصویر محصول</span>
+                                </div>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card-footer b-0 pt-3 px-2 bg-white">
+                        <div class="text-right">
+                            {% if product.category %}
+                            <span class="text-muted small">{{ product.category.name }}</span>
+                            {% endif %}
+                            <h5 class="product_title fw-normal fs-md mb-0 lh-1 mb-1">
+                                <a href="{% url 'catalog:product_detail' product.pk %}"
+                                   class="text-dark">
+                                    {{ product.name|truncatechars:30 }}
+                                </a>
+                            </h5>
+                            <div class="elis_rty">
+                                {% if product.original_price %}
+                                <span class="ft-medium text-muted line-through fs-sm me-1">
+                                    {{ product.original_price }} تومان
+                                </span>
+                                {% endif %}
+                                <span class="ft-bold theme-cl fs-md">
+                                    {{ product.price }} تومان
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {% empty %}
+            <!-- Skeleton محصولات -->
+            {% for i in "12345678" %}
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6">
+                <div class="product_grid card b-0 mb-4">
+                    <div class="card-body p-0">
+                        <div style="width: 100%; height: 220px;
+                                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                                    background-size: 200% 100%;
+                                    animation: shimmer 1.5s infinite;
+                                    border-radius: 8px 8px 0 0;">
+                        </div>
+                    </div>
+                    <div class="card-footer b-0 pt-3 px-2 bg-white">
+                        <div style="height: 12px; background: #f0f0f0;
+                                    border-radius: 4px; margin-bottom: 8px; width: 40%;"></div>
+                        <div style="height: 14px; background: #f0f0f0;
+                                    border-radius: 4px; margin-bottom: 8px;"></div>
+                        <div style="height: 14px; background: #f0f0f0;
+                                    border-radius: 4px; width: 60%;"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="row justify-content-center mt-3">
+            <div class="col-auto">
+                <a href="{% url 'catalog:shop_style_1' %}"
+                   class="btn btn-outline-dark px-5">
+                    مشاهده همه محصولات
+                    <i class="lni lni-arrow-left ms-2"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>
+<!-- محصولات End -->
+
+<!-- بنر میانی -->
+<section class="py-5"
+         style="background: linear-gradient(135deg, #1a1a2e 0%, #e94560 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-8 col-lg-9 col-md-12 text-center">
+                <h4 class="ft-medium text-light mb-2">تا ۴۰٪ تخفیف</h4>
+                <h2 class="ft-bold text-light mb-3">کالکشن تابستانی</h2>
+                <p class="text-light opacity-75 mb-4">
+                    محدود به موجودی انبار — همین حالا خرید کنید
+                </p>
+                <a href="{% url 'catalog:shop_style_1' %}"
+                   class="btn btn-light btn-lg px-5">
+                    خرید کنید
+                    <i class="lni lni-arrow-left ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- بنر میانی End -->
+
+<!-- ویژگی‌های فروشگاه -->
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'catalog/features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_quickview.html' %}
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}
+
+{% block js %}
+<script>
+    // Hover انیمیشن دسته‌بندی
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-5px)';
+            card.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+            card.style.boxShadow = 'none';
+        });
+    });
+
+    // ویشلیست AJAX
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            {% if user.is_authenticated %}
+            const b = this;
+            const icon = b.querySelector('i');
+
+            fetch('{% url "accounts:wishlist_add" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: [
+                    `id=${b.dataset.id}`,
+                    `title=${encodeURIComponent(b.dataset.title)}`,
+                    `price=${b.dataset.price}`,
+                    `image=${encodeURIComponent(b.dataset.image || '')}`,
+                    `slug=${b.dataset.slug}`
+                ].join('&')
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    icon.classList.replace('lni-heart', 'lni-heart-filled');
+                    b.style.color = '#e94560';
+                    document.querySelectorAll('.wishlist-count').forEach(el => {
+                        el.textContent = data.count;
+                        el.style.display = 'block';
+                    });
+                }
+            });
+            {% else %}
+            window.location.href = '{% url "accounts:login" %}';
+            {% endif %}
+        });
+    });
+</script>
+
+<style>
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+</style>
+{% endblock %}

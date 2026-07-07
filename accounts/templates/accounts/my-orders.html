@@ -1,0 +1,253 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}سفارش‌های من - OramShop{% endblock %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+
+<div class="gray py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
+                        <li class="breadcrumb-item active">سفارش‌های من</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="middle">
+    <div class="container">
+        <div class="row align-items-start justify-content-between">
+
+            <!-- سایدبار داشبورد -->
+            <div class="col-12 col-md-12 col-lg-3 col-xl-3 mb-4">
+                <div class="d-block border rounded">
+                    <div class="dashboard_author px-2 py-4 text-center">
+                        <div class="dash_auth_thumb circle p-1 border d-inline-flex mx-auto mb-2">
+                            {% if request.user.avatar %}
+                            <img src="{{ request.user.avatar.url }}"
+                                 class="img-fluid circle" width="80" alt="">
+                            {% else %}
+                            <div style="width:80px; height:80px; border-radius:50%;
+                                        background: linear-gradient(135deg, #667eea, #764ba2);
+                                        display:flex; align-items:center; justify-content:center;">
+                                <span style="color:white; font-size:28px; font-weight:700;">
+                                    {{ request.user.first_name|first|default:request.user.mobile|first|upper }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h5 class="fs-md ft-medium mb-0">
+                            {{ request.user.get_full_name|default:"کاربر" }}
+                        </h5>
+                        <span class="text-muted small">{{ request.user.mobile }}</span>
+                    </div>
+
+                    <div class="dashboard_author border-top">
+                        <ul class="dahs_navbar">
+                            <li class="active">
+                                <a href="{% url 'accounts:my_orders' %}">
+                                    <i class="lni lni-shopping-basket me-2"></i>سفارش‌های من
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'accounts:wishlist' %}">
+                                    <i class="lni lni-heart me-2"></i>علاقه‌مندی‌ها
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'accounts:profile_info' %}">
+                                    <i class="lni lni-user me-2"></i>اطلاعات پروفایل
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'accounts:addresses' %}">
+                                    <i class="lni lni-map-marker me-2"></i>آدرس‌ها
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'accounts:logout' %}" class="text-danger">
+                                    <i class="lni lni-power-switch me-2"></i>خروج
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- محتوای اصلی -->
+            <div class="col-12 col-md-12 col-lg-9 col-xl-9">
+
+                {% if orders %}
+
+                {% for order in orders %}
+                <div class="ord_list_wrap border rounded mb-4">
+
+                    <!-- هدر سفارش -->
+                    <div class="ord_list_head gray d-flex align-items-center
+                                justify-content-between px-3 py-3 rounded-top">
+                        <div class="d-flex align-items-center gap-4">
+                            <div>
+                                <p class="m-0 small text-muted">شماره سفارش</p>
+                                <h6 class="mb-0 ft-medium">#{{ order.pk }}</h6>
+                            </div>
+                            <div>
+                                <p class="m-0 small text-muted">تاریخ</p>
+                                <h6 class="mb-0 ft-medium">
+                                    {{ order.created_at|date:"Y/m/d" }}
+                                </h6>
+                            </div>
+                            <div>
+                                <p class="m-0 small text-muted">وضعیت</p>
+                                <span class="badge
+                                    {% if order.status == 'delivered' %}bg-success
+                                    {% elif order.status == 'cancelled' %}bg-danger
+                                    {% elif order.status == 'shipped' %}bg-info
+                                    {% else %}bg-warning text-dark{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            {% if order.tracking_code %}
+                            <span class="btn btn-sm btn-outline-secondary">
+                                <i class="lni lni-map me-1"></i>
+                                کد رهگیری: {{ order.tracking_code }}
+                            </span>
+                            {% endif %}
+                            {% if order.status in 'paid,processing,shipped,delivered' %}
+                            <a href="{% url 'orders:invoice' order.pk %}"
+                               class="btn btn-sm btn-outline-dark">
+                                <i class="lni lni-download me-1"></i>فاکتور
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- آیتم‌های سفارش -->
+                    <div class="ord_list_body px-3 py-3">
+                        {% for item in order.items.all %}
+                        <div class="d-flex align-items-center gap-3 mb-3
+                                    pb-3 {% if not forloop.last %}border-bottom{% endif %}">
+
+                            <!-- تصویر -->
+                            <div style="width: 70px; height: 70px; flex-shrink: 0;">
+                                {% if item.variant.product.main_image %}
+                                <img src="{{ item.variant.product.main_image.image.url }}"
+                                     alt="{{ item.variant.product.name }}"
+                                     class="img-fluid rounded"
+                                     style="width:70px; height:70px; object-fit:cover;">
+                                {% else %}
+                                <div style="width:70px; height:70px; background:#f5f5f5;
+                                            border-radius:8px; display:flex; align-items:center;
+                                            justify-content:center;">
+                                    <i class="lni lni-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- اطلاعات -->
+                            <div class="flex-1">
+                                <h6 class="ft-medium mb-1">
+                                    <a href="{% url 'catalog:product_detail' item.variant.product.id %}"
+                                       class="text-dark">
+                                        {{ item.variant.product.name }}
+                                    </a>
+                                </h6>
+                                <div class="small text-muted">
+                                    {% if item.variant.size %}
+                                    سایز: {{ item.variant.size.name }}
+                                    {% endif %}
+                                    {% if item.variant.color %}
+                                    | رنگ: {{ item.variant.color.name }}
+                                    {% endif %}
+                                    | تعداد: {{ item.quantity }}
+                                </div>
+                            </div>
+
+                            <!-- قیمت -->
+                            <div class="text-start">
+                                <span class="ft-medium">
+                                    {{ item.total_price }} تومان
+                                </span>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- فوتر سفارش -->
+                    <div class="ord_list_footer d-flex align-items-center
+                                justify-content-between border-top px-3 py-3">
+                        <div class="d-flex gap-3 small text-muted">
+                            {% if order.zarinpal_ref_id %}
+                            <span>
+                                <i class="lni lni-checkmark-circle text-success me-1"></i>
+                                کد پرداخت: {{ order.zarinpal_ref_id }}
+                            </span>
+                            {% endif %}
+                            {% if order.coupon %}
+                            <span>
+                                <i class="lni lni-tag me-1 text-danger"></i>
+                                کد تخفیف: {{ order.coupon.code }}
+                                (-{{ order.discount_amount }} تومان)
+                            </span>
+                            {% endif %}
+                        </div>
+                        <h5 class="mb-0 ft-bold">
+                            جمع کل: {{ order.final_total }} تومان
+                        </h5>
+                    </div>
+
+                </div>
+                {% endfor %}
+
+                {% else %}
+
+                <!-- بدون سفارش -->
+                <div class="d-flex flex-column align-items-center justify-content-center
+                            text-center py-5">
+                    <div style="width:100px; height:100px; background:#f8f9fa;
+                                border-radius:50%; display:flex; align-items:center;
+                                justify-content:center; margin-bottom:20px;">
+                        <i class="lni lni-shopping-basket"
+                           style="font-size:40px; color:#ccc;"></i>
+                    </div>
+                    <h4 class="ft-bold mb-2">هنوز سفارشی ثبت نکرده‌اید</h4>
+                    <p class="text-muted mb-4">
+                        اولین خرید خود را از فروشگاه ما انجام دهید
+                    </p>
+                    <a href="{% url 'catalog:shop_style_1' %}"
+                       class="btn btn-dark px-5">
+                        رفتن به فروشگاه
+                    </a>
+                </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'catalog/features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}

@@ -1,0 +1,395 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}تأیید شماره موبایل - OramShop{% endblock %}
+
+{% block css %}
+<style>
+    .otp-input-box {
+        width: 52px;
+        height: 60px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 24px;
+        font-weight: 700;
+        text-align: center;
+        outline: none;
+        transition: all 0.2s ease;
+        caret-color: transparent;
+        background: white;
+        color: #1a1a1a;
+        font-family: inherit;
+    }
+
+    .otp-input-box:focus {
+        border-color: #1a1a2e;
+        box-shadow: 0 0 0 4px rgba(26,26,46,0.1);
+        transform: scale(1.05);
+    }
+
+    .otp-input-box.filled {
+        border-color: #1a1a2e;
+        background: #f8f9fa;
+    }
+
+    .otp-input-box.error {
+        border-color: #dc3545;
+        background: #fff5f5;
+        animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        20% { transform: translateX(-6px); }
+        40% { transform: translateX(6px); }
+        60% { transform: translateX(-4px); }
+        80% { transform: translateX(4px); }
+    }
+
+    .otp-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        transition: all 0.2s ease;
+        display: inline-block;
+    }
+
+    .otp-dot.filled {
+        background: #1a1a2e;
+    }
+
+    .otp-dot.active {
+        background: #e94560;
+        transform: scale(1.3);
+    }
+
+    .otp-submit-btn.loading {
+        position: relative;
+        color: transparent !important;
+    }
+
+    .otp-submit-btn.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+</style>
+
+{% endblock %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+
+<div class="gray py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'catalog:index' %}">خانه</a>
+                        </li>
+                        <li class="breadcrumb-item active">تأیید شماره موبایل</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="middle">
+    <div class="container">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-xl-5 col-lg-6 col-md-8 col-sm-12">
+                <div class="border rounded p-4 p-md-5">
+
+                    <!-- آیکون و عنوان -->
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center
+                                    rounded-circle bg-dark mb-3"
+                             style="width: 64px; height: 64px;">
+                            <i class="lni lni-mobile text-white" style="font-size: 28px;"></i>
+                        </div>
+                        <h4 class="ft-bold mb-1">تأیید شماره موبایل</h4>
+                        <p class="text-muted small mb-1">کد ۶ رقمی ارسال شده به</p>
+                        <span class="ft-bold" style="direction: ltr; display: block;">
+                            {{ mobile }}
+                        </span>
+                    </div>
+
+                    <!-- Progress dots -->
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        {% for i in "123456" %}
+                        <div class="otp-dot" id="dot-{{ forloop.counter }}"></div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- خطا -->
+                    {% if error %}
+                    <div class="alert alert-danger py-2 small mb-3">
+                        <i class="lni lni-warning me-2"></i>{{ error }}
+                    </div>
+                    {% endif %}
+
+                    <div class="alert alert-danger py-2 small mb-3 d-none"
+                         id="otpError"></div>
+
+                    <!-- فرم -->
+                    <form method="POST"
+                          action="{% url 'accounts:verify_otp' %}"
+                          id="otpForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="mobile" value="{{ mobile }}">
+                        <input type="hidden" name="next"
+                               value="{{ request.GET.next|default:'' }}">
+                        <input type="hidden" name="code" id="hiddenCode">
+
+                        <!-- خانه‌های OTP -->
+                        <div class="d-flex justify-content-center gap-2 mb-4"
+                             id="otpInputs" style="direction: ltr;">
+                            {% for i in "123456" %}
+                            <input type="text"
+                                   class="otp-input-box"
+                                   maxlength="1"
+                                   inputmode="numeric"
+                                   pattern="[0-9]"
+                                   data-index="{{ forloop.counter0 }}"
+                                   {% if forloop.first %}autofocus{% endif %}>
+                            {% endfor %}
+                        </div>
+
+                        <!-- تایمر -->
+                        <div class="text-center mb-3">
+                            <span class="text-muted small" id="timerWrapper">
+                                ارسال مجدد تا
+                                <span class="ft-bold text-dark" id="countdown">120</span>
+                                ثانیه دیگر
+                            </span>
+                            <button type="button"
+                                    class="btn btn-link btn-sm text-danger p-0 d-none"
+                                    id="resendBtn">
+                                ارسال مجدد کد
+                            </button>
+                        </div>
+
+                        <!-- دکمه -->
+                        <button type="submit"
+                                class="btn btn-md full-width bg-dark text-light fs-md ft-medium otp-submit-btn"
+                                id="submitBtn"
+                                disabled>
+                            تأیید کد
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <a href="{% url 'accounts:login' %}"
+                               class="text-muted small">
+                                <i class="lni lni-arrow-right me-1"></i>
+                                بازگشت به ورود
+                            </a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'base/_features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}
+
+{% block js %}
+<script>
+    const inputs = document.querySelectorAll('.otp-input-box');
+    const dots = document.querySelectorAll('.otp-dot');
+    const hiddenCode = document.getElementById('hiddenCode');
+    const submitBtn = document.getElementById('submitBtn');
+    const otpError = document.getElementById('otpError');
+
+    {% if error %}
+    inputs.forEach(i => i.classList.add('error'));
+    setTimeout(() => inputs.forEach(i => i.classList.remove('error')), 500);
+    {% endif %}
+
+    function updateState() {
+        const values = Array.from(inputs).map(i => i.value);
+        const code = values.join('');
+        hiddenCode.value = code;
+
+        dots.forEach((dot, index) => {
+            dot.classList.remove('active', 'filled');
+            if (values[index]) {
+                dot.classList.add('filled');
+            }
+        });
+
+        const firstEmpty = values.findIndex(v => !v);
+        if (firstEmpty !== -1) {
+            dots[firstEmpty].classList.add('active');
+        }
+
+        submitBtn.disabled = code.length !== 6;
+    }
+
+    inputs.forEach((input, index) => {
+
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Backspace') {
+                if (!input.value && index > 0) {
+                    inputs[index - 1].value = '';
+                    inputs[index - 1].classList.remove('filled');
+                    inputs[index - 1].focus();
+                } else {
+                    input.value = '';
+                    input.classList.remove('filled');
+                }
+                updateState();
+                e.preventDefault();
+                return;
+            }
+            if (!/^[0-9]$/.test(e.key) && e.key !== 'Tab' && !e.ctrlKey) {
+                e.preventDefault();
+            }
+        });
+
+        input.addEventListener('input', e => {
+            const val = e.target.value.replace(/[^0-9]/g, '');
+
+            if (val.length > 1) {
+                val.split('').forEach((char, i) => {
+                    if (index + i < inputs.length) {
+                        inputs[index + i].value = char;
+                        inputs[index + i].classList.add('filled');
+                    }
+                });
+                const nextIndex = Math.min(index + val.length, inputs.length - 1);
+                inputs[nextIndex].focus();
+                updateState();
+                return;
+            }
+
+            input.value = val;
+            if (val) {
+                input.classList.add('filled');
+                if (index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            } else {
+                input.classList.remove('filled');
+            }
+            updateState();
+        });
+
+        input.addEventListener('paste', e => {
+            e.preventDefault();
+            const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
+            if (pasted) {
+                pasted.split('').forEach((char, i) => {
+                    if (i < inputs.length) {
+                        inputs[i].value = char;
+                        inputs[i].classList.add('filled');
+                    }
+                });
+                const last = Math.min(pasted.length, inputs.length) - 1;
+                inputs[last].focus();
+                updateState();
+            }
+        });
+
+        input.addEventListener('focus', () => {
+            input.select();
+            otpError.classList.add('d-none');
+            inputs.forEach(i => i.classList.remove('error'));
+        });
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !submitBtn.disabled) {
+            document.getElementById('otpForm').submit();
+        }
+    });
+
+    document.getElementById('otpForm').addEventListener('submit', function() {
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+    });
+
+    // تایمر
+    let seconds = 120;
+    const countdown = document.getElementById('countdown');
+    const timerWrapper = document.getElementById('timerWrapper');
+    const resendBtn = document.getElementById('resendBtn');
+
+    function startTimer(sec) {
+        seconds = sec;
+        countdown.textContent = seconds;
+        timerWrapper.classList.remove('d-none');
+        resendBtn.classList.add('d-none');
+
+        const interval = setInterval(() => {
+            seconds--;
+            countdown.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(interval);
+                timerWrapper.classList.add('d-none');
+                resendBtn.classList.remove('d-none');
+            }
+        }, 1000);
+    }
+
+    startTimer(120);
+
+    resendBtn.addEventListener('click', function() {
+        fetch('{% url "accounts:send_otp" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `mobile={{ mobile }}`
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                inputs.forEach(i => {
+                    i.value = '';
+                    i.classList.remove('filled', 'error');
+                });
+                inputs[0].focus();
+                updateState();
+                startTimer(120);
+            }
+        });
+    });
+
+    updateState();
+    dots[0].classList.add('active');
+</script>
+{% endblock %}

@@ -1,0 +1,457 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحلیل و گزارش - پنل مدیریت</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
+            <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
+            <li><a href="{% url 'dashboard:products_list' %}"><i class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
+            </li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if
+                pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
+            <li class="active">
+                <a href="{% url 'dashboard:analytics' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>تحلیل و گزارش</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="جستجو...">
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+            <a href="{% url 'accounts:profile_info' %}" class="header-btn">
+                <i class="fas fa-user-circle"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="page-title">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h1>تحلیل و گزارش</h1>
+                    <p>آمار و اطلاعات فروشگاه</p>
+                </div>
+                <!-- انتخاب بازه زمانی -->
+                <div style="display: flex; gap: 8px;">
+                    <a href="?period=week"
+                       class="btn-secondary"
+                       style="padding: 8px 14px; {% if period == 'week' %}background: rgba(0,122,255,0.2); color: #007AFF;{% endif %}">
+                        هفته
+                    </a>
+                    <a href="?period=month"
+                       class="btn-secondary"
+                       style="padding: 8px 14px; {% if period == 'month' or not period %}background: rgba(0,122,255,0.2); color: #007AFF;{% endif %}">
+                        ماه
+                    </a>
+                    <a href="?period=year"
+                       class="btn-secondary"
+                       style="padding: 8px 14px; {% if period == 'year' %}background: rgba(0,122,255,0.2); color: #007AFF;{% endif %}">
+                        سال
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- کارت‌های آمار کلی -->
+        <div class="stats-grid" style="margin-bottom: 20px;">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-coins"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_revenue }}</h3>
+                    <p>درآمد کل (تومان)</p>
+                    <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> {{ revenue_growth }}٪
+                        </span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-shopping-bag"></i></div>
+                <div class="stat-info">
+                    <h3>{{ total_orders }}</h3>
+                    <p>کل سفارشات</p>
+                    <span class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i> {{ orders_growth }}٪
+                        </span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <h3>{{ new_users }}</h3>
+                    <p>کاربر جدید</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fas fa-star"></i></div>
+                <div class="stat-info">
+                    <h3>{{ avg_rating|floatformat:1 }}</h3>
+                    <p>میانگین امتیاز</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- نمودارها -->
+        <div class="content-grid">
+
+            <!-- نمودار درآمد ماهانه -->
+            <div class="glass-card" style="grid-column: 1 / -1;">
+                <div class="card-header">
+                    <h2>درآمد ماهانه</h2>
+                    <span style="color: var(--text-secondary); font-size: 13px;">
+                            ۱۲ ماه اخیر
+                        </span>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- نمودار سفارشات هفتگی -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>سفارشات هفتگی</h2>
+                    <span style="color: var(--text-secondary); font-size: 13px;">
+                            ۸ هفته اخیر
+                        </span>
+                </div>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+
+            <!-- نمودار وضعیت سفارشات -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>وضعیت سفارشات</h2>
+                    <span style="color: var(--text-secondary); font-size: 13px;">
+                            توزیع فعلی
+                        </span>
+                </div>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- نمودار پرفروش‌ترین دسته‌بندی‌ها -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>پرفروش‌ترین دسته‌بندی‌ها</h2>
+                </div>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="categoriesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- جدول پرفروش‌ترین محصولات -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>پرفروش‌ترین محصولات</h2>
+                    <a href="{% url 'dashboard:products_list' %}" class="btn-secondary">
+                        مشاهده همه
+                    </a>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>محصول</th>
+                            <th>فروش</th>
+                            <th>درآمد</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for product in top_products %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    {% if product.main_image %}
+                                    <img src="{{ product.main_image.image.url }}"
+                                         width="36" height="36"
+                                         style="border-radius: 8px; object-fit: cover;">
+                                    {% else %}
+                                    <div style="width: 36px; height: 36px; border-radius: 8px;
+                                                        background: #f5f5f5; display: flex;
+                                                        align-items: center; justify-content: center;">
+                                        <i class="fas fa-image" style="color: #ccc; font-size: 14px;"></i>
+                                    </div>
+                                    {% endif %}
+                                    <span style="font-size: 13px; font-weight: 500;">
+                                                {{ product.name|truncatechars:25 }}
+                                            </span>
+                                </div>
+                            </td>
+                            <td>
+                                        <span class="status success">
+                                            {{ product.total_sold }} عدد
+                                        </span>
+                            </td>
+                            <td style="font-weight: 600;">
+                                {{ product.total_revenue }} تومان
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #86868B; padding: 20px;">
+                                داده‌ای موجود نیست
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- آخرین کاربران -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <h2>آخرین کاربران</h2>
+                    <a href="{% url 'dashboard:users_list' %}" class="btn-secondary">
+                        مشاهده همه
+                    </a>
+                </div>
+                <div class="customers-list">
+                    {% for user in recent_users %}
+                    <div class="customer-item">
+                        {% if user.avatar %}
+                        <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}">
+                        {% else %}
+                        <div style="width: 48px; height: 48px; border-radius: 50%;
+                                        background: linear-gradient(135deg, #667eea, #764ba2);
+                                        display: flex; align-items: center; justify-content: center;
+                                        color: white; font-weight: 700; font-size: 18px;">
+                            {{ user.first_name|first|default:user.mobile|first|upper }}
+                        </div>
+                        {% endif %}
+                        <div class="customer-info">
+                            <h4>{{ user.get_full_name|default:"بدون نام" }}</h4>
+                            <p>{{ user.mobile }} • {{ user.date_joined|date:"Y/m/d" }}</p>
+                        </div>
+                        <div>
+                            {% if user.is_staff %}
+                            <span class="status" style="background: rgba(0,122,255,0.2);
+                                                            color: #007AFF;">مدیر</span>
+                            {% else %}
+                            <span class="status success">فعال</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="color: var(--text-secondary); text-align: center; padding: 20px;">
+                        کاربری ثبت‌نام نکرده
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+
+<script>
+    // تنظیمات پیش‌فرض Chart.js برای RTL
+    Chart.defaults.font.family = 'Vazirmatn, Tahoma, sans-serif';
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#86868B';
+
+    // ۱. نمودار درآمد ماهانه
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: {{ monthly_labels|safe }},
+            datasets: [{
+                label: 'درآمد (تومان)',
+                data: {{ monthly_revenue|safe }},
+                borderColor: '#007AFF',
+                backgroundColor: 'rgba(0,122,255,0.08)',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#007AFF',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.parsed.y.toLocaleString('fa') + ' تومان'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: {
+                        callback: val => val.toLocaleString('fa')
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // ۲. نمودار سفارشات هفتگی
+    const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+    new Chart(ordersCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ weekly_labels|safe }},
+            datasets: [{
+                label: 'تعداد سفارشات',
+                data: {{ weekly_orders|safe }},
+                backgroundColor: 'rgba(52,199,89,0.7)',
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { stepSize: 1 }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // ۳. نمودار وضعیت سفارشات
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_labels|safe }},
+            datasets: [{
+                data: {{ status_data|safe }},
+                backgroundColor: [
+                    'rgba(255,149,0,0.8)',
+                    'rgba(0,122,255,0.8)',
+                    'rgba(88,86,214,0.8)',
+                    'rgba(52,199,89,0.8)',
+                    'rgba(255,59,48,0.8)',
+                    'rgba(134,134,139,0.8)',
+                    'rgba(255,45,85,0.8)',
+                ],
+                borderWidth: 0,
+                hoverOffset: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { padding: 16, font: { size: 11 } }
+                }
+            },
+            cutout: '65%',
+        }
+    });
+
+    // ۴. نمودار دسته‌بندی‌ها
+    const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+    new Chart(categoriesCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ category_labels|safe }},
+            datasets: [{
+                label: 'تعداد فروش',
+                data: {{ category_data|safe }},
+                backgroundColor: [
+                    'rgba(255,149,0,0.7)',
+                    'rgba(0,122,255,0.7)',
+                    'rgba(88,86,214,0.7)',
+                    'rgba(52,199,89,0.7)',
+                    'rgba(255,59,48,0.7)',
+                ],
+                borderRadius: 8,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { stepSize: 1 }
+                },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

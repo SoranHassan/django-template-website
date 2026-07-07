@@ -1,0 +1,13 @@
+{% for item in features %}
+<div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+    <div class="d-flex align-items-center justify-content-start py-2">
+        <div class="d_ico">
+            <i class="{{ item.icon }}"></i>
+        </div>
+        <div class="d_capt">
+            <h5 class="mb-0">{{ item.name }}</h5>
+            <span class="text-muted">{{ item.title }}</span>
+        </div>
+    </div>
+</div>
+{% endfor %}

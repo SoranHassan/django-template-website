@@ -1,0 +1,162 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+<div class="gray py-3">
+    <div class="container">
+        <div class="row">
+            <div class="colxl-12 col-lg-12 col-md-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
+                        <li class="breadcrumb-item active">اطلاعات پروفایل</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="middle">
+    <div class="container">
+        <div class="row align-items-start justify-content-between">
+
+            <!-- سایدبار داشبورد -->
+            <div class="col-12 col-md-12 col-lg-4 col-xl-4 text-center miliods">
+                <div class="d-block border rounded mfliud-bot">
+                    <div class="dashboard_author px-2 py-5">
+                        <div class="dash_auth_thumb circle p-1 border d-inline-flex mx-auto mb-2">
+                            {% if request.user.avatar %}
+                            <img src="{{ request.user.avatar.url }}" class="img-fluid circle" width="100" alt="">
+                            {% else %}
+                            <img src="{% static 'app/img/team-1.jpg' %}" class="img-fluid circle" width="100" alt="">
+                            {% endif %}
+                        </div>
+                        <div class="dash_caption">
+                            <h4 class="fs-md ft-medium mb-0 lh-1">{{ request.user.get_full_name }}</h4>
+                            <span class="text-muted smalls">{{ request.user.mobile }}</span>
+                        </div>
+                    </div>
+                    <div class="dashboard_author">
+                        <h4 class="px-3 py-2 mb-0 lh-2 gray fs-sm ft-medium text-muted text-uppercase text-left">منوی
+                            داشبورد</h4>
+                        <ul class="dahs_navbar">
+                            <li><a href="{% url 'accounts:my_orders' %}"><i class="lni lni-shopping-basket me-2"></i>سفارش‌های
+                                من</a></li>
+                            <li><a href="{% url 'accounts:wishlist' %}"><i class="lni lni-heart me-2"></i>علاقه‌مندی‌ها</a>
+                            </li>
+                            <li><a href="{% url 'accounts:profile_info' %}" class="active"><i
+                                    class="lni lni-user me-2"></i>اطلاعات پروفایل</a></li>
+                            <li><a href="{% url 'accounts:addresses' %}"><i class="lni lni-map-marker me-2"></i>آدرس‌ها</a>
+                            </li>
+                            <li><a href="{% url 'accounts:logout' %}"><i class="lni lni-power-switch me-2"></i>خروج</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فرم پروفایل -->
+            <div class="col-12 col-md-12 col-lg-8 col-xl-8">
+
+                {% if error %}
+                <div class="alert alert-danger mb-3">{{ error }}</div>
+                {% endif %}
+
+                {% if success %}
+                <div class="alert alert-success mb-3">{{ success }}</div>
+                {% endif %}
+
+                <form method="POST" action="{% url 'accounts:profile_info' %}"
+                      enctype="multipart/form-data" class="row g-3 m-0">
+                    {% csrf_token %}
+
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="small text-dark ft-medium mb-2">نام *</label>
+                            <input type="text" name="first_name" class="form-control"
+                                   value="{{ request.user.first_name }}">
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="small text-dark ft-medium mb-2">نام خانوادگی *</label>
+                            <input type="text" name="last_name" class="form-control"
+                                   value="{{ request.user.last_name }}">
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="small text-dark ft-medium mb-2">ایمیل</label>
+                            <input type="email" name="email" class="form-control"
+                                   value="{{ request.user.email }}">
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="small text-dark ft-medium mb-2">تصویر پروفایل</label>
+                            <input type="file" name="avatar" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="small text-dark ft-medium mb-2">درباره من</label>
+                            <textarea name="bio" class="form-control ht-80">{{ request.user.bio }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12">
+                        <hr>
+                        <h6 class="ft-medium mb-3">تغییر رمز عبور (اختیاری)</h6>
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="small text-dark ft-medium mb-2">رمز عبور فعلی</label>
+                            <input type="password" name="current_password" class="form-control"
+                                   placeholder="رمز عبور فعلی">
+                        </div>
+                    </div>
+
+                    <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <label class="small text-dark ft-medium mb-2">رمز عبور جدید</label>
+                            <input type="password" name="new_password" class="form-control"
+                                   placeholder="رمز عبور جدید">
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-dark">ذخیره تغییرات</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        <div class="row">
+            {% include 'base/_features.html' %}
+        </div>
+    </div>
+</section>
+
+{% include 'catalog/_quickview.html' %}
+{% include 'catalog/_search_drawer.html' %}
+{% include 'accounts/_wishlist_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}

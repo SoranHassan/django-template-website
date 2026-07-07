@@ -1,0 +1,16 @@
+{% for item in reviews %}
+<div class="single_review">
+    <div class="sng_rev_thumb">
+        <figure><img src="{{ item.img }}" class="img-fluid circle" alt=""/></figure>
+    </div>
+    <div class="sng_rev_caption text-center">
+        <div class="rev_desc mb-4">
+            <p class="fs-md">{{ item.desc }}</p>
+        </div>
+        <div class="rev_author">
+            <h4 class="mb-0">{{ item.name }}</h4>
+            <span class="fs-sm">{{ item.title }}</span>
+        </div>
+    </div>
+</div>
+{% endfor %}

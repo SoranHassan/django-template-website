@@ -1,0 +1,522 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if product %}ویرایش محصول{% else %}محصول جدید{% endif %} - پنل مدیریت</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
+            <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
+            <li class="active"><a href="{% url 'dashboard:products_list' %}"><i
+                    class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
+            </li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span></a></li>
+            <li><a href="{% url 'dashboard:analytics' %}"><i
+                    class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="جستجو...">
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'dashboard:products_list' %}" class="header-btn" title="بازگشت">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="page-title">
+            <h1>{% if product %}ویرایش محصول{% else %}محصول جدید{% endif %}</h1>
+            <p>
+                <a href="{% url 'dashboard:products_list' %}"
+                   style="color: var(--text-secondary);">محصولات</a>
+                / {% if product %}ویرایش{% else %}افزودن{% endif %}
+            </p>
+        </div>
+
+        {% if error %}
+        <div style="background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.3);
+                        border-radius: 12px; padding: 16px; margin-bottom: 20px; color: #FF3B30;">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'dashboard:product_create' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 360px; gap: 16px;">
+
+                <!-- ستون اصلی -->
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+
+                    <!-- اطلاعات اصلی -->
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h2>اطلاعات اصلی</h2>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    نام محصول *
+                                </label>
+                                <input type="text" name="name" required
+                                       value="{{ product.name|default:'' }}"
+                                       style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                  border-radius: 10px; font-family: inherit; font-size: 14px;"
+                                       placeholder="نام محصول را وارد کنید"
+                                       id="nameInput">
+                            </div>
+                            <div>
+                                <label style="font-size:13px; font-weight:600; margin-bottom:6px; display:block;">
+                                    کد محصول (SKU)
+                                </label>
+                                <input type="text" name="sku"
+                                       value="{{ product.sku|default:'' }}"
+                                       style="width:100%; padding:10px 14px; border:1px solid #ddd;
+                                                  border-radius:10px; font-family:inherit; font-size:14px;
+                                                  direction:ltr;"
+                                       placeholder="مثال: ORG-001">
+                                <p style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+                                    کد یکتای محصول برای شناسایی
+                                </p>
+                            </div>
+
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    اسلاگ *
+                                </label>
+                                <input type="text" name="slug" required
+                                       value="{{ product.slug|default:'' }}"
+                                       style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                  border-radius: 10px; font-family: inherit; font-size: 14px;
+                                                  direction: ltr;"
+                                       placeholder="product-slug"
+                                       id="slugInput">
+                                <p style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+                                    فقط حروف انگلیسی، اعداد و خط تیره
+                                </p>
+                            </div>
+
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    توضیحات
+                                </label>
+                                <textarea name="description" rows="6"
+                                          style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                     border-radius: 10px; font-family: inherit; font-size: 14px;
+                                                     resize: vertical;"
+                                          placeholder="توضیحات کامل محصول...">{{ product.description|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- قیمت‌گذاری -->
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h2>قیمت‌گذاری</h2>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    قیمت (تومان) *
+                                </label>
+                                <input type="number" name="price" required
+                                       value="{{ product.price|default:'' }}"
+                                       style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                  border-radius: 10px; font-family: inherit; font-size: 14px;"
+                                       placeholder="قیمت فروش">
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    قیمت قبل از تخفیف (تومان)
+                                </label>
+                                <input type="number" name="original_price"
+                                       value="{{ product.original_price|default:'' }}"
+                                       style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                  border-radius: 10px; font-family: inherit; font-size: 14px;"
+                                       placeholder="اختیاری">
+                            </div>
+                        </div>
+
+                        <!-- پیش‌نمایش تخفیف -->
+                        <div id="discountPreview"
+                             style="margin-top: 12px; padding: 10px 14px; border-radius: 10px;
+                                        background: rgba(52,199,89,0.1); display: none;">
+                                <span style="color: #34C759; font-weight: 600; font-size: 13px;">
+                                    <i class="fas fa-tag me-2"></i>
+                                    تخفیف: <span id="discountPercent">0</span>٪
+                                </span>
+                        </div>
+                    </div>
+
+                    <!-- تصاویر -->
+                    <div class="glass-card">
+                        <div class="card-header"><h2>تصاویر محصول</h2></div>
+
+                        <div style="border:2px dashed #ddd; border-radius:12px; padding:30px;
+                                        text-align:center; cursor:pointer;" id="dropZone"
+                             onclick="document.getElementById('imageInput').click()">
+                            <i class="fas fa-cloud-upload-alt"
+                               style="font-size:32px; color:#ccc; margin-bottom:8px; display:block;"></i>
+                            <p style="color:var(--text-secondary); font-size:14px; margin:0;">
+                                کلیک کنید یا فایل را بکشید
+                            </p>
+                            <input type="file" name="images" multiple accept="image/*"
+                                   id="imageInput" style="display:none;">
+                        </div>
+
+                        <!-- پیش‌نمایش با انتخاب عکس اصلی -->
+                        <div id="imagePreview"
+                             style="display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;">
+                        </div>
+
+                        <input type="hidden" name="main_image_index" id="mainImageIndex" value="0">
+
+                        <p style="font-size:12px; color:var(--text-secondary); margin-top:8px;">
+                            <i class="fas fa-info-circle me-1"></i>
+                            روی هر تصویر کلیک کنید تا به عنوان تصویر اصلی انتخاب شود
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- ستون کناری -->
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+
+                    <!-- دسته‌بندی و برند -->
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h2>دسته‌بندی</h2>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    دسته‌بندی
+                                </label>
+                                <select name="category"
+                                        style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                   border-radius: 10px; font-family: inherit; font-size: 14px;">
+                                    <option value="">انتخاب کنید</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.pk }}"
+                                            {% if product and product.category.pk== category.pk %}selected{% endif %}>
+                                        {% if category.parent %}— {% endif %}{{ category.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    برند
+                                </label>
+                                <select name="brand"
+                                        style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                   border-radius: 10px; font-family: inherit; font-size: 14px;">
+                                    <option value="">بدون برند</option>
+                                    {% for brand in brands %}
+                                    <option value="{{ brand.pk }}"
+                                            {% if product and product.brand.pk== brand.pk %}selected{% endif %}>
+                                        {{ brand.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="font-size: 13px; font-weight: 600;
+                                                  margin-bottom: 6px; display: block;">
+                                    جنسیت
+                                </label>
+                                <select name="gender"
+                                        style="width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+                                                   border-radius: 10px; font-family: inherit; font-size: 14px;">
+                                    <option value="unisex" {% if not product or product.gender==
+                                    'unisex' %}selected{% endif %}>همه</option>
+                                    <option value="women" {% if product and product.gender==
+                                    'women' %}selected{% endif %}>زنانه</option>
+                                    <option value="men" {% if product and product.gender==
+                                    'men' %}selected{% endif %}>مردانه</option>
+                                    <option value="kids" {% if product and product.gender==
+                                    'kids' %}selected{% endif %}>بچگانه</option>
+                                </select>
+                                <div>
+                                    <label style="font-size:13px; font-weight:600; margin-bottom:6px; display:block;">
+                                        نوع اندام
+                                    </label>
+                                    <select name="category_type"
+                                            style="width:100%; padding:10px 14px; border:1px solid #ddd;
+                                                   border-radius:10px; font-family:inherit; font-size:14px;">
+                                        <option value="">انتخاب کنید</option>
+                                        <option value="top" {% if product and product.category_type==
+                                        'top' %}selected{% endif %}>
+                                        بالاتنه
+                                        </option>
+                                        <option value="bottom" {% if product and product.category_type==
+                                        'bottom' %}selected{% endif %}>
+                                        پایین‌تنه
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- وضعیت -->
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h2>وضعیت انتشار</h2>
+                        </div>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;
+                                        padding: 12px; background: rgba(52,199,89,0.1);
+                                        border-radius: 12px; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">فعال</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    نمایش در سایت
+                                </div>
+                            </div>
+                            <label style="position: relative; display: inline-block;
+                                              width: 48px; height: 28px;">
+                                <input type="checkbox" name="is_active" id="isActive"
+                                       {% if not product or product.is_active %}checked{% endif %}
+                                       style="opacity: 0; width: 0; height: 0;">
+                                <span style="position: absolute; cursor: pointer; top: 0; left: 0;
+                                                 right: 0; bottom: 0; background: #34C759;
+                                                 border-radius: 28px; transition: 0.3s;"
+                                      id="toggleSlider"></span>
+                            </label>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button type="submit" name="action" value="save"
+                                    style="width: 100%; padding: 12px; background: #007AFF;
+                                               color: white; border: none; border-radius: 12px;
+                                               font-family: inherit; font-size: 14px;
+                                               font-weight: 600; cursor: pointer;">
+                                <i class="fas fa-save me-2"></i>
+                                {% if product %}ذخیره تغییرات{% else %}ایجاد محصول{% endif %}
+                            </button>
+                            <a href="{% url 'dashboard:products_list' %}"
+                               style="width: 100%; padding: 12px; background: #f5f5f5;
+                                          color: #333; border: none; border-radius: 12px;
+                                          font-family: inherit; font-size: 14px; font-weight: 600;
+                                          cursor: pointer; text-align: center; text-decoration: none;
+                                          display: block;">
+                                انصراف
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- راهنما -->
+                    <div class="glass-card">
+                        <div class="card-header">
+                            <h2>راهنما</h2>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <i class="fas fa-info-circle" style="color: #007AFF; margin-top: 2px;"></i>
+                                <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">
+                                    بعد از ایجاد محصول، واریانت‌ها (سایز و رنگ) را از پنل ادمین اضافه کنید
+                                </p>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                                <i class="fas fa-images" style="color: #34C759; margin-top: 2px;"></i>
+                                <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">
+                                    اولین تصویر آپلودشده به عنوان تصویر اصلی محصول در نظر گرفته می‌شود
+                                </p>
+                            </div>
+                            <a href="{% url 'admin:catalog_product_changelist' %}"
+                               target="_blank"
+                               style="font-size: 12px; color: #007AFF; text-decoration: none;">
+                                <i class="fas fa-external-link-alt me-1"></i>
+                                مدیریت پیشرفته در پنل ادمین
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+<script>
+    // اسلاگ خودکار از نام
+    document.getElementById('nameInput').addEventListener('input', function() {
+        const slug = this.value
+            .toLowerCase()
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^\w\-]/g, '')
+            .replace(/\-\-+/g, '-');
+        document.getElementById('slugInput').value = slug;
+    });
+
+    // پیش‌نمایش تخفیف
+    function updateDiscount() {
+        const price = parseFloat(document.querySelector('[name="price"]').value) || 0;
+        const original = parseFloat(document.querySelector('[name="original_price"]').value) || 0;
+        const preview = document.getElementById('discountPreview');
+
+        if (original > price && price > 0) {
+            const percent = Math.round((original - price) / original * 100);
+            document.getElementById('discountPercent').textContent = percent;
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+    document.querySelector('[name="price"]').addEventListener('input', updateDiscount);
+    document.querySelector('[name="original_price"]').addEventListener('input', updateDiscount);
+
+    // پیش‌نمایش تصاویر
+    document.getElementById('imageInput').addEventListener('change', function() {
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = '';
+
+        Array.from(this.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const div = document.createElement('div');
+                div.style.cssText = 'position: relative;';
+                div.innerHTML = `
+                    <img src="${e.target.result}" width="80" height="80"
+                         style="border-radius: 10px; object-fit: cover; border: 0.5px solid rgba(0,0,0,0.1);">
+                    ${index === 0 ? '<span style="position: absolute; top: 4px; right: 4px; background: #007AFF; color: white; font-size: 9px; padding: 2px 5px; border-radius: 4px;">اصلی</span>' : ''}
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    // Drag & Drop
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#007AFF';
+        dropZone.style.background = 'rgba(0,122,255,0.05)';
+    });
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '#ddd';
+        dropZone.style.background = '';
+    });
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#ddd';
+        dropZone.style.background = '';
+        document.getElementById('imageInput').files = e.dataTransfer.files;
+        document.getElementById('imageInput').dispatchEvent(new Event('change'));
+    });
+    let selectedMainIndex = 0;
+
+document.getElementById('imageInput').addEventListener('change', function() {
+const preview = document.getElementById('imagePreview');
+preview.innerHTML = '';
+selectedMainIndex = 0;
+document.getElementById('mainImageIndex').value = 0;
+
+Array.from(this.files).forEach((file, index) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+        const div = document.createElement('div');
+        div.style.cssText = 'position:relative; cursor:pointer;';
+        div.dataset.index = index;
+        div.innerHTML = `
+            <img src="${e.target.result}" width="90" height="90"
+                 style="border-radius:10px; object-fit:cover;
+                        border:3px solid ${index === 0 ? '#007AFF' : '#ddd'};
+                        transition:border 0.2s;"
+                 id="preview-img-${index}">
+            <div id="main-badge-${index}"
+                 style="position:absolute; top:4px; right:4px;
+                        background:${index === 0 ? '#007AFF' : 'transparent'};
+                        color:white; font-size:9px; padding:2px 5px;
+                        border-radius:4px; font-weight:700;">
+                ${index === 0 ? 'اصلی' : ''}
+            </div>
+        `;
+        div.addEventListener('click', () => {
+            // reset همه
+            document.querySelectorAll('#imagePreview img').forEach(img => {
+                img.style.border = '3px solid #ddd';
+            });
+            document.querySelectorAll('[id^="main-badge-"]').forEach(b => {
+                b.style.background = 'transparent';
+                b.textContent = '';
+            });
+            // انتخاب جدید
+            document.getElementById(`preview-img-${index}`).style.border = '3px solid #007AFF';
+            document.getElementById(`main-badge-${index}`).style.background = '#007AFF';
+            document.getElementById(`main-badge-${index}`).textContent = 'اصلی';
+            selectedMainIndex = index;
+            document.getElementById('mainImageIndex').value = index;
+        });
+        preview.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+});
+});
+</script>
+</body>
+</html>
