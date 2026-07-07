@@ -40,18 +40,21 @@ def request_payment(amount, description, callback_url, mobile=None, email=None):
         response = requests.post(url, json=data, timeout=10)
         result = response.json()
 
-        if result['data']['code'] == 100:
-            authority = result['data']['authority']
+        # در پاسخ خطا، zarinpal فیلد data را خالی و errors را پر می‌فرستد
+        result_data = result.get('data') or {}
+        if isinstance(result_data, dict) and result_data.get('code') == 100:
+            authority = result_data['authority']
             payment_url = get_payment_gateway_url(authority)
             return {
                 'status': 'ok',
                 'authority': authority,
                 'payment_url': payment_url}
-        else:
-            return {
-                'status': 'error',
-                'message': f"کد خطا: {result['data']['code']}"}
-    except requests.exceptions.RequestException as e:
+
+        errors = result.get('errors') or {}
+        error_code = result_data.get('code') if isinstance(result_data, dict) else None
+        message = errors.get('message') or f'کد خطا: {error_code or errors.get("code", "نامشخص")}'
+        return {'status': 'error', 'message': message}
+    except (requests.exceptions.RequestException, ValueError) as e:
         return {'status': 'error', 'message': str(e)}
 
 
@@ -67,14 +70,16 @@ def verify_payment(amount, authority):
         response = requests.post(url, json=data, timeout=10)
         result = response.json()
 
-        if result['data']['code'] in (100, 101):
+        result_data = result.get('data') or {}
+        if isinstance(result_data, dict) and result_data.get('code') in (100, 101):
             return {
                 'status': 'ok',
-                'ref_id': result['data']['ref_id'],
-                'already_verified': result['data']['code'] == 101}
-        else:
-            return {
-                'status': 'error',
-                'message': f"کد خطا: {result['data']['code']}"}
-    except requests.exceptions.RequestException as e:
+                'ref_id': result_data['ref_id'],
+                'already_verified': result_data['code'] == 101}
+
+        errors = result.get('errors') or {}
+        error_code = result_data.get('code') if isinstance(result_data, dict) else None
+        message = errors.get('message') or f'کد خطا: {error_code or errors.get("code", "نامشخص")}'
+        return {'status': 'error', 'message': message}
+    except (requests.exceptions.RequestException, ValueError) as e:
         return {'status': 'error', 'message': str(e)}

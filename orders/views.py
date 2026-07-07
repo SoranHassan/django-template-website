@@ -1,3 +1,5 @@
+import logging
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,6 +15,8 @@ from accounts.tasks import send_order_status_sms
 from catalog.models import ProductVariant
 from .models import Order, OrderItem, Coupon, CouponUsage
 from .zarinpal import request_payment, verify_payment
+
+logger = logging.getLogger('oramshop')
 
 
 def _decrease_stock(order):
@@ -159,10 +163,13 @@ class CheckoutView(LoginRequiredMixin, View):
         if result['status'] == 'ok':
             order.zarinpal_authority = result['authority']
             order.save()
+            logger.info('order %s created by %s, redirected to gateway (authority=%s)',
+                        order.pk, request.user.mobile, result['authority'])
             return redirect(result['payment_url'])
         else:
             order.status = 'cancelled'
             order.save()
+            logger.error('payment request failed for order %s: %s', order.pk, result['message'])
             return render(request, 'orders/checkout.html', {
                 'error': f"خطا در اتصال به درگاه پرداخت: {result['message']}"
             })
@@ -189,13 +196,16 @@ class VerifyPaymentView(LoginRequiredMixin, View):
                 order.save()
 
                 _finalize_paid_order(order)
+                logger.info('order %s paid successfully (ref_id=%s)', order.pk, order.zarinpal_ref_id)
                 send_order_status_sms.delay(request.user.mobile,order.pk,'paid')
                 return redirect('orders:complete_order', pk=order.pk)
             else:
+                logger.warning('payment verification failed for order %s: %s', order.pk, result['message'])
                 return render(request, 'orders/payment-failed.html', {'order': order,'error': result['message']})
         else:
             order.status = 'cancelled'
             order.save()
+            logger.info('payment cancelled by user for order %s', order.pk)
             return render(request, 'orders/payment-failed.html', {'order': order, 'error': 'پرداخت لغو شد یا با خطا مواجه شد'})
 
 

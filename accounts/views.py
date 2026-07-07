@@ -1,3 +1,4 @@
+import logging
 import random
 from datetime import timedelta
 from django.contrib import messages
@@ -15,6 +16,8 @@ from .forms import (LoginForm, SignupForm, ForgotPasswordForm, ResetPasswordForm
                     ProfileForm, AddressForm, first_error)
 from .models import CustomUser, OTP, Address
 from .tasks import send_otp_sms
+
+logger = logging.getLogger('oramshop')
 
 OTP_MAX_VERIFY_ATTEMPTS = 5
 OTP_RATE_LIMIT_ERROR = 'تعداد درخواست‌های کد تأیید بیش از حد مجاز است. لطفاً کمی بعد دوباره تلاش کنید'
@@ -117,6 +120,7 @@ def _send_otp(mobile):
     recent_otps = OTP.objects.filter(mobile=mobile, created_at__gte=timezone.now() - timedelta(minutes=10)).count()
 
     if recent_otps >= 5:
+        logger.warning('OTP rate limit hit for mobile %s', mobile)
         return False
 
     code = str(random.randint(100000, 999999))
@@ -155,6 +159,7 @@ class VerifyOTPView(View):
         attempts_key = f'otp_verify_attempts:{mobile}'
         attempts = cache.get(attempts_key, 0)
         if attempts >= OTP_MAX_VERIFY_ATTEMPTS:
+            logger.warning('OTP verify attempts exceeded for mobile %s', mobile)
             return render(request, self.template_name, {'error': 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفاً کد جدید درخواست کنید', 'mobile': mobile})
 
         otp = OTP.objects.filter(mobile=mobile, code=code, is_used=False).last()

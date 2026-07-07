@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class Brand(models.Model):
@@ -85,6 +86,9 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('catalog:product_detail', kwargs={'id': self.pk})
 
     @property
     def discount_percent(self):

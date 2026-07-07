@@ -47,3 +47,30 @@ class TemplateSyntaxTest(TestCase):
             except Exception as exc:
                 failures.append(f'{template_name}: {exc}')
         self.assertEqual(failures, [], 'تمپلیت‌های خراب:\n' + '\n'.join(failures))
+
+
+class SEOTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.product, _ = make_product(slug='seo-product', name='کفش تست')
+
+    def test_sitemap(self):
+        response = self.client.get('/sitemap.xml')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'/shop/{self.product.pk}/')
+
+    def test_robots_txt(self):
+        response = self.client.get('/robots.txt')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sitemap:')
+        self.assertContains(response, 'Disallow: /admin/')
+
+    def test_product_page_structured_data(self):
+        response = self.client.get(reverse('catalog:product_detail', kwargs={'id': self.product.pk}))
+        self.assertContains(response, 'application/ld+json')
+        self.assertContains(response, 'og:title')
+        self.assertContains(response, 'rel="canonical"')
+
+    def test_dynamic_title(self):
+        response = self.client.get(reverse('catalog:product_detail', kwargs={'id': self.product.pk}))
+        self.assertContains(response, '<title>خرید کفش تست | OramShop</title>', html=False)

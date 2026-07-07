@@ -1,6 +1,10 @@
 {% extends "base/base.html" %}
 {% load static %}
 
+{% block title %}فروشگاه — خرید آنلاین پوشاک | OramShop{% endblock %}
+{% block meta_description %}خرید آنلاین پوشاک و اکسسوری از فروشگاه اورام‌شاپ — فیلتر بر اساس دسته‌بندی، برند، سایز، رنگ و قیمت{% endblock %}
+{% block meta_robots %}{% if request.GET %}noindex, follow{% else %}index, follow{% endif %}{% endblock %}
+
 {% block hero_content %}
 
 {% include 'base/navbar.html' %}

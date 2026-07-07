@@ -12,3 +12,10 @@ class SecurityTest(TestCase):
     def test_custom_404(self):
         response = self.client.get('/no-such-page/')
         self.assertEqual(response.status_code, 404)
+
+
+class DjangoDefaultPagesEnglishTest(TestCase):
+    def test_admin_login_is_english(self):
+        """صفحات پیش‌فرض جنگو (ادمین) باید انگلیسی باشند"""
+        response = self.client.get('/admin/login/?next=/admin/')
+        self.assertContains(response, 'Log in')

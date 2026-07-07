@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
 
     # third-part apps
     'django_celery_beat',
@@ -100,7 +101,8 @@ CACHES = {
     }
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+# cached_db: سرعت کش + ماندگاری در دیتابیس (با ری‌استارت Redis سشن‌ها نمی‌پرند)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 SESSION_CACHE_ALIAS = 'default'
 
 
@@ -145,7 +147,8 @@ AXES_RESET_ON_SUCCESS = True
 
 
 # REGION SETTINGS
-LANGUAGE_CODE = 'fa-ir'
+# en-us: صفحات پیش‌فرض جنگو (ادمین، خطاها، پیام‌های فرم) کاملاً انگلیسی نمایش داده می‌شوند
+LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
 USE_TZ = True
@@ -214,35 +217,75 @@ ZARINPAL_MERCHANT_ID = config('ZARINPAL_MERCHANT_ID')
 ZARINPAL_SANDBOX = config('ZARINPAL_SANDBOX', default=True, cast=bool)
 
 
+# SECURITY (همه محیط‌ها)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14  # ۲ هفته
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+# دامنه‌های مجاز برای CSRF (پشت پروکسی/دامنه اصلی)
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
+
 # PRODUCTION SECURITY
 if not DEBUG:
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    X_FRAME_OPTIONS = 'DENY'
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # LOGS
+LOG_DIR = BASE_DIR / 'logs'
+LOG_DIR.mkdir(exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {name} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
             'style': '{',
         },
     },
     'handlers': {
-        'file': {
+        # خطاهای برنامه — چرخشی، حداکثر ۵ فایل ۵ مگابایتی
+        'error_file': {
             'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs/error.log',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR / 'error.log',
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
             'formatter': 'verbose',
+        },
+        # رخدادهای امنیتی (CSRF، لاگین ناموفق، ...)
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR / 'security.log',
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        # رخدادهای کسب‌وکار: پرداخت، سفارش، OTP
+        'app_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': LOG_DIR / 'app.log',
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'simple',
         },
         'console': {
             'class': 'logging.StreamHandler',
@@ -250,18 +293,29 @@ LOGGING = {
         },
     },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console', 'error_file'],
         'level': 'WARNING',
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'error_file'],
             'level': 'ERROR',
             'propagate': False,
         },
         'django.security': {
-            'handlers': ['file'],
+            'handlers': ['security_file', 'console'],
             'level': 'WARNING',
+            'propagate': False,
+        },
+        'axes': {
+            'handlers': ['security_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # لاگر اختصاصی پروژه — استفاده: logging.getLogger('oramshop')
+        'oramshop': {
+            'handlers': ['app_file', 'console'],
+            'level': 'INFO',
             'propagate': False,
         },
     },

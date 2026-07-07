@@ -6,12 +6,25 @@
     <title>{% block title %}OramShop - فروشگاه پوشاک و اکسسوری{% endblock %}</title>
     {% block meta %}
     <meta name="author" content="OramShop"/>
-    <meta content="فروشگاه اینترنتی پوشاک و اکسسوری" name="description"/>
-    <meta content="پوشاک,اکسسوری,فروشگاه اینترنتی" name="keywords"/>
+    <meta name="description" content="{% block meta_description %}فروشگاه اینترنتی پوشاک و اکسسوری اورام‌شاپ — خرید آنلاین لباس مردانه، زنانه و بچگانه با ارسال سریع{% endblock %}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="csrf-token" content="{{ csrf_token }}">
     {% endblock %}
+
+    {# SEO #}
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}"/>
+    <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}"/>
+
+    {# Open Graph #}
+    <meta property="og:site_name" content="OramShop"/>
+    <meta property="og:locale" content="fa_IR"/>
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}"/>
+    <meta property="og:title" content="{% block og_title %}OramShop - فروشگاه پوشاک و اکسسوری{% endblock %}"/>
+    <meta property="og:description" content="{% block og_description %}فروشگاه اینترنتی پوشاک و اکسسوری اورام‌شاپ{% endblock %}"/>
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}"/>
+    {% block og_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'app/img/logo.png' %}"/>{% endblock %}
+
+    {% block structured_data %}{% endblock %}
 
     <link rel="icon" href="{% static 'app/img/favicon.ico' %}" type="image/gif" sizes="18x18">
     <link href="{% static 'app/css/styles.css' %}" rel="stylesheet">

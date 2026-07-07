@@ -1,6 +1,35 @@
 {% extends "base/base.html" %}
 {% load static %}
 
+{% block title %}خرید {{ product.name }} | OramShop{% endblock %}
+{% block meta_description %}خرید اینترنتی {{ product.name }}{% if product.brand %} از برند {{ product.brand.name }}{% endif %} با قیمت {{ product.price|floatformat:0 }} تومان — {{ product.description|striptags|truncatechars:120 }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_title %}{{ product.name }} | OramShop{% endblock %}
+{% block og_description %}{{ product.description|striptags|truncatechars:200|default:product.name }}{% endblock %}
+{% block og_image %}{% if product.main_image %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ product.main_image.image.url }}"/>{% endif %}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "description": "{{ product.description|striptags|truncatechars:300|escapejs }}",
+  {% if product.main_image %}"image": "{{ request.scheme }}://{{ request.get_host }}{{ product.main_image.image.url }}",{% endif %}
+  {% if product.brand %}"brand": {"@type": "Brand", "name": "{{ product.brand.name|escapejs }}"},{% endif %}
+  {% if product.sku %}"sku": "{{ product.sku|escapejs }}",{% endif %}
+  {% if avg_rating and reviews %}"aggregateRating": {"@type": "AggregateRating", "ratingValue": "{{ avg_rating }}", "reviewCount": "{{ reviews|length }}"},{% endif %}
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{{ request.path }}",
+    "priceCurrency": "IRT",
+    "price": "{{ product.price|floatformat:0 }}",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+{% endblock %}
+
 {% block hero_content %}
 
 {% include 'base/navbar.html' %}
