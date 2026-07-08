@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}تسویه حساب - OramShop{% endblock %}
 
@@ -175,7 +175,7 @@
                                         {% if item.variant.color %} - {{ item.variant.color.name }}{% endif %}
                                     </div>
                                     <div class="small">
-                                        {{ item.quantity }} × {{ item.variant.final_price }} تومان
+                                        {{ item.quantity }} × {{ item.variant.final_price|intcomma }} تومان
                                     </div>
                                 </div>
                             </div>
@@ -186,7 +186,7 @@
                         <ul class="list-unstyled">
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted small">جمع کالاها</span>
-                                <span class="small">{{ subtotal }} تومان</span>
+                                <span class="small">{{ subtotal|intcomma }} تومان</span>
                             </li>
                             {% if discount_amount %}
                             <li class="d-flex justify-content-between mb-2 text-success">
@@ -194,12 +194,12 @@
                                     تخفیف
                                     {% if coupon %}({{ coupon.code }}){% endif %}
                                 </span>
-                                <span class="small">- {{ discount_amount }} تومان</span>
+                                <span class="small">- {{ discount_amount|intcomma }} تومان</span>
                             </li>
                             {% endif %}
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted small">مالیات (۹٪)</span>
-                                <span class="small">{{ tax }} تومان</span>
+                                <span class="small">{{ tax|intcomma }} تومان</span>
                             </li>
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted small">هزینه ارسال</span>
@@ -207,7 +207,7 @@
                             </li>
                             <li class="d-flex justify-content-between pt-2 border-top">
                                 <span class="ft-bold">مبلغ نهایی</span>
-                                <span class="ft-bold text-danger">{{ total }} تومان</span>
+                                <span class="ft-bold text-danger">{{ total|intcomma }} تومان</span>
                             </li>
                         </ul>
 
@@ -216,7 +216,7 @@
                         <button type="submit" class="btn btn-danger w-100 mt-3 py-2 ft-medium"
                                 id="pay-btn">
                             <i class="lni lni-lock me-2"></i>
-                            پرداخت {{ total }} تومان
+                            پرداخت {{ total|intcomma }} تومان
                         </button>
                         {% else %}
                         <a href="{% url 'accounts:addresses_create' %}"

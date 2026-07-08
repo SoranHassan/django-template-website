@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -204,7 +204,7 @@
                         <tr onclick="window.location='{% url 'dashboard:order_detail' order.pk %}'">
                             <td>#{{ order.pk }}</td>
                             <td>{{ order.user.get_full_name }}</td>
-                            <td>{{ order.final_total }} تومان</td>
+                            <td>{{ order.final_total|intcomma }} تومان</td>
                             <td>
                                         <span class="status {% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}cancelled{% else %}pending{% endif %}">
                                             {{ order.get_status_display }}
@@ -278,15 +278,15 @@
                 <div class="revenue-summary">
                     <div class="revenue-item">
                         <div class="revenue-label">امروز</div>
-                        <div class="revenue-value">{{ revenue_today }} تومان</div>
+                        <div class="revenue-value">{{ revenue_today|intcomma }} تومان</div>
                     </div>
                     <div class="revenue-item">
                         <div class="revenue-label">این هفته</div>
-                        <div class="revenue-value">{{ revenue_week }} تومان</div>
+                        <div class="revenue-value">{{ revenue_week|intcomma }} تومان</div>
                     </div>
                     <div class="revenue-item">
                         <div class="revenue-label">این ماه</div>
-                        <div class="revenue-value">{{ revenue_month }} تومان</div>
+                        <div class="revenue-value">{{ revenue_month|intcomma }} تومان</div>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -213,10 +213,10 @@
                         <td>{{ product.brand.name|default:"-" }}</td>
                         <td>{{ product.get_gender_display }}</td>
                         <td>
-                            <div style="font-weight: 600;">{{ product.price }} تومان</div>
+                            <div style="font-weight: 600;">{{ product.price|intcomma }} تومان</div>
                             {% if product.original_price %}
                             <div style="font-size: 11px; color: #86868B; text-decoration: line-through;">
-                                {{ product.original_price }} تومان
+                                {{ product.original_price|intcomma }} تومان
                             </div>
                             {% endif %}
                         </td>

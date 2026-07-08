@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -240,7 +240,7 @@
                                         </span>
                             </td>
                             <td style="font-weight: 600;">
-                                {{ product.total_revenue }} تومان
+                                {{ product.total_revenue|intcomma }} تومان
                             </td>
                         </tr>
                         {% empty %}

@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}سبد خرید - OramShop{% endblock %}
 
@@ -46,7 +46,7 @@
 
                                 <!-- تصویر -->
                                 <div class="col-3 col-md-2">
-                                    <a href="{% url 'catalog:product_detail' item.variant.product.slug %}">
+                                    <a href="{{ item.variant.product.get_absolute_url }}">
                                         {% if item.variant.product.main_image %}
                                         <img src="{{ item.variant.product.main_image.image.url }}"
                                              alt="{{ item.variant.product.name }}" class="img-fluid rounded">
@@ -64,7 +64,7 @@
                                 <div class="col-6 col-md-7">
                                     <div class="cart_single_caption pe-2">
                                         <h5 class="fs-md ft-medium mb-1">
-                                            <a href="{% url 'catalog:product_detail' item.variant.product.slug %}"
+                                            <a href="{{ item.variant.product.get_absolute_url }}"
                                                class="text-dark">
                                                 {{ item.variant.product.name }}
                                             </a>
@@ -87,7 +87,7 @@
                                         {% endif %}
                                         <h5 class="fs-md ft-bold mb-0 item-price"
                                             data-price="{{ item.variant.final_price }}">
-                                            {{ item.variant.final_price }} تومان
+                                            {{ item.variant.final_price|intcomma }} تومان
                                         </h5>
                                     </div>
                                 </div>
@@ -165,17 +165,17 @@
                         <ul class="list-unstyled">
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">جمع کالاها</span>
-                                <span id="summary-subtotal">{{ subtotal }} تومان</span>
+                                <span id="summary-subtotal">{{ subtotal|intcomma }} تومان</span>
                             </li>
                             {% if discount_amount %}
                             <li class="d-flex justify-content-between mb-2 text-success">
                                 <span>تخفیف</span>
-                                <span id="summary-discount">- {{ discount_amount }} تومان</span>
+                                <span id="summary-discount">- {{ discount_amount|intcomma }} تومان</span>
                             </li>
                             {% endif %}
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">مالیات (۹٪)</span>
-                                <span id="summary-tax">{{ tax }} تومان</span>
+                                <span id="summary-tax">{{ tax|intcomma }} تومان</span>
                             </li>
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">هزینه ارسال</span>
@@ -183,7 +183,7 @@
                             </li>
                             <li class="d-flex justify-content-between pt-2 border-top ft-bold">
                                 <span>مبلغ قابل پرداخت</span>
-                                <span id="summary-total" class="text-danger">{{ total }} تومان</span>
+                                <span id="summary-total" class="text-danger">{{ total|intcomma }} تومان</span>
                             </li>
                         </ul>
 
@@ -344,10 +344,14 @@
         });
     }
 
+    function formatPrice(value) {
+        return Number(value).toLocaleString('en-US') + ' تومان';
+    }
+
     function updateSummary(data) {
-        if (data.subtotal) document.getElementById('summary-subtotal').textContent = data.subtotal + ' تومان';
-        if (data.tax) document.getElementById('summary-tax').textContent = data.tax + ' تومان';
-        if (data.total) document.getElementById('summary-total').textContent = data.total + ' تومان';
+        if (data.subtotal) document.getElementById('summary-subtotal').textContent = formatPrice(data.subtotal);
+        if (data.tax) document.getElementById('summary-tax').textContent = formatPrice(data.tax);
+        if (data.total) document.getElementById('summary-total').textContent = formatPrice(data.total);
     }
 
     function updateNavCount(count) {

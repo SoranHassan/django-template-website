@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}فروشگاه — خرید آنلاین پوشاک | OramShop{% endblock %}
 {% block meta_description %}خرید آنلاین پوشاک و اکسسوری از فروشگاه اورام‌شاپ — فیلتر بر اساس دسته‌بندی، برند، سایز، رنگ و قیمت{% endblock %}
@@ -275,11 +275,11 @@
                             <div class="elis_rty">
                                 {% if product.original_price %}
                                 <span class="ft-medium text-muted line-through fs-sm me-1">
-                                    {{ product.original_price }} تومان
+                                    {{ product.original_price|intcomma }} تومان
                                 </span>
                                 {% endif %}
                                 <span class="ft-medium fs-md text-dark">
-                                    {{ product.price }} تومان
+                                    {{ product.price|intcomma }} تومان
                                 </span>
                             </div>
                         </div>

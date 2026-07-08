@@ -74,3 +74,10 @@ class SEOTest(TestCase):
     def test_dynamic_title(self):
         response = self.client.get(reverse('catalog:product_detail', kwargs={'id': self.product.pk}))
         self.assertContains(response, '<title>خرید کفش تست | OramShop</title>', html=False)
+
+
+class PriceFormattingTest(TestCase):
+    def test_prices_have_thousand_separators(self):
+        product, _ = make_product(price=1890000, slug='price-test', name='محصول قیمت')
+        response = self.client.get(reverse('catalog:product_detail', kwargs={'id': product.pk}))
+        self.assertContains(response, '1,890,000')

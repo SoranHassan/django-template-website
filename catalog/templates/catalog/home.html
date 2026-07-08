@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}OramShop - فروشگاه پوشاک و اکسسوری{% endblock %}
 
@@ -55,21 +55,13 @@
                     </div>
                 </div>
 
-                <!-- تصویر / اسکلت -->
+                <!-- تصویر هیرو -->
                 <div class="col-xl-6 col-lg-6 col-md-5 col-sm-12 d-none d-md-flex justify-content-center">
                     <div class="position-relative">
-                        <div style="width: 320px; height: 400px;
-                                    background: rgba(255,255,255,0.05);
-                                    border-radius: 24px;
-                                    border: 2px dashed rgba(255,255,255,0.15);
-                                    display: flex; align-items: center;
-                                    justify-content: center; flex-direction: column; gap: 12px;">
-                            <i class="lni lni-image"
-                               style="font-size: 48px; color: rgba(255,255,255,0.15);"></i>
-                            <span style="color: rgba(255,255,255,0.2); font-size: 13px;">
-                                تصویر اصلی
-                            </span>
-                        </div>
+                        <img src="{% static 'app/img/banner-a.jpg' %}" alt="جدیدترین کالکشن پوشاک"
+                             style="width: 320px; height: 400px; object-fit: cover;
+                                    border-radius: 24px; position: relative; z-index: 1;
+                                    box-shadow: 0 24px 48px rgba(0,0,0,0.35);">
                         <!-- دایره‌های تزئینی -->
                         <div style="position: absolute; width: 80px; height: 80px;
                                     background: rgba(233,69,96,0.3); border-radius: 50%;
@@ -103,7 +95,7 @@
                                     background: rgba(255,255,255,0.4);
                                     border-radius: 50%; display: flex;
                                     align-items: center; justify-content: center;">
-                            <i class="lni lni-woman" style="font-size: 32px; color: #c2185b;"></i>
+                            <i class="lni lni-crown" style="font-size: 32px; color: #c2185b;"></i>
                         </div>
                         <h5 class="ft-bold mb-1" style="color: #880e4f;">زنانه</h5>
                         <span style="color: #c2185b; font-size: 12px;">کالکشن جدید</span>
@@ -123,7 +115,7 @@
                                     background: rgba(255,255,255,0.4);
                                     border-radius: 50%; display: flex;
                                     align-items: center; justify-content: center;">
-                            <i class="lni lni-man" style="font-size: 32px; color: #1565c0;"></i>
+                            <i class="lni lni-tshirt" style="font-size: 32px; color: #1565c0;"></i>
                         </div>
                         <h5 class="ft-bold mb-1" style="color: #0d47a1;">مردانه</h5>
                         <span style="color: #1565c0; font-size: 12px;">استایل روز</span>
@@ -242,11 +234,11 @@
                             <div class="elis_rty">
                                 {% if product.original_price %}
                                 <span class="ft-medium text-muted line-through fs-sm me-1">
-                                    {{ product.original_price }} تومان
+                                    {{ product.original_price|intcomma }} تومان
                                 </span>
                                 {% endif %}
                                 <span class="ft-bold theme-cl fs-md">
-                                    {{ product.price }} تومان
+                                    {{ product.price|intcomma }} تومان
                                 </span>
                             </div>
                         </div>

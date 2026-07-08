@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}سفارش‌های من - OramShop{% endblock %}
 
@@ -175,7 +175,7 @@
                             <!-- قیمت -->
                             <div class="text-start">
                                 <span class="ft-medium">
-                                    {{ item.total_price }} تومان
+                                    {{ item.total_price|intcomma }} تومان
                                 </span>
                             </div>
 
@@ -197,12 +197,12 @@
                             <span>
                                 <i class="lni lni-tag me-1 text-danger"></i>
                                 کد تخفیف: {{ order.coupon.code }}
-                                (-{{ order.discount_amount }} تومان)
+                                (-{{ order.discount_amount|intcomma }} تومان)
                             </span>
                             {% endif %}
                         </div>
                         <h5 class="mb-0 ft-bold">
-                            جمع کل: {{ order.final_total }} تومان
+                            جمع کل: {{ order.final_total|intcomma }} تومان
                         </h5>
                     </div>
 

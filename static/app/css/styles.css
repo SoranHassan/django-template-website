@@ -1272,8 +1272,12 @@ outline:none;
 /*----------- GLobal Settings: Custom Radio Button ------------*/
 [type="radio"]:checked,
 [type="radio"]:not(:checked) {
+    /* مخفی‌سازی بدون جابه‌جایی؛ left منفی در RTL باعث اسکرول افقی عظیم می‌شد */
     position: absolute;
-    left: -9999px;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    overflow: hidden;
 }
 [type="radio"]:checked + label,
 [type="radio"]:not(:checked) + label

@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -176,12 +176,12 @@
                         <td>{{ order.created_at|date:"Y/m/d H:i" }}</td>
                         <td>{{ order.items.count }} قلم</td>
                         <td>
-                            <strong>{{ order.final_total }} تومان</strong>
+                            <strong>{{ order.final_total|intcomma }} تومان</strong>
                         </td>
                         <td>
                             {% if order.discount_amount %}
                             <span style="color: #34C759;">
-                                        -{{ order.discount_amount }} تومان
+                                        -{{ order.discount_amount|intcomma }} تومان
                                     </span>
                             {% else %}
                             <span style="color: #86868B;">-</span>

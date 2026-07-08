@@ -1,4 +1,4 @@
-{% load static %}
+{% load static humanize %}
 
 <!-- Top Bar -->
 <div class="header-top-bar" style="background: linear-gradient(90deg, #1a1a2e 0%, #e94560 100%); padding: 8px 0; overflow: hidden;">
@@ -199,7 +199,7 @@
                 <div class="d-flex align-items-center justify-content-between px-2 py-2 mb-3 bg-light rounded">
                     <h6 class="mb-0">جمع کل:</h6>
                     <h4 class="mb-0 ft-bold text-dark cart-subtotal" id="cart-subtotal">
-                        {{ nav_cart_total }} تومان
+                        {{ nav_cart_total|intcomma }} تومان
                     </h4>
                 </div>
                 <div class="px-2">

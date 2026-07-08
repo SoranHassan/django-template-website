@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -334,8 +335,8 @@
             <td>{{ item.variant.size.name|default:"-" }}</td>
             <td>{{ item.variant.color.name|default:"-" }}</td>
             <td>{{ item.quantity }}</td>
-            <td>{{ item.price }} تومان</td>
-            <td>{{ item.total_price }} تومان</td>
+            <td>{{ item.price|intcomma }} تومان</td>
+            <td>{{ item.total_price|intcomma }} تومان</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -346,19 +347,19 @@
         <table class="summary-table">
             <tr>
                 <td>جمع کالاها:</td>
-                <td>{{ order.total_price }} تومان</td>
+                <td>{{ order.total_price|intcomma }} تومان</td>
             </tr>
             {% if order.discount_amount %}
             <tr class="discount-row">
                 <td>تخفیف
                     {% if order.coupon %}({{ order.coupon.code }}){% endif %}:
                 </td>
-                <td>- {{ order.discount_amount }} تومان</td>
+                <td>- {{ order.discount_amount|intcomma }} تومان</td>
             </tr>
             {% endif %}
             <tr>
                 <td>مالیات (۹٪):</td>
-                <td>{{ order.tax }} تومان</td>
+                <td>{{ order.tax|intcomma }} تومان</td>
             </tr>
             {% if order.shipping_cost %}
             <tr>
@@ -368,7 +369,7 @@
             {% endif %}
             <tr class="total-row">
                 <td>مبلغ قابل پرداخت:</td>
-                <td>{{ order.final_total }} تومان</td>
+                <td>{{ order.final_total|intcomma }} تومان</td>
             </tr>
         </table>
     </div>

@@ -1,8 +1,8 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static humanize %}
 
 {% block title %}خرید {{ product.name }} | OramShop{% endblock %}
-{% block meta_description %}خرید اینترنتی {{ product.name }}{% if product.brand %} از برند {{ product.brand.name }}{% endif %} با قیمت {{ product.price|floatformat:0 }} تومان — {{ product.description|striptags|truncatechars:120 }}{% endblock %}
+{% block meta_description %}خرید اینترنتی {{ product.name }}{% if product.brand %} از برند {{ product.brand.name }}{% endif %} با قیمت {{ product.price|floatformat:0|intcomma }} تومان — {{ product.description|striptags|truncatechars:120 }}{% endblock %}
 {% block og_type %}product{% endblock %}
 {% block og_title %}{{ product.name }} | OramShop{% endblock %}
 {% block og_description %}{{ product.description|striptags|truncatechars:200|default:product.name }}{% endblock %}
@@ -130,11 +130,11 @@
                             <div class="elis_rty">
                                 {% if product.original_price %}
                                 <span class="ft-medium text-muted line-through fs-md me-2">
-                                    {{ product.original_price }} تومان
+                                    {{ product.original_price|intcomma }} تومان
                                 </span>
                                 {% endif %}
                                 <span class="ft-bold theme-cl fs-lg">
-                                    {{ product.price }} تومان
+                                    {{ product.price|intcomma }} تومان
                                 </span>
                             </div>
                         </div>
@@ -148,7 +148,7 @@
                     <!-- اطلاعات بیشتر -->
                     <div class="prt_04 mb-4">
                         {% if product.category %}
-                        <p class="d-flex align-items-center mb-1">
+                        <p class="d-flex align-items-center gap-1 mb-1">
                             دسته‌بندی:
                             <strong class="fs-sm text-dark ft-medium ms-1">
                                 {{ product.category.name }}
@@ -156,17 +156,17 @@
                         </p>
                         {% endif %}
                         {% if product.gender %}
-                        <p class="d-flex align-items-center mb-1">
+                        <p class="d-flex align-items-center gap-1 mb-1">
                             جنسیت:
                             <strong class="fs-sm text-dark ft-medium ms-1">
                                 {{ product.get_gender_display }}
                             </strong>
                         </p>
                         {% endif %}
-                        <p class="d-flex align-items-center mb-0">
+                        <p class="d-flex align-items-center gap-1 mb-0">
                             کد محصول:
                             <strong class="fs-sm text-dark ft-medium ms-1">
-                                {{ product.pk }}
+                                {% if product.sku %}{{ product.sku }}{% else %}{{ product.pk }}{% endif %}
                             </strong>
                         </p>
                     </div>
@@ -509,8 +509,32 @@
         </div>
         <div class="row">
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
-                <div class="slide_items">
-                    {% include 'catalog/_deals.html' %}
+                <div class="similar-products">
+                    <div class="row justify-content-center g-3">
+                        {% for similar in similar_products %}
+                        <div class="col-6 col-md-4 col-lg-2">
+                            <div class="product_grid card b-0 mb-3">
+                                <div class="card-body p-0">
+                                    <a class="card-img-top d-block overflow-hidden" href="{{ similar.get_absolute_url }}">
+                                        {% if similar.main_image %}
+                                        <img class="card-img-top" src="{{ similar.main_image.image.url }}" alt="{{ similar.name }}">
+                                        {% else %}
+                                        <img class="card-img-top" src="{% static 'app/img/product/1.jpg' %}" alt="{{ similar.name }}">
+                                        {% endif %}
+                                    </a>
+                                </div>
+                                <div class="card-footer b-0 pt-3 px-2 bg-white text-center">
+                                    <h5 class="fw-normal fs-sm mb-1 lh-1">
+                                        <a href="{{ similar.get_absolute_url }}">{{ similar.name }}</a>
+                                    </h5>
+                                    <span class="ft-medium fs-sm text-dark">{{ similar.price|intcomma }} تومان</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-center text-muted">محصول مشابهی یافت نشد</p>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
