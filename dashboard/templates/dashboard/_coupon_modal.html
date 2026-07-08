@@ -1,0 +1,73 @@
+{% comment %} مودال ایجاد/ویرایش کوپن — با modal_id و coupon (اختیاری) {% endcomment %}
+<div id="couponModal{{ modal_id }}"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:20px; padding:32px; width:92%; max-width:560px; max-height:92vh; overflow-y:auto;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h3 style="font-size:17px; font-weight:700;">
+                {% if action_url_pk %}ویرایش «{{ coupon.code }}»{% else %}کد تخفیف جدید{% endif %}
+            </h3>
+            <button onclick="document.getElementById('couponModal{{ modal_id }}').style.display='none'"
+                    style="background:none;border:none;cursor:pointer;color:#86868B;"><i class="fas fa-times"></i></button>
+        </div>
+        <form method="POST"
+              action="{% if action_url_pk %}{% url 'dashboard:coupon_edit' action_url_pk %}{% else %}{% url 'dashboard:coupon_create' %}{% endif %}">
+            {% csrf_token %}
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div style="grid-column:1/-1;">
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">کد *</label>
+                    <input type="text" name="code" value="{{ coupon.code|default:'' }}" required
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">نوع تخفیف</label>
+                    <select name="discount_type" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                        <option value="percent" {% if coupon.discount_type == 'percent' %}selected{% endif %}>درصدی</option>
+                        <option value="fixed" {% if coupon.discount_type == 'fixed' %}selected{% endif %}>مبلغ ثابت</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">مقدار تخفیف *</label>
+                    <input type="number" name="discount_value" value="{{ coupon.discount_value|default:'' }}" required min="0"
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">حداقل مبلغ سفارش</label>
+                    <input type="number" name="min_order_amount" value="{{ coupon.min_order_amount|default:0 }}" min="0"
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">سقف مبلغ تخفیف</label>
+                    <input type="number" name="max_discount_amount" value="{{ coupon.max_discount_amount|default:'' }}" min="0"
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">سقف کل استفاده (۰=نامحدود)</label>
+                    <input type="number" name="max_uses" value="{{ coupon.max_uses|default:0 }}" min="0"
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">سقف هر کاربر</label>
+                    <input type="number" name="max_uses_per_user" value="{{ coupon.max_uses_per_user|default:1 }}" min="1"
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">شروع اعتبار *</label>
+                    <input type="datetime-local" name="valid_from" value="{{ coupon.valid_from|date:'Y-m-d\TH:i' }}" required
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">پایان اعتبار *</label>
+                    <input type="datetime-local" name="valid_until" value="{{ coupon.valid_until|date:'Y-m-d\TH:i' }}" required
+                           style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;font-family:inherit;">
+                </div>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;margin:16px 0;font-size:14px;">
+                <input type="checkbox" name="is_active" {% if not coupon or coupon.is_active %}checked{% endif %}
+                       style="width:16px;height:16px;accent-color:#00B8CC;"> فعال
+            </label>
+            <button type="submit" style="width:100%;padding:12px;background:#00B8CC;color:white;border:none;border-radius:12px;font-family:inherit;font-weight:600;cursor:pointer;">
+                ذخیره
+            </button>
+        </form>
+    </div>
+</div>

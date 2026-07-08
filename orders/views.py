@@ -13,7 +13,7 @@ from cart.views import _get_or_create_cart
 from accounts.models import Address
 from accounts.tasks import send_order_status_sms
 from catalog.models import ProductVariant
-from .models import Order, OrderItem, Coupon, CouponUsage
+from .models import Order, OrderItem, Coupon, CouponUsage, ShippingMethod
 from .zarinpal import request_payment, verify_payment
 
 logger = logging.getLogger('oramshop')
@@ -39,12 +39,18 @@ def _finalize_paid_order(order):
         variant_id__in=order.items.values_list('variant_id', flat=True)).delete()
 
 
-class ApplyCouponView(LoginRequiredMixin, View):
+class ApplyCouponView(View):
     def post(self, request):
-        code = request.POST.get('code', '').strip().upper()
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'برای استفاده از کد تخفیف ابتدا وارد حساب خود شوید'}, status=401)
+
+        code = request.POST.get('code', '').strip()
 
         try:
-            coupon = Coupon.objects.get(code=code)
+            # بدون حساسیت به بزرگی/کوچکی حروف
+            coupon = Coupon.objects.get(code__iexact=code)
         except Coupon.DoesNotExist:
             return JsonResponse({
                 'status': 'error',
@@ -75,7 +81,7 @@ class ApplyCouponView(LoginRequiredMixin, View):
             'status': 'ok',
             'message': 'کد تخفیف اعمال شد',
             'discount': str(discount),
-            'final_total': str(cart.subtotal - discount + cart.tax)})
+            'final_total': str(cart.subtotal - discount)})
 
 
 class RemoveCouponView(LoginRequiredMixin, View):
@@ -113,15 +119,16 @@ class CheckoutView(LoginRequiredMixin, View):
 
         addresses = request.user.addresses.all()
         coupon, discount_amount = _get_session_coupon(request, cart)
+        shipping_methods = ShippingMethod.objects.filter(is_active=True)
 
         return render(request, 'orders/checkout.html', {
             'cart': items,
             'subtotal': cart.subtotal,
-            'tax': cart.tax,
             'discount_amount': discount_amount,
-            'total': cart.subtotal + cart.tax - discount_amount,
+            'total': cart.subtotal - discount_amount,
             'addresses': addresses,
-            'coupon': coupon,})
+            'coupon': coupon,
+            'shipping_methods': shipping_methods,})
 
     def post(self, request):
         cart = _get_or_create_cart(request)
@@ -139,10 +146,22 @@ class CheckoutView(LoginRequiredMixin, View):
 
         address_id = request.POST.get('address_id')
         address = get_object_or_404(Address, pk=address_id, user=request.user)
+
+        shipping_method = ShippingMethod.objects.filter(
+            pk=request.POST.get('shipping_method'), is_active=True).first()
+        if shipping_method is None:
+            shipping_methods = ShippingMethod.objects.filter(is_active=True)
+            if shipping_methods.exists():
+                return render(request, 'orders/checkout.html', {
+                    'error': 'لطفاً روش ارسال را انتخاب کنید'})
+            shipping_cost = 0
+        else:
+            shipping_cost = shipping_method.price
+
         coupon, discount_amount = _get_session_coupon(request, cart)
 
         order = Order.objects.create(user=request.user, address=address, coupon=coupon, total_price=cart.subtotal,
-                                        discount_amount=discount_amount, tax=cart.tax, status='pending')
+                                        discount_amount=discount_amount, shipping_cost=shipping_cost, status='pending')
 
         for item in items:
             OrderItem.objects.create(order=order, variant=item.variant, quantity=item.quantity, price=item.variant.final_price)

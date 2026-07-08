@@ -7,6 +7,7 @@ from django.db.models.functions import TruncMonth, TruncWeek
 from datetime import timedelta
 import json
 from accounts.models import CustomUser
+from accounts.tasks import send_order_status_sms
 from orders.models import Order, OrderItem
 from reviews.models import Review
 from catalog.models import Product, Category, Brand, ProductImage
@@ -142,10 +143,15 @@ class DashboardOrderDetailView(StaffRequiredMixin, View):
         tracking_code = request.POST.get('tracking_code', '')
 
         if new_status in dict(Order.STATUS_CHOICES):
+            old_status = order.status
             order.status = new_status
             if tracking_code:
                 order.tracking_code = tracking_code
             order.save()
+
+            # اطلاع‌رسانی پیامکی تغییر وضعیت به مشتری (مثلاً تأیید سفارش)
+            if new_status != old_status:
+                send_order_status_sms.delay(order.user.mobile, order.pk, new_status)
 
         return redirect('dashboard:order_detail', pk=pk)
 
@@ -318,3 +324,128 @@ class DashboardProductEditView(StaffRequiredMixin, View):
                 'brands': Brand.objects.all(),
                 'error': str(e),
             })
+
+# ---------- CRUD کامل داخل داشبورد (بدون ریدایرکت به ادمین جنگو) ----------
+
+class DashboardCategoryCreateView(StaffRequiredMixin, View):
+    def post(self, request):
+        name = request.POST.get('name', '').strip()
+        if name:
+            Category.objects.create(
+                name=name,
+                slug=request.POST.get('slug') or slugify(name, allow_unicode=True),
+                parent_id=request.POST.get('parent') or None,
+                image=request.FILES.get('image'),
+                is_active='is_active' not in request.POST or request.POST.get('is_active') == 'on')
+        return redirect('dashboard:categories_list')
+
+
+class DashboardCategoryEditView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        category = get_object_or_404(Category, pk=pk)
+        category.name = request.POST.get('name', category.name)
+        category.slug = request.POST.get('slug') or category.slug
+        category.parent_id = request.POST.get('parent') or None
+        category.is_active = request.POST.get('is_active') == 'on'
+        if request.FILES.get('image'):
+            category.image = request.FILES['image']
+        category.save()
+        return redirect('dashboard:categories_list')
+
+
+class DashboardCategoryDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        get_object_or_404(Category, pk=pk).delete()
+        return redirect('dashboard:categories_list')
+
+
+class DashboardBrandsListView(StaffRequiredMixin, View):
+    def get(self, request):
+        return render(request, 'dashboard/brands-list.html', {'brands': Brand.objects.all()})
+
+
+class DashboardBrandCreateView(StaffRequiredMixin, View):
+    def post(self, request):
+        name = request.POST.get('name', '').strip()
+        if name:
+            Brand.objects.create(
+                name=name,
+                slug=request.POST.get('slug') or slugify(name, allow_unicode=True),
+                logo=request.FILES.get('logo'),
+                is_active=True)
+        return redirect('dashboard:brands_list')
+
+
+class DashboardBrandEditView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        brand = get_object_or_404(Brand, pk=pk)
+        brand.name = request.POST.get('name', brand.name)
+        brand.slug = request.POST.get('slug') or brand.slug
+        brand.is_active = request.POST.get('is_active') == 'on'
+        if request.FILES.get('logo'):
+            brand.logo = request.FILES['logo']
+        brand.save()
+        return redirect('dashboard:brands_list')
+
+
+class DashboardBrandDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        get_object_or_404(Brand, pk=pk).delete()
+        return redirect('dashboard:brands_list')
+
+
+class DashboardProductDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        # اگر سفارشی به واریانت‌ها وصل باشد (PROTECT)، به جای حذف غیرفعال می‌کنیم
+        try:
+            product.delete()
+        except Exception:
+            product.is_active = False
+            product.save()
+        return redirect('dashboard:products_list')
+
+
+def _parse_dt(value):
+    from django.utils.dateparse import parse_datetime
+    dt = parse_datetime(value or '')
+    if dt and timezone.is_naive(dt):
+        dt = timezone.make_aware(dt)
+    return dt
+
+
+class DashboardCouponsListView(StaffRequiredMixin, View):
+    def get(self, request):
+        from orders.models import Coupon
+        return render(request, 'dashboard/coupons-list.html', {
+            'coupons': Coupon.objects.all().order_by('-created_at'), 'now': timezone.now()})
+
+
+class DashboardCouponSaveView(StaffRequiredMixin, View):
+    """ایجاد (بدون pk) یا ویرایش (با pk) کد تخفیف"""
+
+    def post(self, request, pk=None):
+        from orders.models import Coupon
+        coupon = get_object_or_404(Coupon, pk=pk) if pk else Coupon()
+
+        coupon.code = request.POST.get('code', coupon.code or '').strip()
+        coupon.discount_type = request.POST.get('discount_type', 'percent')
+        coupon.discount_value = request.POST.get('discount_value') or 0
+        coupon.min_order_amount = request.POST.get('min_order_amount') or 0
+        coupon.max_discount_amount = request.POST.get('max_discount_amount') or None
+        coupon.max_uses = request.POST.get('max_uses') or 0
+        coupon.max_uses_per_user = request.POST.get('max_uses_per_user') or 1
+        coupon.valid_from = _parse_dt(request.POST.get('valid_from')) or coupon.valid_from or timezone.now()
+        coupon.valid_until = _parse_dt(request.POST.get('valid_until')) or coupon.valid_until or timezone.now()
+        coupon.is_active = request.POST.get('is_active') == 'on'
+
+        if coupon.code:
+            coupon.save()
+        return redirect('dashboard:coupons_list')
+
+
+class DashboardCouponDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from orders.models import Coupon
+        get_object_or_404(Coupon, pk=pk).delete()
+        return redirect('dashboard:coupons_list')

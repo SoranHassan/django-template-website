@@ -1,13 +1,21 @@
-{% for item in features2 %}
-<div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
-    <div class="d-flex align-items-center justify-content-start py-2">
-        <div class="d_ico">
-            <i class="{{ item.icon }} theme-cl"></i>
-        </div>
-        <div class="d_capt">
-            <h5 class="mb-0">{{ item.name }}</h5>
-            <span class="text-muted">{{ item.title }}</span>
-        </div>
-    </div>
+{% comment %} ویژگی‌های فروشگاه — در پایین صفحات نمایش داده می‌شود {% endcomment %}
+<div class="col-6 col-md-3 text-center py-3">
+    <i class="lni lni-delivery" style="font-size:34px; color: var(--os-cyan-dark);"></i>
+    <h6 class="ft-medium mt-2 mb-1">ارسال سریع</h6>
+    <span class="small text-muted">ارسال به سراسر کشور</span>
 </div>
-{% endfor %}
+<div class="col-6 col-md-3 text-center py-3">
+    <i class="lni lni-checkmark-circle" style="font-size:34px; color: var(--os-cyan-dark);"></i>
+    <h6 class="ft-medium mt-2 mb-1">ضمانت اورجینال</h6>
+    <span class="small text-muted">تضمین اصالت کالا</span>
+</div>
+<div class="col-6 col-md-3 text-center py-3">
+    <i class="lni lni-reload" style="font-size:34px; color: var(--os-cyan-dark);"></i>
+    <h6 class="ft-medium mt-2 mb-1">۷ روز مرجوعی</h6>
+    <span class="small text-muted">بازگشت آسان کالا</span>
+</div>
+<div class="col-6 col-md-3 text-center py-3">
+    <i class="lni lni-shield" style="font-size:34px; color: var(--os-cyan-dark);"></i>
+    <h6 class="ft-medium mt-2 mb-1">پرداخت امن</h6>
+    <span class="small text-muted">درگاه بانکی معتبر</span>
+</div>

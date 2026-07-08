@@ -27,6 +27,9 @@
             <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
             <li class="active"><a href="{% url 'dashboard:products_list' %}"><i
                     class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:categories_list' %}"><i class="fas fa-tags"></i><span>دسته‌بندی‌ها</span></a></li>
+            <li><a href="{% url 'dashboard:brands_list' %}"><i class="fas fa-copyright"></i><span>برندها</span></a></li>
+            <li><a href="{% url 'dashboard:coupons_list' %}"><i class="fas fa-ticket-alt"></i><span>کدهای تخفیف</span></a></li>
             <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
             </li>
             <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span></a></li>
@@ -376,12 +379,7 @@
                                     اولین تصویر آپلودشده به عنوان تصویر اصلی محصول در نظر گرفته می‌شود
                                 </p>
                             </div>
-                            <a href="{% url 'admin:catalog_product_changelist' %}"
-                               target="_blank"
-                               style="font-size: 12px; color: #007AFF; text-decoration: none;">
-                                <i class="fas fa-external-link-alt me-1"></i>
-                                مدیریت پیشرفته در پنل ادمین
-                            </a>
+                            
                         </div>
                     </div>
 

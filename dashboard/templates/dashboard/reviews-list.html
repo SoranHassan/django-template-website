@@ -26,6 +26,9 @@
             <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
             <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
             <li><a href="{% url 'dashboard:products_list' %}"><i class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:categories_list' %}"><i class="fas fa-tags"></i><span>دسته‌بندی‌ها</span></a></li>
+            <li><a href="{% url 'dashboard:brands_list' %}"><i class="fas fa-copyright"></i><span>برندها</span></a></li>
+            <li><a href="{% url 'dashboard:coupons_list' %}"><i class="fas fa-ticket-alt"></i><span>کدهای تخفیف</span></a></li>
             <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
             </li>
             <li class="active">
@@ -227,11 +230,7 @@
                             </button>
 
                             <!-- ویرایش در ادمین -->
-                            <a href="{% url 'admin:reviews_review_change' review.pk %}"
-                               class="btn-secondary"
-                               style="padding: 6px 12px; font-size: 12px;" target="_blank">
-                                <i class="fas fa-edit me-1"></i>ویرایش
-                            </a>
+                            
 
                         </div>
                     </div>

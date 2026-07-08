@@ -1,21 +1,29 @@
-{% for item in reviews2 %}
-<div class="{{ item.style }}">
-    <div class="single_rev_thumb"><img src="{{ item.img }}" class="img-fluid circle" width="90" alt=""/></div>
-    <div class="single_rev_caption d-flex align-items-start ps-3">
-        <div class="single_capt_left">
-            <h5 class="mb-0 fs-md ft-medium lh-1">{{ item.name }}</h5>
-            <span class="small">{{ item.date }}</span>
-            <p>{{ item.desc }}</p>
-        </div>
-        <div class="single_capt_right">
-            <div class="star-rating align-items-center d-flex justify-content-left mb-1 p-0">
-                <i class="fas fa-star filled"></i>
-                <i class="fas fa-star filled"></i>
-                <i class="fas fa-star filled"></i>
-                <i class="fas fa-star filled"></i>
-                <i class="fas fa-star filled"></i>
+{% comment %} نمایش نظرات تأییدشده محصول — context: reviews {% endcomment %}
+{% for review in reviews %}
+<div class="d-flex align-items-start gap-3 border rounded p-3 mb-3">
+    <div class="user-avatar-nav flex-shrink-0" style="width:44px;height:44px;">
+        {{ review.user.first_name|first|default:"ک"|upper }}
+    </div>
+    <div class="flex-grow-1">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h6 class="mb-0 ft-medium">{{ review.user.get_full_name }}</h6>
+                <span class="small text-muted">{{ review.created_at|date:"Y/m/d" }}</span>
+            </div>
+            <div class="star-rating d-flex align-items-center gap-1">
+                {% for i in "12345" %}
+                {% if forloop.counter <= review.rating %}
+                <i class="fas fa-star" style="color:#f5b50a;"></i>
+                {% else %}
+                <i class="fas fa-star" style="color:#e0e0e0;"></i>
+                {% endif %}
+                {% endfor %}
             </div>
         </div>
+        {% if review.title %}<p class="ft-medium mb-1 mt-2">{{ review.title }}</p>{% endif %}
+        <p class="mb-0 text-muted">{{ review.body }}</p>
     </div>
 </div>
+{% empty %}
+<p class="text-center text-muted py-4">هنوز نظری برای این محصول ثبت نشده است. اولین نفر باشید!</p>
 {% endfor %}

@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برندها - پنل مدیریت</title>
+    <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <i class="fas fa-crown"></i>
+            <span>پنل مدیریت</span>
+        </div>
+        <button class="close-btn" id="closeSidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <nav class="sidebar-nav">
+        <ul>
+            <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
+            <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
+            <li class="active"><a href="{% url 'dashboard:products_list' %}"><i
+                    class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:categories_list' %}"><i class="fas fa-tags"></i><span>دسته‌بندی‌ها</span></a></li>
+            <li><a href="{% url 'dashboard:brands_list' %}"><i class="fas fa-copyright"></i><span>برندها</span></a></li>
+            <li><a href="{% url 'dashboard:coupons_list' %}"><i class="fas fa-ticket-alt"></i><span>کدهای تخفیف</span></a></li>
+            <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
+            </li>
+            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
+            <li><a href="{% url 'dashboard:analytics' %}"><i
+                    class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="user-profile">
+            {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
+            {% else %}
+            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            {% endif %}
+            <div class="user-info">
+                <h4>{{ request.user.get_full_name }}</h4>
+                <p>مدیر سیستم</p>
+            </div>
+        </div>
+        <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">{% csrf_token %}<button type="submit" class="logout-btn" style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:inherit">
+            <i class="fas fa-sign-out-alt"></i>
+        </button></form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="top-header">
+        <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="جستجو در برندها...">
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
+                <i class="fas fa-external-link-alt"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <div class="page-title">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div><h1>برندها</h1><p>مدیریت برندهای فروشگاه</p></div>
+                <button class="btn-secondary" style="padding: 12px 20px; font-size: 14px;"
+                        onclick="document.getElementById('addBrandModal').style.display='flex'">
+                    <i class="fas fa-plus me-2"></i>برند جدید
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="card-header"><h2>همه برندها ({{ brands|length }})</h2></div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>برند</th><th>اسلاگ</th><th>محصولات</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+                    <tbody>
+                    {% for brand in brands %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                {% if brand.logo %}
+                                <img src="{{ brand.logo.url }}" width="36" height="36" style="border-radius:8px; object-fit:contain; background:#f8f8f8;">
+                                {% endif %}
+                                <span style="font-weight:600;">{{ brand.name }}</span>
+                            </div>
+                        </td>
+                        <td style="font-size:12px; color:var(--text-secondary);">{{ brand.slug }}</td>
+                        <td><span class="status success">{{ brand.products.count }} محصول</span></td>
+                        <td>{% if brand.is_active %}<span class="status success">فعال</span>{% else %}<span class="status cancelled">غیرفعال</span>{% endif %}</td>
+                        <td>
+                            <div style="display:flex; gap:6px;">
+                                <button type="button" class="btn-secondary" style="padding:5px 8px; font-size:11px;" title="ویرایش"
+                                        onclick="document.getElementById('editBrand{{ brand.pk }}').style.display='flex'">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form method="POST" action="{% url 'dashboard:brand_delete' brand.pk %}"
+                                      onsubmit="return confirm('این برند حذف شود؟');" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-secondary" style="padding:5px 8px; font-size:11px; color:#FF3B30;" title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" style="text-align:center; padding:40px; color:#86868B;">برندی ثبت نشده است</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+<!-- مودال افزودن برند -->
+<div id="addBrandModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:20px; padding:32px; width:90%; max-width:440px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h3 style="font-size:17px; font-weight:700;">برند جدید</h3>
+            <button onclick="document.getElementById('addBrandModal').style.display='none'" style="background:none;border:none;cursor:pointer;color:#86868B;"><i class="fas fa-times"></i></button>
+        </div>
+        <form method="POST" action="{% url 'dashboard:brand_create' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">نام برند *</label>
+            <input type="text" name="name" required style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;font-family:inherit;">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">اسلاگ</label>
+            <input type="text" name="slug" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;font-family:inherit;">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">لوگو</label>
+            <input type="file" name="logo" accept="image/*" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;margin-bottom:18px;font-family:inherit;">
+            <button type="submit" style="width:100%;padding:12px;background:#00B8CC;color:white;border:none;border-radius:12px;font-family:inherit;font-weight:600;cursor:pointer;">ذخیره</button>
+        </form>
+    </div>
+</div>
+
+<!-- مودال‌های ویرایش برند -->
+{% for brand in brands %}
+<div id="editBrand{{ brand.pk }}" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(10px); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:20px; padding:32px; width:90%; max-width:440px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+            <h3 style="font-size:17px; font-weight:700;">ویرایش «{{ brand.name }}»</h3>
+            <button onclick="document.getElementById('editBrand{{ brand.pk }}').style.display='none'" style="background:none;border:none;cursor:pointer;color:#86868B;"><i class="fas fa-times"></i></button>
+        </div>
+        <form method="POST" action="{% url 'dashboard:brand_edit' brand.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">نام برند</label>
+            <input type="text" name="name" value="{{ brand.name }}" required style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;font-family:inherit;">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">اسلاگ</label>
+            <input type="text" name="slug" value="{{ brand.slug }}" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;font-family:inherit;">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">لوگوی جدید (اختیاری)</label>
+            <input type="file" name="logo" accept="image/*" style="width:100%;padding:10px 14px;border:1px solid #ddd;border-radius:10px;margin-bottom:12px;font-family:inherit;">
+            <label style="display:flex;align-items:center;gap:8px;margin-bottom:18px;font-size:14px;">
+                <input type="checkbox" name="is_active" {% if brand.is_active %}checked{% endif %} style="width:16px;height:16px;accent-color:#00B8CC;"> فعال
+            </label>
+            <button type="submit" style="width:100%;padding:12px;background:#00B8CC;color:white;border:none;border-radius:12px;font-family:inherit;font-weight:600;cursor:pointer;">ذخیره تغییرات</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+    </div>
+</main>
+
+<div class="overlay" id="overlay"></div>
+<script src="{% static 'dashboard/js/script.js' %}"></script>
+<script>
+    const si = document.getElementById('searchInput');
+    if (si) si.addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('.data-table tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+        });
+    });
+</script>
+</body>
+</html>

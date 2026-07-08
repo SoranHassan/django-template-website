@@ -73,12 +73,12 @@
                 <div class="sp-wrap">
                     {% if product.main_image %}
                     <a href="{{ product.main_image.image.url }}">
-                        <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
+                        <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="product-detail-main-image">
                     </a>
                     {% for image in product.images.all %}
                     {% if not image.is_main %}
                     <a href="{{ image.image.url }}">
-                        <img src="{{ image.image.url }}" alt="{{ product.name }}">
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}" class="product-detail-main-image">
                     </a>
                     {% endif %}
                     {% endfor %}

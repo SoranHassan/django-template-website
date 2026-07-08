@@ -1,0 +1,57 @@
+{% load static humanize %}
+<div class="product_grid card b-0 mb-4">
+
+    {% if product.discount_percent %}
+    <div class="position-absolute ab-left">
+        <span class="badge" style="background:#00E6FF; color:#000;">{{ product.discount_percent }}٪</span>
+    </div>
+    {% endif %}
+
+    <button class="btn btn_love position-absolute ab-right theme-cl wishlist-btn"
+            data-id="{{ product.pk }}"
+            data-title="{{ product.name }}"
+            data-price="{{ product.price }}"
+            data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
+            data-slug="{{ product.slug }}">
+        <i class="lni lni-heart"></i>
+    </button>
+
+    <div class="card-body p-0">
+        <div class="shop_thumb position-relative">
+            <a href="{% url 'catalog:product_detail' product.pk %}">
+                {% if product.main_image %}
+                <img class="card-img-top"
+                     src="{{ product.main_image.image.url }}"
+                     alt="{{ product.name }}">
+                {% else %}
+                <img class="card-img-top" src="{% static 'app/img/product/1.jpg' %}" alt="{{ product.name }}">
+                {% endif %}
+            </a>
+        </div>
+    </div>
+
+    <div class="card-footer b-0 pt-3 px-2 bg-white">
+        <div class="text-right">
+            {% if product.category %}
+            <span class="text-muted small">{{ product.category.name }}</span>
+            {% endif %}
+            <h5 class="product_title fw-normal fs-md mb-0 lh-1 mb-1">
+                <a href="{% url 'catalog:product_detail' product.pk %}"
+                   class="text-dark">
+                    {{ product.name|truncatechars:30 }}
+                </a>
+            </h5>
+            <div class="elis_rty">
+                {% if product.original_price %}
+                <span class="ft-medium text-muted line-through fs-sm me-1">
+                    {{ product.original_price|intcomma }} تومان
+                </span>
+                {% endif %}
+                <span class="ft-bold fs-md" style="color: var(--os-cyan-dark);">
+                    {{ product.price|intcomma }} تومان
+                </span>
+            </div>
+        </div>
+    </div>
+
+</div>

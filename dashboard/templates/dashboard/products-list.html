@@ -27,6 +27,8 @@
             <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
             <li class="active"><a href="{% url 'dashboard:products_list' %}"><i
                     class="fas fa-box"></i><span>محصولات</span></a></li>
+            <li><a href="{% url 'dashboard:brands_list' %}"><i class="fas fa-copyright"></i><span>برندها</span></a></li>
+            <li><a href="{% url 'dashboard:coupons_list' %}"><i class="fas fa-ticket-alt"></i><span>کدهای تخفیف</span></a></li>
             <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
             </li>
             <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
@@ -252,6 +254,14 @@
                                    title="ویرایش">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                    <form method="POST" action="{% url 'dashboard:product_delete' product.pk %}"
+                                          onsubmit="return confirm('این محصول حذف شود؟ (در صورت داشتن سفارش، غیرفعال می‌شود)');" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-secondary"
+                                                style="padding: 5px 8px; font-size: 11px; color:#FF3B30;" title="حذف">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 <button class="btn-secondary delete-product-btn"
                                         style="padding: 5px 8px; font-size: 11px;
                                                        background: rgba(255,59,48,0.1); color: #FF3B30;"

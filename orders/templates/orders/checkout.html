@@ -105,6 +105,30 @@
 
                     </div>
 
+                    <!-- روش ارسال -->
+                    <div class="border rounded p-4 mb-4">
+                        <h5 class="ft-medium mb-3 pb-2 border-bottom">
+                            <i class="lni lni-delivery me-2" style="color:var(--os-cyan-dark);"></i>
+                            روش ارسال
+                        </h5>
+                        {% for method in shipping_methods %}
+                        <label class="d-flex align-items-center justify-content-between border rounded p-3 mb-2" style="cursor:pointer;">
+                            <span class="d-flex align-items-center gap-2">
+                                <input type="radio" name="shipping_method" value="{{ method.pk }}"
+                                       data-price="{{ method.price }}" {% if forloop.first %}checked{% endif %}
+                                       style="position:static;opacity:1;width:18px;height:18px;accent-color:#00B8CC;">
+                                <span>
+                                    <strong class="d-block">{{ method.name }}</strong>
+                                    {% if method.description %}<small class="text-muted">{{ method.description }}</small>{% endif %}
+                                </span>
+                            </span>
+                            <strong class="small">{{ method.price|intcomma }} تومان</strong>
+                        </label>
+                        {% empty %}
+                        <p class="text-muted small mb-0">هزینه ارسال پس از ثبت سفارش با شما هماهنگ می‌شود.</p>
+                        {% endfor %}
+                    </div>
+
                     <!-- روش پرداخت -->
                     <div class="border rounded p-4 mb-4">
                         <h5 class="ft-medium mb-3 pb-2 border-bottom">
@@ -198,22 +222,19 @@
                             </li>
                             {% endif %}
                             <li class="d-flex justify-content-between mb-2">
-                                <span class="text-muted small">مالیات (۹٪)</span>
-                                <span class="small">{{ tax|intcomma }} تومان</span>
-                            </li>
-                            <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted small">هزینه ارسال</span>
-                                <span class="small text-success">رایگان</span>
+                                <span class="small" id="shipping-cost-display">انتخاب روش ارسال</span>
                             </li>
                             <li class="d-flex justify-content-between pt-2 border-top">
                                 <span class="ft-bold">مبلغ نهایی</span>
-                                <span class="ft-bold text-danger">{{ total|intcomma }} تومان</span>
+                                <span class="ft-bold" style="color:var(--os-cyan-dark);"
+                                      id="final-total" data-base="{{ total }}">{{ total|intcomma }} تومان</span>
                             </li>
                         </ul>
 
                         <!-- دکمه پرداخت -->
                         {% if addresses %}
-                        <button type="submit" class="btn btn-danger w-100 mt-3 py-2 ft-medium"
+                        <button type="submit" class="btn btn-os w-100 mt-3 py-2 ft-medium"
                                 id="pay-btn">
                             <i class="lni lni-lock me-2"></i>
                             پرداخت {{ total|intcomma }} تومان
@@ -292,3 +313,26 @@
     });
 </script>
 {% endblock %}
+
+<script>
+(function () {
+    const totalEl = document.getElementById('final-total');
+    const shipEl = document.getElementById('shipping-cost-display');
+    if (!totalEl) return;
+    const base = parseInt(totalEl.dataset.base || '0', 10);
+
+    function fmt(n) { return n.toLocaleString('en-US') + ' تومان'; }
+
+    function update() {
+        const checked = document.querySelector('input[name="shipping_method"]:checked');
+        const ship = checked ? parseInt(checked.dataset.price || '0', 10) : 0;
+        if (shipEl) shipEl.textContent = checked ? fmt(ship) : 'انتخاب روش ارسال';
+        totalEl.textContent = fmt(base + ship);
+        const payBtn = document.getElementById('pay-btn');
+        if (payBtn) payBtn.innerHTML = '<i class="lni lni-lock me-2"></i>پرداخت ' + fmt(base + ship);
+    }
+
+    document.querySelectorAll('input[name="shipping_method"]').forEach(r => r.addEventListener('change', update));
+    update();
+})();
+</script>

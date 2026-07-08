@@ -1,7 +1,7 @@
 {% load static humanize %}
 
 <!-- Top Bar -->
-<div class="header-top-bar" style="background: linear-gradient(90deg, #1a1a2e 0%, #e94560 100%); padding: 8px 0; overflow: hidden;">
+<div class="header-top-bar" style="background: #000; border-bottom: 2px solid #00E6FF; padding: 8px 0; overflow: hidden;">
     <div class="container">
         <div class="ticker-wrapper">
             <div class="ticker-content">
@@ -38,7 +38,7 @@
             <!-- سمت راست: لوگو و منو -->
             <div class="d-flex align-items-center gap-4">
                 <a class="nav-brand" href="{% url 'catalog:index' %}">
-                    <img src="{% static 'app/img/logo.png' %}" style="max-height: 40px;" alt="OramShop">
+                    <img src="{% static 'app/img/logo.svg' %}" style="max-height: 40px;" alt="Oram Shop">
                 </a>
                 
                 <!-- منوی دسکتاپ -->
@@ -86,11 +86,12 @@
 
             <!-- وسط: فرم جستجو -->
             <div class="d-none d-lg-flex flex-grow-1 justify-content-center px-5">
-                <form action="{% url 'catalog:shop_style_1' %}" method="GET" class="w-100" style="max-width: 450px;">
+                <form action="{% url 'catalog:shop_style_1' %}" method="GET" class="w-100 position-relative" style="max-width: 450px;" autocomplete="off">
                     <div class="input-group">
-                        <input type="text" name="q" class="form-control form-control-sm" placeholder="جستجوی محصولات..." aria-label="Search">
+                        <input type="text" name="q" id="navSearchInput" class="form-control form-control-sm" placeholder="جستجوی محصولات..." aria-label="Search">
                         <button class="btn btn-dark btn-sm" type="submit"><i class="lni lni-search-alt"></i></button>
                     </div>
+                    <div class="search-suggest" id="searchSuggest"></div>
                 </form>
             </div>
 
@@ -100,7 +101,7 @@
                 {% if user.is_authenticated %}
                     <!-- پروفایل کاربر -->
                     <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a href="#" class="d-flex align-items-center text-dark text-decoration-none" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
                             {% if user.avatar %}
                             <img src="{{ user.avatar.url }}" width="36" height="36" class="rounded-circle border border-2 border-secondary" alt="{{ user.get_full_name }}">
                             {% else %}
@@ -152,7 +153,7 @@
                 <!-- سبد خرید - حالت Dropdown -->
                <!-- سبد خرید - حالت Dropdown -->
 <div class="dropdown">
-    <a href="javascript:void(0);" class="position-relative text-dark fs-4" data-bs-toggle="dropdown" aria-expanded="false" id="cartDropdown">
+    <a href="javascript:void(0);" class="position-relative text-dark fs-4" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" id="cartDropdown">
         <i class="lni lni-shopping-basket"></i>
         {% if cart_count > 0 %}<span class="cart-count dn-counter theme-bg">{{ cart_count }}</span>{% endif %}
     </a>
@@ -183,7 +184,7 @@
                     </div>
                     <div class="cart-item text-left">
                         <h4 class="fs-md ft-bold mb-1 price text-danger" data-price="{{ item.variant.final_price }}">
-                            {{ item.variant.final_price }} ت
+                            {{ item.variant.final_price|intcomma }} تومان
                         </h4>
                         <button class="close_cart_item btn btn-sm btn-link p-0 text-danger" data-id="{{ item.id }}">
                             <i class="lni lni-close"></i> حذف
@@ -258,6 +259,9 @@
 </div>
 
 <style>
+    /* منو دقیقاً زیر تریگر خودش (خنثی کردن جابه‌جایی popper) */
+    .user-dropdown, .cart-dropdown, .custom-dropdown { transform: none !important; inset: auto !important; }
+
     /* Top bar ticker */
     .ticker-wrapper { overflow: hidden; white-space: nowrap; }
     .ticker-content { display: inline-flex; animation: ticker 20s linear infinite; white-space: nowrap; }
@@ -284,15 +288,15 @@
         font-size: 1.05rem !important; font-weight: 400 !important;
         color: #333 !important; transition: color 0.2s;
     }
-    .nav-item.active > a, .nav-item > a.active { color: #e94560 !important; }
-    .nav-link:hover { color: #e94560 !important; }
+    .nav-item.active > a, .nav-item > a.active { color: var(--os-cyan-dark) !important; }
+    .nav-link:hover { color: var(--os-cyan-dark) !important; }
 
     /* استایل دکمه‌های ساده ورود و ثبت‌نام */
     .simple-nav-btn {
         background: none; border: none; color: #333; font-size: 1rem; font-weight: 400;
         padding: 0 5px; text-decoration: none; cursor: pointer; transition: color 0.2s;
     }
-    .simple-nav-btn:hover { color: #e94560; }
+    .simple-nav-btn:hover { color: var(--os-cyan-dark); }
 
     /* استایل منوی کشویی اصلی */
     .custom-dropdown {
@@ -304,7 +308,7 @@
         border-radius: 8px; padding: 10px 15px; font-size: 1rem; font-weight: 400; color: #444; transition: all 0.2s ease;
     }
     .custom-dropdown .dropdown-item:hover {
-        background-color: #f8f9fa; color: #e94560; transform: translateX(-3px);
+        background-color: #f8f9fa; color: var(--os-cyan-dark); transform: translateX(-3px);
     }
 
     /* استایل مگامنو دسته‌بندی‌ها (عرض بیشتر برای 6 ستون) */
@@ -330,15 +334,15 @@
     .user-dropdown .dropdown-item {
         border-radius: 8px; padding: 10px 14px; font-size: 1rem; font-weight: 400; color: #444; transition: all 0.2s ease;
     }
-    .user-dropdown .dropdown-item:hover { background: #f0f0f0; color: #e94560; }
+    .user-dropdown .dropdown-item:hover { background: #f0f0f0; color: var(--os-cyan-dark); }
 
     /* شمارنده آیکون‌ها */
     .dn-counter {
-        position: absolute; top: -8px; left: -10px; background: #e94560; color: white; border-radius: 50%;
+        position: absolute; top: -8px; left: -10px; background: #00E6FF; color: #000; border-radius: 50%;
         width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center;
         font-weight: 400; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    .theme-bg { background: #1a1a2e !important; }
+    .theme-bg { background: #1A1A1A !important; color:#00E6FF !important; }
 
         .cart-dropdown {
         position: absolute !important;
@@ -368,3 +372,37 @@
         margin-top: 10px;
     }
 </style>
+
+<script>
+(function () {
+    const input = document.getElementById('navSearchInput');
+    const box = document.getElementById('searchSuggest');
+    if (!input || !box) return;
+    let timer = null;
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        const q = this.value.trim();
+        if (q.length < 2) { box.classList.remove('show'); box.innerHTML = ''; return; }
+        timer = setTimeout(() => {
+            fetch(`/search-suggest/?q=${encodeURIComponent(q)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.results.length) { box.classList.remove('show'); box.innerHTML = ''; return; }
+                    box.innerHTML = data.results.map(item => `
+                        <a href="${item.url}">
+                            ${item.image ? `<img src="${item.image}" alt="">` : ''}
+                            <span class="flex-grow-1">${item.name}</span>
+                            <strong class="small">${item.price} تومان</strong>
+                        </a>`).join('');
+                    box.classList.add('show');
+                })
+                .catch(() => box.classList.remove('show'));
+        }, 250);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!box.contains(e.target) && e.target !== input) box.classList.remove('show');
+    });
+})();
+</script>

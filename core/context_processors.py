@@ -2,31 +2,51 @@ from cart.models import Cart
 from reviews.models import Review
 from orders.models import Order
 
+
 def announcements_context(request):
     from .models import Announcement
     return {'announcements': Announcement.objects.filter(is_active=True)}
 
-def cart_context(request):
-    try:
-        if request.user.is_authenticated:
-            cart = Cart.objects.filter(user=request.user).first()
-        else:
-            session_key = request.session.session_key
-            if not session_key:
-                return {'cart_count': 0}
-            cart = Cart.objects.filter(session_key=session_key).first()
 
+def categories_context(request):
+    """دسته‌بندی‌های فعال برای مگامنوی ناوبار"""
+    from catalog.models import Category
+    return {'nav_categories': Category.objects.filter(is_active=True)}
+
+
+def _get_request_cart(request):
+    if request.user.is_authenticated:
+        return Cart.objects.filter(user=request.user).first()
+    session_key = request.session.session_key
+    if not session_key:
+        return None
+    return Cart.objects.filter(session_key=session_key).first()
+
+
+def cart_context(request):
+    """تعداد و آیتم‌های سبد برای ناوبار (drawer)"""
+    try:
+        cart = _get_request_cart(request)
         if cart:
-            return {'cart_count': cart.total_items}
+            items = cart.items.select_related(
+                'variant__product', 'variant__size', 'variant__color'
+            ).prefetch_related('variant__product__images')
+            return {
+                'cart_count': cart.total_items,
+                'nav_cart_items': items,
+                'nav_cart_total': cart.subtotal,
+            }
     except Exception:
         pass
 
-    return {'cart_count': 0}
+    return {'cart_count': 0, 'nav_cart_items': [], 'nav_cart_total': 0}
+
 
 def wishlist_context(request):
     """Wishlist items in pages"""
     wishlist = request.session.get('wishlist', [])
     return {'wishlist': wishlist, 'wishlist_count': len(wishlist), 'wishlist_subtotal': sum(float(item.get('price', 0)) for item in wishlist)}
+
 
 def dashboard_context(request):
     """آمار داشبورد برای نمایش در navbar"""

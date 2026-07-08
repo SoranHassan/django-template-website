@@ -1,21 +1,46 @@
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.db.models import Q
 
+from core.models import HeroSlide
 from .models import Brand, Category, Product, ProductVariant
 
 
+class SearchSuggestView(View):
+    """پیشنهادهای زنده جستجو برای منوی کشویی زیر باکس سرچ"""
 
+    def get(self, request):
+        query = request.GET.get('q', '').strip()
+        if len(query) < 2:
+            return JsonResponse({'results': []})
+
+        products = Product.objects.filter(
+            Q(name__icontains=query) | Q(brand__name__icontains=query),
+            is_active=True,
+        ).prefetch_related('images')[:6]
+
+        results = [{
+            'name': p.name,
+            'url': p.get_absolute_url(),
+            'price': f'{p.price:,.0f}',
+            'image': p.main_image.image.url if p.main_image else '',
+        } for p in products]
+
+        return JsonResponse({'results': results})
 
 
 class HomeView(View):
     def get(self, request):
+        base_qs = Product.objects.filter(is_active=True).prefetch_related('images')
 
-        products = Product.objects.filter(is_active=True).prefetch_related('images')[:8]
-        brands = Brand.objects.filter(is_active=True)
         return render(request, 'catalog/home.html', {
-            'products': products,
-            'brands': brands,
+            'hero_slides': HeroSlide.objects.filter(is_active=True),
+            'products': base_qs[:8],
+            'new_products': base_qs.order_by('-created_at')[:10],
+            'men_products': base_qs.filter(gender__in=['men', 'unisex']).order_by('-created_at')[:10],
+            'women_products': base_qs.filter(gender__in=['women', 'unisex']).order_by('-created_at')[:10],
+            'brands': Brand.objects.filter(is_active=True),
         })
 
 

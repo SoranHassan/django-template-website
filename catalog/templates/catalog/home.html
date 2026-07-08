@@ -7,74 +7,38 @@
 
 {% include 'base/navbar.html' %}
 
-<!-- Hero Banner -->
-<div class="home-slider hide-navigation margin-bottom-0">
-    <div class="position-relative overflow-hidden"
-         style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-                min-height: 500px;">
-        <div class="container h-100">
-            <div class="row align-items-center" style="min-height: 500px;">
-
-                <!-- متن -->
-                <div class="col-xl-6 col-lg-6 col-md-7 col-sm-12">
-                    <div class="py-5 text-white">
-                        <span class="badge bg-danger mb-3 fs-sm px-3 py-2">جدیدترین کالکشن</span>
-                        <h1 class="ft-bold mb-3 lh-1" style="font-size: 3rem;">
-                            مد روز<br>
-                            <span style="color: #e94560;">برای شما</span>
-                        </h1>
-                        <p class="fs-md mb-4" style="color: rgba(255,255,255,0.7);">
-                            بهترین برندهای پوشاک و اکسسوری با قیمت مناسب
-                        </p>
-                        <div class="d-flex gap-3 flex-wrap">
-                            <a href="{% url 'catalog:shop_style_1' %}"
-                               class="btn btn-danger btn-lg px-4">
-                                خرید کنید
-                                <i class="lni lni-arrow-left ms-2"></i>
-                            </a>
-                            <a href="{% url 'catalog:shop_style_1' %}?gender=women"
-                               class="btn btn-outline-light btn-lg px-4">
-                                کالکشن زنانه
-                            </a>
-                        </div>
-                        <!-- آمار -->
-                        <div class="d-flex gap-4 mt-5">
-                            <div>
-                                <h3 class="ft-bold text-white mb-0">+۵۰۰</h3>
-                                <span style="color: rgba(255,255,255,0.5); font-size: 13px;">محصول</span>
-                            </div>
-                            <div class="border-start border-secondary ps-4">
-                                <h3 class="ft-bold text-white mb-0">+۱۰۰۰۰</h3>
-                                <span style="color: rgba(255,255,255,0.5); font-size: 13px;">مشتری</span>
-                            </div>
-                            <div class="border-start border-secondary ps-4">
-                                <h3 class="ft-bold text-white mb-0">%۹۸</h3>
-                                <span style="color: rgba(255,255,255,0.5); font-size: 13px;">رضایت</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- تصویر هیرو -->
-                <div class="col-xl-6 col-lg-6 col-md-5 col-sm-12 d-none d-md-flex justify-content-center">
-                    <div class="position-relative">
-                        <img src="{% static 'app/img/banner-a.jpg' %}" alt="جدیدترین کالکشن پوشاک"
-                             style="width: 320px; height: 400px; object-fit: cover;
-                                    border-radius: 24px; position: relative; z-index: 1;
-                                    box-shadow: 0 24px 48px rgba(0,0,0,0.35);">
-                        <!-- دایره‌های تزئینی -->
-                        <div style="position: absolute; width: 80px; height: 80px;
-                                    background: rgba(233,69,96,0.3); border-radius: 50%;
-                                    top: -20px; right: -20px;"></div>
-                        <div style="position: absolute; width: 50px; height: 50px;
-                                    background: rgba(255,255,255,0.08); border-radius: 50%;
-                                    bottom: 30px; left: -10px;"></div>
-                    </div>
-                </div>
-
-            </div>
+<!-- Hero Banner (اسلایدر — از ادمین جنگو با مدل HeroSlide مدیریت می‌شود) -->
+<div class="hero-slider" dir="ltr">
+    {% for slide in hero_slides %}
+    <div class="hero-slide position-relative">
+        <img src="{{ slide.image.url }}" alt="{{ slide.title }}"
+             style="width:100%; height:480px; object-fit:cover; filter:brightness(.55);">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3" dir="rtl">
+            <h1 class="ft-bold mb-2" style="font-size:2.6rem;">{{ slide.title }}</h1>
+            {% if slide.subtitle %}<p class="fs-md mb-4 opacity-75">{{ slide.subtitle }}</p>{% endif %}
+            {% if slide.button_text %}
+            <a href="{{ slide.button_link|default:'/shop/' }}" class="btn btn-lg px-5 btn-os">
+                {{ slide.button_text }} <i class="lni lni-arrow-left ms-2"></i>
+            </a>
+            {% endif %}
         </div>
     </div>
+    {% empty %}
+    {# اسلایدهای پیش‌فرض تا زمانی که از ادمین اسلاید اضافه شود #}
+    {% for banner in 'abc'|make_list %}
+    <div class="hero-slide position-relative">
+        <img src="{% static 'app/img/banner-' %}{{ banner }}.jpg" alt="Oram Shop"
+             style="width:100%; height:480px; object-fit:cover; filter:brightness(.5);">
+        <div class="position-absolute top-50 start-50 translate-middle text-center text-white w-100 px-3" dir="rtl">
+            <h1 class="ft-bold mb-2" style="font-size:2.6rem;">مد روز <span style="color:#00E6FF;">برای شما</span></h1>
+            <p class="fs-md mb-4 opacity-75">بهترین برندهای پوشاک و اکسسوری با قیمت مناسب</p>
+            <a href="{% url 'catalog:shop_style_1' %}" class="btn btn-lg px-5 btn-os">
+                خرید کنید <i class="lni lni-arrow-left ms-2"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
 </div>
 <!-- Hero Banner End -->
 
@@ -182,69 +146,7 @@
         <div class="row align-items-center rows-products">
             {% for product in products %}
             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6">
-                <div class="product_grid card b-0 mb-4">
-
-                    {% if product.discount_percent %}
-                    <div class="position-absolute ab-left">
-                        <span class="badge bg-danger">{{ product.discount_percent }}٪</span>
-                    </div>
-                    {% endif %}
-
-                    <button class="btn btn_love position-absolute ab-right theme-cl wishlist-btn"
-                            data-id="{{ product.pk }}"
-                            data-title="{{ product.name }}"
-                            data-price="{{ product.price }}"
-                            data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
-                            data-slug="{{ product.slug }}">
-                        <i class="lni lni-heart"></i>
-                    </button>
-
-                    <div class="card-body p-0">
-                        <div class="shop_thumb position-relative">
-                            <a href="{% url 'catalog:product_detail' product.pk %}">
-                                {% if product.main_image %}
-                                <img class="card-img-top"
-                                     src="{{ product.main_image.image.url }}"
-                                     alt="{{ product.name }}">
-                                {% else %}
-                                <div style="width: 100%; height: 220px;
-                                            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-                                            display: flex; align-items: center;
-                                            justify-content: center; flex-direction: column; gap: 8px;">
-                                    <i class="lni lni-image"
-                                       style="font-size: 36px; color: #ccc;"></i>
-                                    <span style="color: #ccc; font-size: 11px;">تصویر محصول</span>
-                                </div>
-                                {% endif %}
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="card-footer b-0 pt-3 px-2 bg-white">
-                        <div class="text-right">
-                            {% if product.category %}
-                            <span class="text-muted small">{{ product.category.name }}</span>
-                            {% endif %}
-                            <h5 class="product_title fw-normal fs-md mb-0 lh-1 mb-1">
-                                <a href="{% url 'catalog:product_detail' product.pk %}"
-                                   class="text-dark">
-                                    {{ product.name|truncatechars:30 }}
-                                </a>
-                            </h5>
-                            <div class="elis_rty">
-                                {% if product.original_price %}
-                                <span class="ft-medium text-muted line-through fs-sm me-1">
-                                    {{ product.original_price|intcomma }} تومان
-                                </span>
-                                {% endif %}
-                                <span class="ft-bold theme-cl fs-md">
-                                    {{ product.price|intcomma }} تومان
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+                {% include 'catalog/_product_card.html' %}
             </div>
 
             {% empty %}
@@ -288,9 +190,86 @@
 </section>
 <!-- محصولات End -->
 
+<!-- ردیف‌های داینامیک: جدیدترین / مردانه / زنانه -->
+{% if new_products %}
+<section class="middle pt-0">
+    <div class="container">
+        <div class="row justify-content-center mb-2">
+            <div class="col-xl-12 d-flex align-items-center justify-content-between">
+                <h3 class="ft-bold mb-0">جدیدترین محصولات</h3>
+                <a href="{% url 'catalog:shop_style_1' %}?sort=newest" class="small text-muted">مشاهده همه ←</a>
+            </div>
+        </div>
+        <div class="products-row-slider" dir="rtl">
+            {% for product in new_products %}
+            <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if men_products %}
+<section class="middle pt-0">
+    <div class="container">
+        <div class="row justify-content-center mb-2">
+            <div class="col-xl-12 d-flex align-items-center justify-content-between">
+                <h3 class="ft-bold mb-0">پوشاک مردانه</h3>
+                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="small text-muted">مشاهده همه ←</a>
+            </div>
+        </div>
+        <div class="products-row-slider" dir="rtl">
+            {% for product in men_products %}
+            <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if women_products %}
+<section class="middle pt-0">
+    <div class="container">
+        <div class="row justify-content-center mb-2">
+            <div class="col-xl-12 d-flex align-items-center justify-content-between">
+                <h3 class="ft-bold mb-0">پوشاک زنانه</h3>
+                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="small text-muted">مشاهده همه ←</a>
+            </div>
+        </div>
+        <div class="products-row-slider" dir="rtl">
+            {% for product in women_products %}
+            <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- برندها -->
+{% if brands %}
+<section class="py-4 br-top br-bottom brand-strip">
+    <div class="container">
+        <div class="row justify-content-center align-items-center g-4 text-center">
+            {% for brand in brands %}
+            <div class="col-4 col-md-2">
+                <a href="{% url 'catalog:shop_style_1' %}?brand={{ brand.slug }}" title="{{ brand.name }}">
+                    {% if brand.logo %}
+                    <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="img-fluid">
+                    {% else %}
+                    <span class="ft-bold text-muted fs-md">{{ brand.name }}</span>
+                    {% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+
 <!-- بنر میانی -->
 <section class="py-5"
-         style="background: linear-gradient(135deg, #1a1a2e 0%, #e94560 100%);">
+         style="background: linear-gradient(135deg, #000 0%, #1A1A1A 60%, #007a8a 100%);">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-xl-8 col-lg-9 col-md-12 text-center">
@@ -366,7 +345,7 @@
             .then(data => {
                 if (data.status === 'ok') {
                     icon.classList.replace('lni-heart', 'lni-heart-filled');
-                    b.style.color = '#e94560';
+                    b.style.color = '#00B8CC';
                     document.querySelectorAll('.wishlist-count').forEach(el => {
                         el.textContent = data.count;
                         el.style.display = 'block';
@@ -380,6 +359,22 @@
     });
 </script>
 
+<script>
+    $(document).ready(function () {
+        // اسلایدهای تمام‌عرض؛ حالت RTL لازم ندارند (باگ slick با rtl+infinite)
+        $('.hero-slider').slick({
+            autoplay: true, autoplaySpeed: 4500, arrows: false,
+            dots: true, infinite: true
+        });
+        $('.products-row-slider').slick({
+            rtl: true, slidesToShow: 4, slidesToScroll: 2, arrows: true, dots: false, infinite: false,
+            responsive: [
+                {breakpoint: 992, settings: {slidesToShow: 3}},
+                {breakpoint: 768, settings: {slidesToShow: 2}}
+            ]
+        });
+    });
+</script>
 <style>
     @keyframes shimmer {
         0% { background-position: -200% 0; }

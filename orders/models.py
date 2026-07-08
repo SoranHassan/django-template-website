@@ -4,6 +4,24 @@ from accounts.models import CustomUser, Address
 from catalog.models import ProductVariant, Product, Category
 
 
+class ShippingMethod(models.Model):
+    """روش‌های ارسال (تیپاکس، پست پیشتاز، ...) — قیمت‌ها از ادمین قابل تغییر است"""
+
+    name = models.CharField(max_length=100, verbose_name='نام روش ارسال')
+    price = models.DecimalField(max_digits=12, decimal_places=0, verbose_name='هزینه (تومان)')
+    description = models.CharField(max_length=200, blank=True, verbose_name='توضیح (مثلاً زمان تحویل)')
+    is_active = models.BooleanField(default=True, verbose_name='فعال')
+    order = models.PositiveIntegerField(default=0, verbose_name='ترتیب')
+
+    class Meta:
+        verbose_name = 'روش ارسال'
+        verbose_name_plural = 'روش‌های ارسال'
+        ordering = ('order',)
+
+    def __str__(self):
+        return f'{self.name} ({self.price} تومان)'
+
+
 class Coupon(models.Model):
     DISCOUNT_TYPE_CHOICES = [
         ('percent', 'درصدی'),

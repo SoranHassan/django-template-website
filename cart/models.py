@@ -25,13 +25,9 @@ class Cart(models.Model):
         return sum(item.total_price for item in self.items.all())
 
     @property
-    def tax(self):
-        from decimal import Decimal
-        return round(self.subtotal * Decimal('0.09'))
-
-    @property
     def total(self):
-        return self.subtotal + self.tax
+        # هزینه ارسال در مرحله تسویه‌حساب اضافه می‌شود
+        return self.subtotal
 
 
 class CartItem(models.Model):

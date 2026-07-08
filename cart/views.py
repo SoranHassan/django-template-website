@@ -26,7 +26,7 @@ class CartView(View):
         return render(request, 'cart/cart.html', {
             'cart': items,
             'subtotal': cart.subtotal,
-            'tax': cart.tax,
+            
             'total': cart.total,
             'quantity_range': quantity_range,})
 
@@ -91,7 +91,6 @@ class CartRemoveView(View):
             'status': 'ok',
             'count': cart.total_items,
             'subtotal': str(cart.subtotal),
-            'tax': str(cart.tax),
             'total': str(cart.total),
         })
 
@@ -119,6 +118,5 @@ class CartUpdateView(View):
             'status': 'ok',
             'count': cart.total_items,
             'subtotal': str(cart.subtotal),
-            'tax': str(cart.tax),
             'total': str(cart.total),
         })

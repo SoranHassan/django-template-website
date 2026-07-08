@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210" height="44" viewBox="0 0 480 88">
+  <!-- ORAM SHOP — OS monogram (light on dark) -->
+  <g fill="none" stroke-linecap="round">
+    <rect x="10" y="14" width="78" height="60" rx="30" stroke="#FFFFFF" stroke-width="13"/>
+    <path d="M30 66 Q52 78 76 60" stroke="#00E6FF" stroke-width="9"/>
+    <path d="M182 20 H136 Q112 20 112 36 Q112 50 136 50 H158 Q182 50 182 62 Q182 76 156 76 H108"
+          stroke="#FFFFFF" stroke-width="13"/>
+  </g>
+  <text x="204" y="60" font-family="Segoe UI, Vazirmatn, Arial, sans-serif" font-size="34"
+        font-weight="700" letter-spacing="6" fill="#FFFFFF">ORAM</text>
+  <text x="204" y="60" dx="122" font-family="Segoe UI, Vazirmatn, Arial, sans-serif" font-size="34"
+        font-weight="300" letter-spacing="6" fill="#00E6FF">SHOP</text>
+</svg>

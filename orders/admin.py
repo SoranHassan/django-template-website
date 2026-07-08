@@ -62,3 +62,11 @@ class OrderAdmin(admin.ModelAdmin):
     def mark_as_delivered(self, request, queryset):
         queryset.update(status='delivered')
     mark_as_delivered.short_description = 'علامت‌گذاری به عنوان تحویل داده شده'
+
+from .models import ShippingMethod
+
+
+@admin.register(ShippingMethod)
+class ShippingMethodAdmin(admin.ModelAdmin):
+    list_display = ('name', 'price', 'description', 'order', 'is_active')
+    list_editable = ('price', 'order', 'is_active')

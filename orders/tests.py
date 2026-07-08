@@ -139,3 +139,54 @@ class CouponTest(TestCase):
     def test_fixed_discount_never_exceeds_subtotal(self):
         coupon = make_coupon(discount_type='fixed', discount_value=5000)
         self.assertEqual(coupon.calculate_discount(1000), 1000)
+
+
+class ShippingMethodTest(TestCase):
+    def setUp(self):
+        self.user = make_user(mobile='09120000008')
+        self.client.force_login(self.user)
+        _, self.variant = make_product(stock=5)
+        self.address = Address.objects.create(user=self.user, first_name='a', last_name='b',
+                                              phone='09120000008', address1='x', city='y', zip='1234567890')
+        cart = Cart.objects.create(user=self.user)
+        CartItem.objects.create(cart=cart, variant=self.variant, quantity=1)
+        from .models import ShippingMethod
+        self.method = ShippingMethod.objects.create(name='پست پیشتاز', price=65000)
+
+    def test_checkout_page_shows_shipping_methods(self):
+        response = self.client.get(reverse('orders:checkout'))
+        self.assertContains(response, 'پست پیشتاز')
+        self.assertNotContains(response, 'مالیات')
+
+    @patch('orders.views.request_payment')
+    def test_order_gets_shipping_cost(self, mock_pay):
+        mock_pay.return_value = {'status': 'ok', 'authority': 'A1', 'payment_url': '/gw/'}
+        self.client.post(reverse('orders:checkout'),
+                         {'address_id': self.address.pk, 'shipping_method': self.method.pk})
+        order = Order.objects.get()
+        self.assertEqual(order.shipping_cost, 65000)
+        self.assertEqual(order.final_total, order.total_price + 65000)
+
+    @patch('orders.views.request_payment')
+    def test_checkout_requires_shipping_selection(self, mock_pay):
+        response = self.client.post(reverse('orders:checkout'), {'address_id': self.address.pk})
+        self.assertEqual(Order.objects.count(), 0)
+        self.assertIn('error', response.context)
+
+
+class CouponCaseInsensitiveTest(TestCase):
+    def test_lowercase_code_applies(self):
+        user = make_user(mobile='09120000009')
+        self.client.force_login(user)
+        _, variant = make_product(stock=5)
+        cart = Cart.objects.create(user=user)
+        CartItem.objects.create(cart=cart, variant=variant, quantity=1)
+        make_coupon(code='WELCOME10')
+
+        response = self.client.post(reverse('orders:apply_coupon'), {'code': 'welcome10'})
+        self.assertEqual(response.json()['status'], 'ok')
+
+    def test_guest_gets_json_message(self):
+        response = self.client.post(reverse('orders:apply_coupon'), {'code': 'X'})
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()['status'], 'error')
