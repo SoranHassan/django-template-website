@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static humanize %}
+{% load static humanize catalog_extras %}
 
 {% block title %}سبد خرید - OramShop{% endblock %}
 
@@ -96,17 +96,16 @@
                                 <div class="col-3 col-md-3 text-start">
                                     <div class="d-flex flex-column align-items-start gap-2">
 
-                                        <!-- تعداد -->
-                                        <select class="form-select form-select-sm quantity-select"
-                                                data-item-id="{{ item.pk }}"
-                                                style="width: 80px;">
-                                            {% for i in quantity_range %}
-                                            <option value="{{ i }}"
-                                                    {% if item.quantity == i %}selected{% endif %}>
-                                                {{ i }}
-                                            </option>
-                                            {% endfor %}
-                                        </select>
+                                        <!-- تعداد (+/-) -->
+                                        <div class="input-group input-group-sm quantity-stepper"
+                                             style="width: 110px; direction: ltr;"
+                                             data-item-id="{{ item.pk }}" data-stock="{{ item.variant.stock }}">
+                                            <button class="btn btn-outline-dark qty-btn" type="button" data-delta="-1">−</button>
+                                            <input type="text" class="form-control text-center qty-value"
+                                                   value="{{ item.quantity }}" readonly
+                                                   style="background:#fff; max-width:44px;">
+                                            <button class="btn btn-outline-dark qty-btn" type="button" data-delta="1">+</button>
+                                        </div>
 
                                         <!-- حذف -->
                                         <button class="btn btn-sm btn-outline-danger remove-item-btn"
@@ -169,21 +168,17 @@
                             </li>
                             {% if discount_amount %}
                             <li class="d-flex justify-content-between mb-2 text-success">
-                                <span>تخفیف</span>
+                                <span>تخفیف{% if coupon %} ({{ coupon.code }}){% endif %}</span>
                                 <span id="summary-discount">- {{ discount_amount|intcomma }} تومان</span>
                             </li>
                             {% endif %}
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">هزینه ارسال</span>
-                                <span class="text-muted small">در مرحله تسویه‌حساب محاسبه می‌شود</span>
-                            </li>
-                            <li class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">هزینه ارسال</span>
-                                <span class="text-success">رایگان</span>
+                                <span class="text-muted small">در تسویه‌حساب محاسبه می‌شود</span>
                             </li>
                             <li class="d-flex justify-content-between pt-2 border-top ft-bold">
                                 <span>مبلغ قابل پرداخت</span>
-                                <span id="summary-total" class="text-danger">{{ total|intcomma }} تومان</span>
+                                <span id="summary-total" style="color:var(--os-cyan-dark);">{{ total|intcomma }} تومان</span>
                             </li>
                         </ul>
 
@@ -193,13 +188,9 @@
                             <i class="lni lni-arrow-left ms-2"></i>
                         </a>
 
-                        <!-- درگاه‌های پرداخت -->
+                        <!-- درگاه پرداخت -->
                         <div class="text-center mt-3">
-                            <small class="text-muted">پرداخت امن با</small>
-                            <div class="mt-1">
-                                <img src="{% static 'app/img/card.png' %}" class="img-fluid"
-                                     style="max-height: 30px;" alt="پرداخت امن">
-                            </div>
+                            <small class="text-muted"><i class="lni lni-shield me-1" style="color:var(--os-cyan-dark);"></i>پرداخت امن با درگاه زرین‌پال</small>
                         </div>
 
                     </div>
@@ -242,6 +233,8 @@
 {% include 'catalog/_search_drawer.html' %}
 {% include 'accounts/_wishlist_drawer.html' %}
 {% include 'cart/_cart_drawer.html' %}
+{% product_row 'discount' 'شاید بخواهید — تخفیف‌دارها' %}
+
 {% include 'base/footer.html' %}
 
 {% endblock %}
@@ -250,11 +243,20 @@
 <script>
     const CSRF = '{{ csrf_token }}';
 
-    // آپدیت تعداد آیتم
-    document.querySelectorAll('.quantity-select').forEach(select => {
-        select.addEventListener('change', function() {
-            const itemId = this.dataset.itemId;
-            const quantity = this.value;
+    // استپر تعداد (+/-)
+    document.querySelectorAll('.quantity-stepper .qty-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const stepper = this.closest('.quantity-stepper');
+            const input = stepper.querySelector('.qty-value');
+            const stock = parseInt(stepper.dataset.stock || '99', 10);
+            const current = parseInt(input.value, 10) || 1;
+            const next = current + parseInt(this.dataset.delta, 10);
+
+            if (next > stock) {
+                typeof Toastify !== 'undefined' ? Toastify({text: 'موجودی کافی نیست', gravity: 'top', style: {background: '#1A1A1A'}}).showToast()
+                         : alert('موجودی کافی نیست');
+                return;
+            }
 
             fetch('{% url "cart:update" %}', {
                 method: 'POST',
@@ -262,14 +264,16 @@
                     'X-CSRFToken': CSRF,
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `item_id=${itemId}&quantity=${quantity}`
+                body: `item_id=${stepper.dataset.itemId}&quantity=${Math.max(next, 0)}`
             })
             .then(r => r.json())
             .then(data => {
                 if (data.status === 'ok') {
-                    updateSummary(data);
+                    // رفرش برای بازمحاسبه تخفیف کوپن روی جمع جدید
+                    location.reload();
                 }
-            });
+            })
+            .catch(() => location.reload());
         });
     });
 

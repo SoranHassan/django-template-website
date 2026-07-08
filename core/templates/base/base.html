@@ -66,6 +66,18 @@
 <script src="{% static 'app/js/main.js' %}"></script>
 <script src="{% static 'app/js/base.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script>
+    // init سراسری ردیف‌های اسلایدی محصولات (هر صفحه‌ای که product_row دارد)
+    $(function () {
+        $('.products-row-slider').not('.slick-initialized').slick({
+            rtl: true, slidesToShow: 4, slidesToScroll: 2, arrows: true, dots: false, infinite: false,
+            responsive: [
+                {breakpoint: 992, settings: {slidesToShow: 3}},
+                {breakpoint: 768, settings: {slidesToShow: 2}}
+            ]
+        });
+    });
+</script>
 {% block js %}{% endblock %}
 </body>
 </html>

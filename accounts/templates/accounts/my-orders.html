@@ -50,34 +50,8 @@
                         <span class="text-muted small">{{ request.user.mobile }}</span>
                     </div>
 
-                    <div class="dashboard_author border-top">
-                        <ul class="dahs_navbar">
-                            <li class="active">
-                                <a href="{% url 'accounts:my_orders' %}">
-                                    <i class="lni lni-shopping-basket me-2"></i>سفارش‌های من
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'accounts:wishlist' %}">
-                                    <i class="lni lni-heart me-2"></i>علاقه‌مندی‌ها
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'accounts:profile_info' %}">
-                                    <i class="lni lni-user me-2"></i>اطلاعات پروفایل
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{% url 'accounts:addresses' %}">
-                                    <i class="lni lni-map-marker me-2"></i>آدرس‌ها
-                                </a>
-                            </li>
-                            <li>
-                                <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">{% csrf_token %}<button type="submit" class="text-danger" style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:inherit">
-                                    <i class="lni lni-power-switch me-2"></i>خروج
-                                </button></form>
-                            </li>
-                        </ul>
+                    <div class="border-top">
+                        {% include 'accounts/_account_sidebar.html' with active_tab='orders' %}
                     </div>
                 </div>
             </div>
@@ -123,6 +97,14 @@
                             </span>
                             {% endif %}
                             {% if order.status in 'paid,processing,shipped,delivered' %}
+                            {% if order.status == 'pending' or order.status == 'cancelled' %}
+                            <form method="post" action="{% url 'orders:retry_payment' order.pk %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-os px-3">
+                                    <i class="lni lni-reload me-1"></i>پرداخت مجدد
+                                </button>
+                            </form>
+                            {% endif %}
                             <a href="{% url 'orders:invoice' order.pk %}"
                                class="btn btn-sm btn-outline-dark">
                                 <i class="lni lni-download me-1"></i>فاکتور

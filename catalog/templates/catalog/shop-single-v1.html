@@ -95,17 +95,17 @@
                 <div class="prd_details ps-xl-5">
 
                     <!-- دسته‌بندی -->
-                    <div class="prt_01 mb-2">
-                        <span class="text-success bg-light-success rounded px-2 py-1">
+                    <div class="prt_01 mb-2 d-flex flex-wrap gap-2 align-items-center">
+                        <span class="badge rounded-pill" style="background:#EAF9FB; color:#00798a; font-weight:500; padding:7px 14px;">
                             {{ product.category.name|default:"پوشاک" }}
                         </span>
                         {% if product.brand %}
-                        <span class="text-primary bg-light-primary rounded px-2 py-1 ms-1">
+                        <span class="badge rounded-pill" style="background:#F2F2F2; color:#1A1A1A; font-weight:500; padding:7px 14px;">
                             {{ product.brand.name }}
                         </span>
                         {% endif %}
                         {% if product.discount_percent %}
-                        <span class="text-danger bg-light-danger rounded px-2 py-1 ms-1">
+                        <span class="badge rounded-pill" style="background:#00E6FF; color:#000; font-weight:600; padding:7px 14px;">
                             {{ product.discount_percent }}٪ تخفیف
                         </span>
                         {% endif %}
@@ -245,7 +245,7 @@
                                 <!-- ویشلیست -->
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <button type="button"
-                                            class="btn custom-height btn-default btn-block mb-2 text-dark w-100 wishlist-btn"
+                                            class="btn custom-height btn-default btn-block mb-2 text-dark w-100 wishlist-btn{% if product.pk|stringformat:'s' in wishlist_ids %} in-wishlist{% endif %}"
                                             data-id="{{ product.pk }}"
                                             data-title="{{ product.name }}"
                                             data-price="{{ product.price }}"
@@ -660,28 +660,6 @@
         .catch(() => showMessage('خطا در ارتباط با سرور', 'danger'));
     });
 
-    // ویشلیست با AJAX
-    document.querySelector('.wishlist-btn').addEventListener('click', function() {
-        const btn = this;
-        fetch('{% url "accounts:wishlist_add" %}', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id=${btn.dataset.id}&title=${encodeURIComponent(btn.dataset.title)}&price=${btn.dataset.price}&image=${encodeURIComponent(btn.dataset.image)}&slug=${btn.dataset.slug}`
-        })
-        .then(res => res.json())
-        .then(data => {
-        if (data.status === 'ok') {
-            btn.querySelector('i').classList.replace('lni-heart', 'lni-heart-filled');
-            // اضافه کن:
-            btn.classList.add('active');
-            btn.style.color = '#e94560';
-            document.querySelectorAll('.wishlist-count').forEach(el => el.textContent = data.count);
-        }
-        });
-    });
 
     // امتیاز ستاره
     document.querySelectorAll('input[name="rating"]').forEach(input => {

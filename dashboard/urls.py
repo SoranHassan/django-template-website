@@ -15,6 +15,14 @@ urlpatterns = [
     path('products/<int:pk>/edit/', views.DashboardProductEditView.as_view(), name='product_edit'),
     path('products/<int:pk>/delete/', views.DashboardProductDeleteView.as_view(), name='product_delete'),
 
+    # Variants / Colors / Sizes / SizeChart
+    path('products/<int:pk>/variants/save/', views.DashboardVariantSaveView.as_view(), name='variant_save'),
+    path('variants/<int:pk>/delete/', views.DashboardVariantDeleteView.as_view(), name='variant_delete'),
+    path('colors/create/', views.DashboardColorCreateView.as_view(), name='color_create'),
+    path('sizes/create/', views.DashboardSizeCreateView.as_view(), name='size_create'),
+    path('products/<int:pk>/size-chart/save/', views.DashboardSizeChartSaveView.as_view(), name='sizechart_save'),
+    path('size-chart/<int:pk>/delete/', views.DashboardSizeChartDeleteView.as_view(), name='sizechart_delete'),
+
     # Categories
     path('categories/', views.DashboardCategoriesListView.as_view(), name='categories_list'),
     path('categories/create/', views.DashboardCategoryCreateView.as_view(), name='category_create'),

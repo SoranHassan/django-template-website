@@ -34,9 +34,11 @@ class HomeView(View):
     def get(self, request):
         base_qs = Product.objects.filter(is_active=True).prefetch_related('images')
 
+        from .templatetags.catalog_extras import collection_queryset
+
         return render(request, 'catalog/home.html', {
             'hero_slides': HeroSlide.objects.filter(is_active=True),
-            'products': base_qs[:8],
+            'products': collection_queryset('bestseller')[:8],
             'new_products': base_qs.order_by('-created_at')[:10],
             'men_products': base_qs.filter(gender__in=['men', 'unisex']).order_by('-created_at')[:10],
             'women_products': base_qs.filter(gender__in=['women', 'unisex']).order_by('-created_at')[:10],
@@ -82,13 +84,23 @@ class ProductListView(View):
                 Q(brand__name__icontains=query)
             )
 
+        # مجموعه‌ها: جدیدترین / تخفیف‌دار / پرفروش
+        from django.db.models import F, Sum
+        collection = request.GET.get('collection', '')
+        if collection == 'discount':
+            products = products.filter(original_price__isnull=False, original_price__gt=F('price'))
+        elif collection == 'bestseller':
+            products = products.annotate(sold=Sum('variants__order_items__quantity'))
+
         sort = request.GET.get('sort', 'newest')
-        if sort == 'newest':
-            products = products.order_by('-created_at')
+        if collection == 'bestseller':
+            products = products.order_by(F('sold').desc(nulls_last=True), '-created_at')
         elif sort == 'price_low':
             products = products.order_by('price')
         elif sort == 'price_high':
             products = products.order_by('-price')
+        else:
+            products = products.order_by('-created_at')
 
         products = products.distinct()
 
@@ -103,6 +115,8 @@ class ProductListView(View):
             'current_brand': brand_slug,
             'current_gender': gender,
             'current_sort': sort,
+            'current_collection': collection,
+            'collections': [('', 'همه'), ('new', 'جدیدترین'), ('discount', 'تخفیف‌دار'), ('bestseller', 'پرفروش')],
         })
 
 

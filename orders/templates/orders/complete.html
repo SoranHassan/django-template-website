@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load catalog_extras %}
 
 {% block hero_content %}
 
@@ -46,6 +47,8 @@
 {% include 'catalog/_search_drawer.html' %}
 {% include 'accounts/_wishlist_drawer.html' %}
 {% include 'cart/_cart_drawer.html' %}
+{% product_row 'new' 'محصولات جدید فروشگاه' %}
+
 {% include 'base/footer.html' %}
 
 {% endblock %}

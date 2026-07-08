@@ -15,6 +15,7 @@ urlpatterns = [
     path('orders/', include('orders.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('reviews/', include('reviews.urls')),
+    path('blog/', include('blog.urls')),
 
     # SEO
     path('sitemap.xml', sitemap, {'sitemaps': SITEMAPS}, name='sitemap'),

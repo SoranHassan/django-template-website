@@ -19,16 +19,19 @@ def _get_or_create_cart(request):
 
 class CartView(View):
     def get(self, request):
+        # import محلی برای جلوگیری از import حلقوی با orders
+        from orders.views import _get_session_coupon
+
         cart = _get_or_create_cart(request)
         items = cart.items.select_related('variant__product', 'variant__size', 'variant__color').prefetch_related('variant__product__images')
-        quantity_range = range(1, 11)
+        coupon, discount_amount = _get_session_coupon(request, cart)
 
         return render(request, 'cart/cart.html', {
             'cart': items,
             'subtotal': cart.subtotal,
-            
-            'total': cart.total,
-            'quantity_range': quantity_range,})
+            'coupon': coupon,
+            'discount_amount': discount_amount,
+            'total': cart.subtotal - discount_amount,})
 
 
 def _parse_quantity(value, default=1):

@@ -1,0 +1,60 @@
+{% comment %} منوی کناری حساب کاربری — active_tab: orders|wishlist|profile|addresses {% endcomment %}
+<div class="dashboard_author account-menu">
+    <h4 class="px-3 py-2 mb-0 lh-2 gray fs-sm ft-medium text-muted text-uppercase text-left">منوی کاربری</h4>
+    <ul class="dahs_navbar">
+        <li>
+            <a href="{% url 'accounts:my_orders' %}" {% if active_tab == 'orders' %}class="active"{% endif %}>
+                <i class="lni lni-shopping-basket"></i><span>سفارش‌های من</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'accounts:wishlist' %}" {% if active_tab == 'wishlist' %}class="active"{% endif %}>
+                <i class="lni lni-heart"></i><span>علاقه‌مندی‌ها</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'accounts:profile_info' %}" {% if active_tab == 'profile' %}class="active"{% endif %}>
+                <i class="lni lni-user"></i><span>اطلاعات پروفایل</span>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'accounts:addresses' %}" {% if active_tab == 'addresses' %}class="active"{% endif %}>
+                <i class="lni lni-map-marker"></i><span>آدرس‌های من</span>
+            </a>
+        </li>
+        <li>
+            <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+                <button type="submit" class="logout-row">
+                    <i class="lni lni-power-switch"></i><span>خروج از حساب</span>
+                </button>
+            </form>
+        </li>
+    </ul>
+</div>
+
+<style>
+    /* یکدست‌سازی منوی حساب کاربری */
+    .account-menu .dahs_navbar li { list-style: none; }
+    .account-menu .dahs_navbar li a,
+    .account-menu .dahs_navbar li .logout-row {
+        display: flex; align-items: center; gap: 10px;
+        width: 100%; padding: 12px 16px; border-radius: 10px;
+        color: #333; text-decoration: none; font-size: 15px;
+        background: none; border: none; cursor: pointer; text-align: right;
+        transition: all .15s ease; font-family: inherit;
+    }
+    .account-menu .dahs_navbar li a i,
+    .account-menu .dahs_navbar li .logout-row i {
+        font-size: 17px; width: 22px; text-align: center; flex-shrink: 0;
+        margin: 0 !important; color: #888;
+    }
+    .account-menu .dahs_navbar li a:hover { background: #f6feff; color: var(--os-cyan-dark); }
+    .account-menu .dahs_navbar li a:hover i { color: var(--os-cyan-dark); }
+    .account-menu .dahs_navbar li a.active {
+        background: #EAF9FB; color: var(--os-cyan-dark); font-weight: 600;
+    }
+    .account-menu .dahs_navbar li a.active i { color: var(--os-cyan-dark); }
+    .account-menu .dahs_navbar li .logout-row { color: #d33; }
+    .account-menu .dahs_navbar li .logout-row i { color: #d33; }
+    .account-menu .dahs_navbar li .logout-row:hover { background: #fff5f5; }
+</style>

@@ -18,13 +18,16 @@
                 {% if error %}
                 <div class="alert alert-danger mb-4">{{ error }}</div>
                 {% endif %}
-                <div class="d-flex gap-3 justify-content-center">
-                    <a class="btn btn-dark" href="{% url 'orders:checkout' %}">
-                        تلاش مجدد
-                    </a>
-                    <a class="btn btn-light" href="{% url 'catalog:index' %}">
-                        بازگشت به خانه
-                    </a>
+                <p class="small text-muted mb-4">نگران نباشید؛ سبد خرید شما دست‌نخورده مانده و می‌توانید همین سفارش را دوباره پرداخت کنید.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <form method="post" action="{% url 'orders:retry_payment' order.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-os px-4">
+                            <i class="lni lni-reload me-2"></i>پرداخت مجدد همین سفارش
+                        </button>
+                    </form>
+                    <a class="btn btn-outline-dark" href="{% url 'cart:cart' %}">مشاهده سبد خرید</a>
+                    <a class="btn btn-light" href="{% url 'accounts:my_orders' %}">سفارش‌های من</a>
                 </div>
             </div>
         </div>

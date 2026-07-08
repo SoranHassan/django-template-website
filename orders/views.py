@@ -228,6 +228,35 @@ class VerifyPaymentView(LoginRequiredMixin, View):
             return render(request, 'orders/payment-failed.html', {'order': order, 'error': 'پرداخت لغو شد یا با خطا مواجه شد'})
 
 
+class RetryPaymentView(LoginRequiredMixin, View):
+    """پرداخت مجدد سفارش‌های پرداخت‌نشده — بدون نیاز به ساخت دوباره سبد"""
+
+    def post(self, request, pk):
+        order = get_object_or_404(Order, pk=pk, user=request.user)
+
+        if order.status not in ('pending', 'cancelled'):
+            return redirect('accounts:my_orders')
+
+        callback_url = request.build_absolute_uri(reverse('orders:verify_payment', kwargs={'pk': order.pk}))
+        result = request_payment(
+            amount=order.final_total,
+            description=f'پرداخت سفارش #{order.pk}',
+            callback_url=callback_url,
+            mobile=request.user.mobile,
+            email=request.user.email or None)
+
+        if result['status'] == 'ok':
+            order.status = 'pending'
+            order.zarinpal_authority = result['authority']
+            order.save()
+            logger.info('retry payment for order %s (authority=%s)', order.pk, result['authority'])
+            return redirect(result['payment_url'])
+
+        logger.error('retry payment failed for order %s: %s', order.pk, result['message'])
+        return render(request, 'orders/payment-failed.html',
+                      {'order': order, 'error': f"خطا در اتصال به درگاه: {result['message']}"})
+
+
 class CompleteOrderView(LoginRequiredMixin, View):
     def get(self, request, pk):
         order = get_object_or_404(Order, pk=pk, user=request.user)

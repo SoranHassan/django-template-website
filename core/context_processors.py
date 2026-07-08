@@ -45,7 +45,12 @@ def cart_context(request):
 def wishlist_context(request):
     """Wishlist items in pages"""
     wishlist = request.session.get('wishlist', [])
-    return {'wishlist': wishlist, 'wishlist_count': len(wishlist), 'wishlist_subtotal': sum(float(item.get('price', 0)) for item in wishlist)}
+    return {
+        'wishlist': wishlist,
+        'wishlist_count': len(wishlist),
+        'wishlist_ids': [str(item.get('id')) for item in wishlist],
+        'wishlist_subtotal': sum(float(item.get('price', 0) or 0) for item in wishlist),
+    }
 
 
 def dashboard_context(request):

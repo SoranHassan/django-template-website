@@ -1,112 +1,83 @@
 {% extends "base/base.html" %}
 {% load static %}
 
-{% block hero_content %}
+{% block title %}{% if address %}ویرایش آدرس{% else %}آدرس جدید{% endif %} | OramShop{% endblock %}
+{% block meta_robots %}noindex, follow{% endblock %}
 
+{% block hero_content %}
 {% include 'base/navbar.html' %}
-<div class="gray py-3">
-    <div class="container">
-        <div class="row">
-            <div class="colxl-12 col-lg-12 col-md-12">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
-                        <li class="breadcrumb-item"><a href="{% url 'accounts:addresses' %}">آدرس‌ها</a></li>
-                        <li class="breadcrumb-item active">
-                            {% if address %}ویرایش آدرس{% else %}آدرس جدید{% endif %}
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
 
 <section class="middle">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-xl-8 col-lg-8 col-md-12">
+            <div class="col-12 col-md-10 col-lg-7">
 
-                <form method="POST"
-                      action="{% if address %}{% url 'accounts:addresses_edit' address.pk %}{% else %}{% url 'accounts:addresses_create' %}{% endif %}"
-                      class="border p-4 rounded">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h3 class="ft-bold mb-0">{% if address %}ویرایش آدرس{% else %}آدرس جدید{% endif %}</h3>
+                    <a href="{% url 'accounts:addresses' %}" class="btn btn-outline-dark btn-sm">
+                        <i class="lni lni-arrow-right me-1"></i>بازگشت به آدرس‌ها
+                    </a>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger py-2">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" class="border rounded p-4">
                     {% csrf_token %}
-
-                    <h5 class="ft-medium mb-4">
-                        {% if address %}ویرایش آدرس{% else %}افزودن آدرس جدید{% endif %}
-                    </h5>
-
                     <div class="row g-3">
-                        <div class="col-xl-6 col-md-6">
-                            <div class="form-group">
-                                <label class="mb-2">نام *</label>
-                                <input type="text" name="first_name" class="form-control"
-                                       value="{{ address.first_name|default:'' }}" required>
-                            </div>
+                        <div class="col-6">
+                            <label class="form-label small ft-medium">نام گیرنده *</label>
+                            <input type="text" name="first_name" class="form-control" required
+                                   value="{{ address.first_name|default:'' }}">
                         </div>
-                        <div class="col-xl-6 col-md-6">
-                            <div class="form-group">
-                                <label class="mb-2">نام خانوادگی *</label>
-                                <input type="text" name="last_name" class="form-control"
-                                       value="{{ address.last_name|default:'' }}" required>
-                            </div>
+                        <div class="col-6">
+                            <label class="form-label small ft-medium">نام خانوادگی گیرنده *</label>
+                            <input type="text" name="last_name" class="form-control" required
+                                   value="{{ address.last_name|default:'' }}">
                         </div>
-                        <div class="col-xl-6 col-md-6">
-                            <div class="form-group">
-                                <label class="mb-2">شماره تلفن *</label>
-                                <input type="text" name="phone" class="form-control"
-                                       value="{{ address.phone|default:'' }}" required>
-                            </div>
+                        <div class="col-6">
+                            <label class="form-label small ft-medium">شماره موبایل گیرنده *</label>
+                            <input type="text" name="phone" class="form-control" dir="ltr" required
+                                   placeholder="09xxxxxxxxx" value="{{ address.phone|default:'' }}">
                         </div>
-                        <div class="col-xl-6 col-md-6">
-                            <div class="form-group">
-                                <label class="mb-2">ایمیل</label>
-                                <input type="email" name="email" class="form-control"
-                                       value="{{ address.email|default:'' }}">
-                            </div>
+                        <div class="col-6">
+                            <label class="form-label small ft-medium">ایمیل (اختیاری)</label>
+                            <input type="email" name="email" class="form-control" dir="ltr"
+                                   value="{{ address.email|default:'' }}">
                         </div>
-                        <div class="col-xl-12">
-                            <div class="form-group">
-                                <label class="mb-2">آدرس *</label>
-                                <input type="text" name="address1" class="form-control"
-                                       value="{{ address.address1|default:'' }}" required>
-                            </div>
+                        <div class="col-12">
+                            <label class="form-label small ft-medium">نشانی کامل *</label>
+                            <input type="text" name="address1" class="form-control" required
+                                   placeholder="خیابان، کوچه، پلاک، واحد" value="{{ address.address1|default:'' }}">
                         </div>
-                        <div class="col-xl-12">
-                            <div class="form-group">
-                                <label class="mb-2">آدرس (خط دوم)</label>
-                                <input type="text" name="address2" class="form-control"
-                                       value="{{ address.address2|default:'' }}">
-                            </div>
+                        <div class="col-12">
+                            <label class="form-label small ft-medium">ادامه نشانی (اختیاری)</label>
+                            <input type="text" name="address2" class="form-control"
+                                   value="{{ address.address2|default:'' }}">
                         </div>
-                        <div class="col-xl-6 col-md-6">
-                            <div class="form-group">
-                                <label class="mb-2">شهر *</label>
-                                <input type="text" name="city" class="form-control"
-                                       value="{{ address.city|default:'' }}" required>
-                            </div>
+                        <div class="col-6">
+                            <label class="form-label small ft-medium">شهر *</label>
+                            <input type="text" name="city" class="form-control" required
+                                   value="{{ address.city|default:'' }}">
                         </div>
-                        <div class="col-xl-6 col-md-6">
-                            <div class="form-group">
-                                <label class="mb-2">کد پستی *</label>
-                                <input type="text" name="zip" class="form-control"
-                                       value="{{ address.zip|default:'' }}" maxlength="10" required>
-                            </div>
+                        <div class="col-6">
+                            <label class="form-label small ft-medium">کد پستی (۱۰ رقم) *</label>
+                            <input type="text" name="zip" class="form-control" dir="ltr" required
+                                   value="{{ address.zip|default:'' }}">
                         </div>
-                        <div class="col-xl-12">
-                            <div class="form-group">
-                                <input id="is_default" class="checkbox-custom" name="is_default"
-                                       type="checkbox" {% if address.is_default %}checked{% endif %}>
-                                <label for="is_default" class="checkbox-custom-label">
-                                    آدرس پیش‌فرض
-                                </label>
-                            </div>
+                        <div class="col-12">
+                            <label class="d-flex align-items-center gap-2 small">
+                                <input type="checkbox" name="is_default"
+                                       style="width:16px; height:16px; accent-color:#00B8CC; position:static; opacity:1;"
+                                       {% if address.is_default %}checked{% endif %}>
+                                این آدرس، آدرس پیش‌فرض من باشد
+                            </label>
                         </div>
-                        <div class="col-xl-12">
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-dark me-2">ذخیره</button>
-                                <a href="{% url 'accounts:addresses' %}" class="btn btn-light">انصراف</a>
-                            </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-os w-100 py-2">
+                                {% if address %}ذخیره تغییرات{% else %}ثبت آدرس{% endif %}
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -117,5 +88,4 @@
 </section>
 
 {% include 'base/footer.html' %}
-
 {% endblock %}

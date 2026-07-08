@@ -61,7 +61,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link px-0" href="{% url 'catalog:shop_style_1' %}">دسته بندی ها</a>
                         <div class="dropdown-menu mega-menu custom-dropdown">
-                            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-2 p-2">
+                            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-2 p-2">
                                 {% for cat in nav_categories %}
                                 <div class="col">
                                     <a class="dropdown-item" href="{% url 'catalog:shop_style_1' %}?category={{ cat.slug }}">{{ cat.name }}</a>
@@ -74,7 +74,7 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link px-0" href="#">بلاگ</a>
+                        <a class="nav-link px-0" href="{% url 'blog:list' %}">بلاگ</a>
                     </li>
                 </ul>
 
@@ -142,12 +142,43 @@
                     <a href="{% url 'accounts:signup' %}" class="simple-nav-btn d-none d-md-inline">ثبت‌نام</a>
                 {% endif %}
 
-                <!-- ویشلیست (فقط برای لاگین شده‌ها) -->
+                <!-- ویشلیست (دراپ‌داون) -->
                 {% if user.is_authenticated %}
-                <a href="javascript:void(0);" onclick="openWishlist()" class="position-relative text-dark fs-4">
-                    <i class="lni lni-heart"></i>
-                    {% if wishlist_count > 0 %}<span class="wishlist-count dn-counter">{{ wishlist_count }}</span>{% endif %}
-                </a>
+                <div class="dropdown">
+                    <a href="javascript:void(0);" class="position-relative text-dark fs-4"
+                       data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+                        <i class="lni lni-heart"></i>
+                        <span class="wishlist-count dn-counter" {% if not wishlist_count %}style="display:none;"{% endif %}>{{ wishlist_count }}</span>
+                    </a>
+                    <div class="dropdown-menu wishlist-dropdown cart-dropdown">
+                        <div class="cart-items-list">
+                            {% for item in wishlist %}
+                            <div class="d-flex align-items-center justify-content-between br-bottom px-2 py-3">
+                                <a href="/shop/{{ item.id }}/" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                                    {% if item.image %}
+                                    <img src="{{ item.image }}" width="46" class="img-fluid rounded" alt="{{ item.title }}"/>
+                                    {% endif %}
+                                    <span>
+                                        <span class="fs-sm ft-medium d-block lh-1 mb-1">{{ item.title|truncatechars:28 }}</span>
+                                        <small class="text-muted">{{ item.price|floatformat:0|intcomma }} تومان</small>
+                                    </span>
+                                </a>
+                                <button class="btn btn-sm btn-link p-0 text-danger wishlist-btn"
+                                        data-id="{{ item.id }}" title="حذف">
+                                    <i class="lni lni-close"></i>
+                                </button>
+                            </div>
+                            {% empty %}
+                            <p class="text-center text-muted py-4 mb-0">لیست علاقه‌مندی خالی است.</p>
+                            {% endfor %}
+                        </div>
+                        {% if wishlist %}
+                        <div class="cart-footer mt-2 px-2">
+                            <a href="{% url 'accounts:wishlist' %}" class="btn btn-outline-dark w-100">مشاهده همه علاقه‌مندی‌ها</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
                 {% endif %}
 
                 <!-- سبد خرید - حالت Dropdown -->
@@ -253,14 +284,16 @@
                     </ul>
                 </div>
             </li>
-            <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="#">بلاگ</a></li>
+            <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'blog:list' %}">بلاگ</a></li>
         </ul>
     </div>
 </div>
 
 <style>
     /* منو دقیقاً زیر تریگر خودش (خنثی کردن جابه‌جایی popper) */
-    .user-dropdown, .cart-dropdown, .custom-dropdown { transform: none !important; inset: auto !important; }
+    .user-dropdown, .cart-dropdown, .custom-dropdown, .wishlist-dropdown { transform: none !important; inset: auto !important; z-index: 2000 !important; }
+    /* تریگرهای سمت چپ صفحه: منو به سمت راست باز شود تا از صفحه بیرون نزند */
+    .user-dropdown, .cart-dropdown, .wishlist-dropdown { left: 0 !important; right: auto !important; max-width: calc(100vw - 24px); }
 
     /* Top bar ticker */
     .ticker-wrapper { overflow: hidden; white-space: nowrap; }
@@ -313,8 +346,10 @@
 
     /* استایل مگامنو دسته‌بندی‌ها (عرض بیشتر برای 6 ستون) */
     .mega-menu {
-        min-width: 600px !important;
+        min-width: 640px !important;
+        max-width: 90vw;
     }
+    .mega-menu .dropdown-item { white-space: normal; line-height: 1.6; }
 
     /* آواتار کاربر */
     .user-avatar-nav {
@@ -343,6 +378,10 @@
         font-weight: 400; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .theme-bg { background: #1A1A1A !important; color:#00E6FF !important; }
+
+    /* قلب فعال (داخل علاقه‌مندی) */
+    .wishlist-btn.in-wishlist i { color: #e63946 !important; }
+    .wishlist-btn i { transition: color .15s ease; }
 
         .cart-dropdown {
         position: absolute !important;
@@ -405,4 +444,40 @@
         if (!box.contains(e.target) && e.target !== input) box.classList.remove('show');
     });
 })();
+</script>
+
+<script>
+// toggle علاقه‌مندی — سراسری با delegation
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.wishlist-btn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+    const body = new URLSearchParams({
+        id: btn.dataset.id,
+        title: btn.dataset.title || '',
+        price: btn.dataset.price || '',
+        image: btn.dataset.image || '',
+        slug: btn.dataset.slug || ''
+    });
+
+    fetch('/accounts/wishlist/toggle/', {method: 'POST', headers: {'X-CSRFToken': token}, body})
+        .then(r => {
+            if (r.status === 401) { window.location.href = '/accounts/login/'; return null; }
+            return r.json();
+        })
+        .then(data => {
+            if (!data || data.status !== 'ok') return;
+            document.querySelectorAll(`.wishlist-btn[data-id="${btn.dataset.id}"]`)
+                .forEach(b => b.classList.toggle('in-wishlist', data.in_wishlist));
+            document.querySelectorAll('.wishlist-count').forEach(el => {
+                el.textContent = data.count;
+                el.style.display = data.count > 0 ? 'flex' : 'none';
+            });
+            // در صفحه علاقه‌مندی‌ها، حذف = رفرش
+            if (!data.in_wishlist && window.location.pathname.includes('/wishlist')) location.reload();
+        });
+}, true);
 </script>

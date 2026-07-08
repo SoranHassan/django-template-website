@@ -10,7 +10,7 @@ from accounts.models import CustomUser
 from accounts.tasks import send_order_status_sms
 from orders.models import Order, OrderItem
 from reviews.models import Review
-from catalog.models import Product, Category, Brand, ProductImage
+from catalog.models import Product, Category, Brand, ProductImage, ProductVariant, Size, Color, SizeChart
 from django.utils.text import slugify
 
 
@@ -291,7 +291,19 @@ class DashboardAnalyticsView(StaffRequiredMixin, View):
 class DashboardProductEditView(StaffRequiredMixin, View):
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
-        return render(request, 'dashboard/product-form.html', {'product': product, 'categories': Category.objects.all(), 'brands': Brand.objects.all(),})
+        return render(request, 'dashboard/product-form.html', {
+            'product': product,
+            'categories': Category.objects.all(),
+            'brands': Brand.objects.all(),
+            'variants': product.variants.select_related('size', 'color'),
+            'size_charts': product.size_charts.select_related('size'),
+            'all_sizes': Size.objects.all(),
+            'all_colors': Color.objects.all(),
+            'size_chart_fields': [
+                ('shoulder', 'شانه'), ('sleeve', 'آستین'), ('chest', 'سینه'), ('length_top', 'قد بالاتنه'),
+                ('waist', 'کمر'), ('hip', 'ران'), ('crotch', 'فاق'), ('length_bottom', 'قد پایین‌تنه'),
+            ],
+        })
 
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
@@ -449,3 +461,79 @@ class DashboardCouponDeleteView(StaffRequiredMixin, View):
         from orders.models import Coupon
         get_object_or_404(Coupon, pk=pk).delete()
         return redirect('dashboard:coupons_list')
+
+
+# ---------- مدیریت واریانت (سایز/رنگ/موجودی/قیمت) ----------
+
+class DashboardVariantSaveView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        size_id = request.POST.get('size') or None
+        color_id = request.POST.get('color') or None
+        ProductVariant.objects.update_or_create(
+            product=product, size_id=size_id, color_id=color_id,
+            defaults={
+                'stock': request.POST.get('stock') or 0,
+                'price': request.POST.get('price') or None,
+            })
+        return redirect('dashboard:product_edit', pk=pk)
+
+
+class DashboardVariantDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        variant = get_object_or_404(ProductVariant, pk=pk)
+        product_pk = variant.product_id
+        try:
+            variant.delete()
+        except Exception:
+            variant.stock = 0
+            variant.save()
+        return redirect('dashboard:product_edit', pk=product_pk)
+
+
+class DashboardColorCreateView(StaffRequiredMixin, View):
+    """افزودن سریع رنگ (نام + کد هگز) از داخل فرم محصول"""
+
+    def post(self, request):
+        name = request.POST.get('name', '').strip()
+        hex_code = request.POST.get('hex_code', '').strip() or '#000000'
+        if name:
+            Color.objects.get_or_create(name=name, defaults={'hex_code': hex_code})
+        next_url = request.POST.get('next', '')
+        if next_url.startswith('/dashboard/'):
+            return redirect(next_url)
+        return redirect('dashboard:products_list')
+
+
+class DashboardSizeCreateView(StaffRequiredMixin, View):
+    def post(self, request):
+        name = request.POST.get('name', '').strip()
+        if name:
+            Size.objects.get_or_create(name=name)
+        next_url = request.POST.get('next', '')
+        if next_url.startswith('/dashboard/'):
+            return redirect(next_url)
+        return redirect('dashboard:products_list')
+
+
+# ---------- جدول سایزبندی (سانتی‌متر) ----------
+
+class DashboardSizeChartSaveView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        size_id = request.POST.get('size')
+        if size_id:
+            fields = {}
+            for f in ['shoulder', 'sleeve', 'chest', 'length_top', 'waist', 'hip', 'crotch', 'length_bottom']:
+                value = request.POST.get(f, '').strip()
+                fields[f] = value or None
+            SizeChart.objects.update_or_create(product=product, size_id=size_id, defaults=fields)
+        return redirect('dashboard:product_edit', pk=pk)
+
+
+class DashboardSizeChartDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        chart = get_object_or_404(SizeChart, pk=pk)
+        product_pk = chart.product_id
+        chart.delete()
+        return redirect('dashboard:product_edit', pk=product_pk)

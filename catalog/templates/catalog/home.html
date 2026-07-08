@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static humanize %}
+{% load static humanize catalog_extras %}
 
 {% block title %}OramShop - فروشگاه پوشاک و اکسسوری{% endblock %}
 
@@ -245,6 +245,8 @@
 </section>
 {% endif %}
 
+{% product_row 'discount' 'تخفیف‌دارها' 10 %}
+
 <!-- برندها -->
 {% if brands %}
 <section class="py-4 br-top br-bottom brand-strip">
@@ -320,43 +322,6 @@
         });
     });
 
-    // ویشلیست AJAX
-    document.querySelectorAll('.wishlist-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            {% if user.is_authenticated %}
-            const b = this;
-            const icon = b.querySelector('i');
-
-            fetch('{% url "accounts:wishlist_add" %}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: [
-                    `id=${b.dataset.id}`,
-                    `title=${encodeURIComponent(b.dataset.title)}`,
-                    `price=${b.dataset.price}`,
-                    `image=${encodeURIComponent(b.dataset.image || '')}`,
-                    `slug=${b.dataset.slug}`
-                ].join('&')
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'ok') {
-                    icon.classList.replace('lni-heart', 'lni-heart-filled');
-                    b.style.color = '#00B8CC';
-                    document.querySelectorAll('.wishlist-count').forEach(el => {
-                        el.textContent = data.count;
-                        el.style.display = 'block';
-                    });
-                }
-            });
-            {% else %}
-            window.location.href = '{% url "accounts:login" %}';
-            {% endif %}
-        });
-    });
 </script>
 
 <script>
@@ -365,13 +330,6 @@
         $('.hero-slider').slick({
             autoplay: true, autoplaySpeed: 4500, arrows: false,
             dots: true, infinite: true
-        });
-        $('.products-row-slider').slick({
-            rtl: true, slidesToShow: 4, slidesToScroll: 2, arrows: true, dots: false, infinite: false,
-            responsive: [
-                {breakpoint: 992, settings: {slidesToShow: 3}},
-                {breakpoint: 768, settings: {slidesToShow: 2}}
-            ]
         });
     });
 </script>

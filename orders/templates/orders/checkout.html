@@ -255,9 +255,7 @@
 
                         <!-- لوگو زرین‌پال -->
                         <div class="text-center mt-2">
-                            <img src="{% static 'app/img/card.png' %}" class="img-fluid"
-                                 style="max-height: 25px;" alt="">
-                        </div>
+                            </div>
 
                     </div>
                 </div>
@@ -292,14 +290,14 @@
                 card.style.borderColor = '#dee2e6';
                 card.style.background = 'white';
             });
-            this.closest('.address-card').style.borderColor = '#e94560';
-            this.closest('.address-card').style.background = '#fff8f8';
+            this.closest('.address-card').style.borderColor = '#00B8CC';
+            this.closest('.address-card').style.background = '#f4feff';
         });
 
         // اعمال استایل برای آدرس از پیش انتخاب‌شده
         if (radio.checked) {
-            radio.closest('.address-card').style.borderColor = '#e94560';
-            radio.closest('.address-card').style.background = '#fff8f8';
+            radio.closest('.address-card').style.borderColor = '#00B8CC';
+            radio.closest('.address-card').style.background = '#f4feff';
         }
     });
 
@@ -312,7 +310,6 @@
         }
     });
 </script>
-{% endblock %}
 
 <script>
 (function () {
@@ -336,3 +333,4 @@
     update();
 })();
 </script>
+{% endblock %}

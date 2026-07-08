@@ -276,6 +276,34 @@ class WishlistView(LoginRequiredMixin, View):
         return render(request, 'accounts/wishlist.html', {'wishlist': wishlist})
 
 
+class WishlistToggleView(View):
+    """افزودن/حذف با یک کلیک — قلب قرمز/خالی"""
+
+    def post(self, request):
+        if not request.user.is_authenticated:
+            return JsonResponse({'status': 'error', 'message': 'برای ذخیره علاقه‌مندی وارد شوید'}, status=401)
+
+        item_id = str(request.POST.get('id', ''))
+        if not item_id:
+            return JsonResponse({'status': 'error'}, status=400)
+
+        wishlist = request.session.get('wishlist', [])
+        exists = any(str(i.get('id')) == item_id for i in wishlist)
+
+        if exists:
+            wishlist = [i for i in wishlist if str(i.get('id')) != item_id]
+        else:
+            wishlist.append({
+                'id': item_id,
+                'title': request.POST.get('title', ''),
+                'price': request.POST.get('price', ''),
+                'image': request.POST.get('image', ''),
+                'slug': request.POST.get('slug', '')})
+
+        request.session['wishlist'] = wishlist
+        return JsonResponse({'status': 'ok', 'in_wishlist': not exists, 'count': len(wishlist)})
+
+
 class WishlistAddView(LoginRequiredMixin, View):
     def post(self, request):
         item_id = request.POST.get('id')

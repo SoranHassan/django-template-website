@@ -386,6 +386,168 @@
                 </div>
             </div>
         </form>
+
+{% if product %}
+<!-- ================== واریانت‌ها (سایز/رنگ/موجودی/قیمت) ================== -->
+<div class="dashboard-content" style="padding-top:0;">
+    <div class="glass-card">
+        <div class="card-header"><h2>واریانت‌ها (سایز، رنگ و موجودی)</h2></div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead><tr><th>سایز</th><th>رنگ</th><th>موجودی</th><th>قیمت اختصاصی</th><th></th></tr></thead>
+                <tbody>
+                {% for variant in variants %}
+                <tr>
+                    <td>{{ variant.size|default:"—" }}</td>
+                    <td>
+                        {% if variant.color %}
+                        <span style="display:inline-block; width:14px; height:14px; border-radius:50%;
+                                     background:{{ variant.color.hex_code }}; border:1px solid #ddd;
+                                     vertical-align:middle; margin-left:6px;"></span>{{ variant.color.name }}
+                        {% else %}—{% endif %}
+                    </td>
+                    <td>{{ variant.stock }}</td>
+                    <td>{% if variant.price %}{{ variant.price }} تومان{% else %}قیمت اصلی{% endif %}</td>
+                    <td>
+                        <form method="POST" action="{% url 'dashboard:variant_delete' variant.pk %}"
+                              data-confirm="این واریانت حذف شود؟" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-secondary" style="padding:4px 8px; font-size:11px; color:#FF3B30;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align:center; color:#86868B; padding:20px;">هنوز واریانتی ثبت نشده — بدون واریانت، محصول قابل خرید نیست!</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <form method="POST" action="{% url 'dashboard:variant_save' product.pk %}"
+              style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap:10px; margin-top:16px; align-items:end;">
+            {% csrf_token %}
+            <div>
+                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">سایز</label>
+                <select name="size" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+                    <option value="">بدون سایز</option>
+                    {% for size in all_sizes %}<option value="{{ size.pk }}">{{ size.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">رنگ</label>
+                <select name="color" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+                    <option value="">بدون رنگ</option>
+                    {% for color in all_colors %}<option value="{{ color.pk }}">{{ color.name }} ({{ color.hex_code }})</option>{% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">موجودی</label>
+                <input type="number" name="stock" min="0" value="0" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+            </div>
+            <div>
+                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">قیمت اختصاصی (اختیاری)</label>
+                <input type="number" name="price" min="0" placeholder="خالی = قیمت اصلی" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+            </div>
+            <button type="submit" style="padding:10px 20px; background:#00B8CC; color:white; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer;">
+                افزودن
+            </button>
+        </form>
+
+        <!-- افزودن سریع رنگ و سایز جدید -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; padding-top:16px; border-top:1px solid rgba(0,0,0,0.06);">
+            <form method="POST" action="{% url 'dashboard:color_create' %}" style="display:flex; gap:8px; align-items:end;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'dashboard:product_edit' product.pk %}">
+                <div style="flex:1;">
+                    <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">رنگ جدید</label>
+                    <input type="text" name="name" placeholder="مثلاً آبی نفتی" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+                </div>
+                <div>
+                    <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">کد رنگ</label>
+                    <input type="color" name="hex_code" value="#1a5276" style="width:52px; height:40px; border:1px solid #ddd; border-radius:10px; padding:2px;">
+                </div>
+                <button type="submit" style="padding:10px 16px; background:#1A1A1A; color:#00E6FF; border:none; border-radius:10px; font-family:inherit; cursor:pointer;">+</button>
+            </form>
+            <form method="POST" action="{% url 'dashboard:size_create' %}" style="display:flex; gap:8px; align-items:end;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'dashboard:product_edit' product.pk %}">
+                <div style="flex:1;">
+                    <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">سایز جدید</label>
+                    <input type="text" name="name" placeholder="مثلاً 3XL یا 42" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+                </div>
+                <button type="submit" style="padding:10px 16px; background:#1A1A1A; color:#00E6FF; border:none; border-radius:10px; font-family:inherit; cursor:pointer;">+</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================== جدول سایزبندی (سانتی‌متر) ================== -->
+    <div class="glass-card" style="margin-top:16px;">
+        <div class="card-header"><h2>جدول سایزبندی (سانتی‌متر)</h2></div>
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>سایز</th><th>شانه</th><th>آستین</th><th>سینه</th><th>قد بالاتنه</th>
+                    <th>کمر</th><th>ران</th><th>فاق</th><th>قد پایین‌تنه</th><th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for chart in size_charts %}
+                <tr>
+                    <td style="font-weight:700;">{{ chart.size.name }}</td>
+                    <td>{{ chart.shoulder|default:"—" }}</td>
+                    <td>{{ chart.sleeve|default:"—" }}</td>
+                    <td>{{ chart.chest|default:"—" }}</td>
+                    <td>{{ chart.length_top|default:"—" }}</td>
+                    <td>{{ chart.waist|default:"—" }}</td>
+                    <td>{{ chart.hip|default:"—" }}</td>
+                    <td>{{ chart.crotch|default:"—" }}</td>
+                    <td>{{ chart.length_bottom|default:"—" }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'dashboard:sizechart_delete' chart.pk %}"
+                              data-confirm="این ردیف سایزبندی حذف شود؟" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-secondary" style="padding:4px 8px; font-size:11px; color:#FF3B30;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="10" style="text-align:center; color:#86868B; padding:16px;">اندازه‌ای ثبت نشده است</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <form method="POST" action="{% url 'dashboard:sizechart_save' product.pk %}"
+              style="display:grid; grid-template-columns: repeat(10, 1fr); gap:8px; margin-top:16px; align-items:end;">
+            {% csrf_token %}
+            <div>
+                <label style="font-size:11px; font-weight:600; display:block; margin-bottom:4px;">سایز *</label>
+                <select name="size" required style="width:100%; padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit; font-size:12px;">
+                    {% for size in all_sizes %}<option value="{{ size.pk }}">{{ size.name }}</option>{% endfor %}
+                </select>
+            </div>
+            {% for field, label in size_chart_fields %}
+            <div>
+                <label style="font-size:11px; font-weight:600; display:block; margin-bottom:4px;">{{ label }}</label>
+                <input type="number" step="0.5" min="0" name="{{ field }}" placeholder="cm"
+                       style="width:100%; padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit; font-size:12px;">
+            </div>
+            {% endfor %}
+            <button type="submit" style="padding:9px 8px; background:#00B8CC; color:white; border:none; border-radius:8px; font-family:inherit; font-weight:600; cursor:pointer; font-size:12px;">
+                ثبت
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
     </div>
 </main>
 
