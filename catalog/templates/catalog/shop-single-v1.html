@@ -251,7 +251,7 @@
                                             data-price="{{ product.price }}"
                                             data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
                                             data-slug="{{ product.slug }}">
-                                        <i class="lni lni-heart me-2"></i>علاقه‌مندی
+                                        <i class="lni lni-heart me-2"></i><span class="wishlist-label">علاقه‌مندی</span>
                                     </button>
                                 </div>
                             </div>
@@ -552,7 +552,6 @@
 
 {% include 'catalog/_quickview.html' %}
 {% include 'catalog/_search_drawer.html' %}
-{% include 'accounts/_wishlist_drawer.html' %}
 {% include 'cart/_cart_drawer.html' %}
 {% include 'base/footer.html' %}
 

@@ -1,0 +1,83 @@
+{% extends 'dashboard/_layout.html' %}
+
+{% block title %}اطلاعیه‌ها{% endblock %}
+{% block search_placeholder %}جستجو در اطلاعیه‌ها...{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>اطلاعیه‌ها</h1>
+    <p>مدیریت اطلاعیه‌ها فروشگاه — بدون نیاز به پنل پیش‌فرض جنگو</p>
+</div>
+
+<div class="glass-card" style="margin-bottom:16px;">
+    <div class="card-header"><h2>افزودن جدید</h2></div>
+    <form method="POST" action="{% url 'dashboard:announcement_create' %}" enctype="multipart/form-data"
+          style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:12px; align-items:end;">
+        {% csrf_token %}
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">متن اطلاعیه *</label>
+            <input type="text" name="text" required value=""
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">لینک</label>
+            <input type="text" name="link"  value=""
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">متن لینک</label>
+            <input type="text" name="link_text"  value=""
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">ترتیب</label>
+            <input type="number" name="order" min="0" value="0"
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; padding-bottom:10px;">
+            <input type="checkbox" name="is_active" checked style="width:16px;height:16px;accent-color:#00B8CC;"> فعال
+        </label>
+        <button type="submit" style="padding:11px 20px; background:#00B8CC; color:#fff; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer;">ذخیره</button>
+    </form>
+</div>
+
+<div class="glass-card">
+    <div class="card-header"><h2>همه موارد ({{ items|length }})</h2></div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>متن</th><th>لینک</th><th>ترتیب</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+            <tbody>
+            {% for item in items %}
+            <tr>
+                <td style="font-weight:600;">{{ item.text|truncatechars:60 }}</td>
+                <td style="font-size:12px;">{{ item.link|default:"—" }}</td>
+                <td>{{ item.order }}</td>
+                <td>{% if item.is_active %}<span class="status success">فعال</span>{% else %}<span class="status cancelled">غیرفعال</span>{% endif %}</td>
+                <td>
+                    <details style="display:inline-block;">
+                        <summary class="btn-secondary" style="padding:5px 10px; font-size:11px; cursor:pointer; list-style:none;">ویرایش</summary>
+                        <form method="POST" action="{% url 'dashboard:announcement_edit' item.pk %}"
+                              style="position:absolute; background:#fff; padding:14px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.15); z-index:50; display:grid; gap:8px; min-width:280px;">
+                            {% csrf_token %}
+                            <input type="text" name="text" value="{{ item.text }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="text" name="link" value="{{ item.link }}" placeholder="/shop/" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="text" name="link_text" value="{{ item.link_text }}" placeholder="متن لینک" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="number" name="order" value="{{ item.order }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <label style="display:flex; gap:6px; font-size:12px;"><input type="checkbox" name="is_active" {% if item.is_active %}checked{% endif %}> فعال</label>
+                            <button type="submit" style="padding:8px; background:#00B8CC; color:#fff; border:none; border-radius:8px; font-family:inherit; cursor:pointer;">ذخیره</button>
+                        </form>
+                    </details>
+                    <form method="POST" action="{% url 'dashboard:announcement_delete' item.pk %}" data-confirm="این اطلاعیه حذف شود؟" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary" style="padding:5px 10px; font-size:11px; color:#FF3B30;"><i class="fas fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9" style="text-align:center; padding:32px; color:#86868B;">اطلاعیه‌ای ثبت نشده است</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

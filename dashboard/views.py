@@ -78,19 +78,57 @@ class DashboardProductsListView(StaffRequiredMixin, View):
             'low_stock': Product.objects.filter(variants__stock__lte=3).distinct().count(),
             'categories_count': Category.objects.count()})
 
+def _unique_product_slug(name, requested_slug='', exclude_pk=None):
+    """اسلاگ یکتا می‌سازد؛ اگر تکراری بود شماره اضافه می‌کند (مثل tshirt-2)"""
+    base = (requested_slug or '').strip() or slugify(name or '', allow_unicode=True) or 'product'
+    slug = base
+    counter = 2
+    qs = Product.objects.all()
+    if exclude_pk:
+        qs = qs.exclude(pk=exclude_pk)
+    while qs.filter(slug=slug).exists():
+        slug = f'{base}-{counter}'
+        counter += 1
+    return slug
+
+
+def _parse_price(value):
+    try:
+        price = int(str(value).replace(',', '').strip())
+        return price if price >= 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
 class DashboardProductCreateView(StaffRequiredMixin, View):
     def get(self, request):
         return render(request, 'dashboard/product-form.html', {'categories': Category.objects.all(), 'brands': Brand.objects.all(),})
 
     def post(self, request):
+        def form_error(message):
+            return render(request, 'dashboard/product-form.html', {
+                'categories': Category.objects.all(),
+                'brands': Brand.objects.all(),
+                'error': message})
+
+        name = request.POST.get('name', '').strip()
+        if not name:
+            return form_error('نام محصول الزامی است')
+
+        price = _parse_price(request.POST.get('price'))
+        if price is None:
+            return form_error('قیمت باید یک عدد معتبر باشد')
+
+        original_price = _parse_price(request.POST.get('original_price')) if request.POST.get('original_price') else None
+
         try:
             product = Product.objects.create(
-                name=request.POST.get('name'),
-                slug=request.POST.get('slug') or slugify(request.POST.get('name'), allow_unicode=True),
-                sku=request.POST.get('sku', ''),
+                name=name,
+                slug=_unique_product_slug(name, request.POST.get('slug')),
+                sku=request.POST.get('sku', '').strip(),
                 description=request.POST.get('description', ''),
-                price=request.POST.get('price'),
-                original_price=request.POST.get('original_price') or None,
+                price=price,
+                original_price=original_price,
                 gender=request.POST.get('gender', 'unisex'),
                 category_type=request.POST.get('category_type', ''),
                 is_active='is_active' in request.POST,
@@ -98,17 +136,17 @@ class DashboardProductCreateView(StaffRequiredMixin, View):
                 brand_id=request.POST.get('brand') or None)
 
             images = request.FILES.getlist('images')
-            main_index = int(request.POST.get('main_image_index', 0))
+            try:
+                main_index = int(request.POST.get('main_image_index', 0))
+            except (TypeError, ValueError):
+                main_index = 0
 
             for index, image in enumerate(images):
                 ProductImage.objects.create(product=product, image=image, is_main=(index == main_index), order=index)
-            return redirect('dashboard:products_list')
+            return redirect('dashboard:product_edit', pk=product.pk)
 
         except Exception as e:
-            return render(request, 'dashboard/product-form.html', {
-                'categories': Category.objects.all(),
-                'brands': Brand.objects.all(),
-                'error': str(e)})
+            return form_error(f'خطا در ذخیره محصول: {e}')
 
 class DashboardCategoriesListView(StaffRequiredMixin, View):
     def get(self, request):
@@ -307,13 +345,29 @@ class DashboardProductEditView(StaffRequiredMixin, View):
 
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
+
+        def form_error(message):
+            return render(request, 'dashboard/product-form.html', {
+                'product': product,
+                'categories': Category.objects.all(),
+                'brands': Brand.objects.all(),
+                'error': message})
+
+        name = request.POST.get('name', '').strip()
+        if not name:
+            return form_error('نام محصول الزامی است')
+
+        price = _parse_price(request.POST.get('price'))
+        if price is None:
+            return form_error('قیمت باید یک عدد معتبر باشد')
+
         try:
-            product.name = request.POST.get('name')
-            product.sku = request.POST.get('sku', '')
-            product.slug = request.POST.get('slug') or slugify(request.POST.get('name'), allow_unicode=True)
+            product.name = name
+            product.sku = request.POST.get('sku', '').strip()
+            product.slug = _unique_product_slug(name, request.POST.get('slug'), exclude_pk=product.pk)
             product.description = request.POST.get('description', '')
-            product.price = request.POST.get('price')
-            product.original_price = request.POST.get('original_price') or None
+            product.price = price
+            product.original_price = _parse_price(request.POST.get('original_price')) if request.POST.get('original_price') else None
             product.gender = request.POST.get('gender', 'unisex')
             product.category_type = request.POST.get('category_type', '')
             product.is_active = 'is_active' in request.POST
@@ -322,20 +376,18 @@ class DashboardProductEditView(StaffRequiredMixin, View):
             product.save()
 
             images = request.FILES.getlist('images')
-            main_index = int(request.POST.get('main_image_index', 0))
+            try:
+                main_index = int(request.POST.get('main_image_index', 0))
+            except (TypeError, ValueError):
+                main_index = 0
 
             if images:
                 for index, image in enumerate(images):
                     ProductImage.objects.create(product=product, image=image, is_main=(index == main_index), order=product.images.count() + index)
-            return redirect('dashboard:products_list')
+            return redirect('dashboard:product_edit', pk=product.pk)
 
         except Exception as e:
-            return render(request, 'dashboard/product-form.html', {
-                'product': product,
-                'categories': Category.objects.all(),
-                'brands': Brand.objects.all(),
-                'error': str(e),
-            })
+            return form_error(f'خطا در ذخیره محصول: {e}')
 
 # ---------- CRUD کامل داخل داشبورد (بدون ریدایرکت به ادمین جنگو) ----------
 
@@ -537,3 +589,129 @@ class DashboardSizeChartDeleteView(StaffRequiredMixin, View):
         product_pk = chart.product_id
         chart.delete()
         return redirect('dashboard:product_edit', pk=product_pk)
+
+
+# ---------- روش‌های ارسال / اطلاعیه‌ها / بنرها / بلاگ (مدیریت کامل بدون ادمین جنگو) ----------
+
+class DashboardShippingListView(StaffRequiredMixin, View):
+    def get(self, request):
+        from orders.models import ShippingMethod
+        return render(request, 'dashboard/shipping-list.html',
+                      {'methods': ShippingMethod.objects.all(), 'active_nav': 'shipping'})
+
+
+class DashboardShippingSaveView(StaffRequiredMixin, View):
+    def post(self, request, pk=None):
+        from orders.models import ShippingMethod
+        method = get_object_or_404(ShippingMethod, pk=pk) if pk else ShippingMethod()
+        method.name = request.POST.get('name', method.name or '').strip()
+        method.price = _parse_price(request.POST.get('price')) or 0
+        method.description = request.POST.get('description', '')
+        method.order = request.POST.get('order') or 0
+        method.is_active = request.POST.get('is_active') == 'on'
+        if method.name:
+            method.save()
+        return redirect('dashboard:shipping_list')
+
+
+class DashboardShippingDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from orders.models import ShippingMethod
+        get_object_or_404(ShippingMethod, pk=pk).delete()
+        return redirect('dashboard:shipping_list')
+
+
+class DashboardAnnouncementsListView(StaffRequiredMixin, View):
+    def get(self, request):
+        from core.models import Announcement
+        return render(request, 'dashboard/announcements-list.html',
+                      {'items': Announcement.objects.all(), 'active_nav': 'announcements'})
+
+
+class DashboardAnnouncementSaveView(StaffRequiredMixin, View):
+    def post(self, request, pk=None):
+        from core.models import Announcement
+        item = get_object_or_404(Announcement, pk=pk) if pk else Announcement()
+        item.text = request.POST.get('text', item.text or '').strip()
+        item.link = request.POST.get('link', '')
+        item.link_text = request.POST.get('link_text', '')
+        item.order = request.POST.get('order') or 0
+        item.is_active = request.POST.get('is_active') == 'on'
+        if item.text:
+            item.save()
+        return redirect('dashboard:announcements_list')
+
+
+class DashboardAnnouncementDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from core.models import Announcement
+        get_object_or_404(Announcement, pk=pk).delete()
+        return redirect('dashboard:announcements_list')
+
+
+class DashboardHeroListView(StaffRequiredMixin, View):
+    def get(self, request):
+        from core.models import HeroSlide
+        return render(request, 'dashboard/hero-list.html',
+                      {'slides': HeroSlide.objects.all(), 'active_nav': 'hero'})
+
+
+class DashboardHeroSaveView(StaffRequiredMixin, View):
+    def post(self, request, pk=None):
+        from core.models import HeroSlide
+        slide = get_object_or_404(HeroSlide, pk=pk) if pk else HeroSlide()
+        slide.title = request.POST.get('title', slide.title or '').strip()
+        slide.subtitle = request.POST.get('subtitle', '')
+        slide.button_text = request.POST.get('button_text', 'خرید کنید')
+        slide.button_link = request.POST.get('button_link', '/shop/')
+        slide.order = request.POST.get('order') or 0
+        slide.is_active = request.POST.get('is_active') == 'on'
+        if request.FILES.get('image'):
+            slide.image = request.FILES['image']
+        if slide.title and (slide.image or pk):
+            slide.save()
+        return redirect('dashboard:hero_list')
+
+
+class DashboardHeroDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from core.models import HeroSlide
+        get_object_or_404(HeroSlide, pk=pk).delete()
+        return redirect('dashboard:hero_list')
+
+
+class DashboardBlogListView(StaffRequiredMixin, View):
+    def get(self, request):
+        from blog.models import Post
+        return render(request, 'dashboard/blog-list.html',
+                      {'posts': Post.objects.all(), 'active_nav': 'blog'})
+
+
+class DashboardBlogSaveView(StaffRequiredMixin, View):
+    def post(self, request, pk=None):
+        from blog.models import Post
+        post = get_object_or_404(Post, pk=pk) if pk else Post(author=request.user)
+        post.title = request.POST.get('title', post.title or '').strip()
+        requested_slug = request.POST.get('slug', '').strip()
+        if not pk or requested_slug:
+            base = requested_slug or slugify(post.title, allow_unicode=True) or 'post'
+            slug, i = base, 2
+            qs = Post.objects.exclude(pk=post.pk) if pk else Post.objects.all()
+            while qs.filter(slug=slug).exists():
+                slug, i = f'{base}-{i}', i + 1
+            post.slug = slug
+        post.excerpt = request.POST.get('excerpt', '')
+        post.body = request.POST.get('body', '')
+        post.is_published = request.POST.get('is_published') == 'on'
+        if request.FILES.get('image'):
+            post.image = request.FILES['image']
+        if post.title and post.body:
+            post.save()
+        return redirect('dashboard:blog_list')
+
+
+class DashboardBlogDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from blog.models import Post
+        get_object_or_404(Post, pk=pk).delete()
+        return redirect('dashboard:blog_list')

@@ -62,6 +62,10 @@
                     {% endif %}
                 </a>
             </li>
+            <li><a href="{% url 'dashboard:shipping_list' %}"><i class="fas fa-truck"></i><span>روش‌های ارسال</span></a></li>
+            <li><a href="{% url 'dashboard:hero_list' %}"><i class="fas fa-images"></i><span>بنرهای سایت</span></a></li>
+            <li><a href="{% url 'dashboard:announcements_list' %}"><i class="fas fa-bullhorn"></i><span>اطلاعیه‌ها</span></a></li>
+            <li><a href="{% url 'dashboard:blog_list' %}"><i class="fas fa-newspaper"></i><span>بلاگ</span></a></li>
             <li>
                 <a href="{% url 'dashboard:analytics' %}">
                     <i class="fas fa-chart-line"></i>

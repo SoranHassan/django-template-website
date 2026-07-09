@@ -31,8 +31,8 @@
 </div>
 
 <!-- Main Navigation -->
-<header class="header header-light dark-text sticky-top bg-white shadow-sm" style="z-index: 999;">
-    <div class="container">
+<header class="header header-light dark-text sticky-top bg-white shadow-sm" style="z-index: 1030;">
+    <div class="container-fluid px-4 px-lg-5">
         <div class="d-flex justify-content-between align-items-center py-3">
             
             <!-- سمت راست: لوگو و منو -->
@@ -96,7 +96,7 @@
             </div>
 
             <!-- سمت چپ: احراز هویت و سبد خرید -->
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 nav-actions position-relative">
                 
                 {% if user.is_authenticated %}
                     <!-- پروفایل کاربر -->
@@ -292,8 +292,13 @@
 <style>
     /* منو دقیقاً زیر تریگر خودش (خنثی کردن جابه‌جایی popper) */
     .user-dropdown, .cart-dropdown, .custom-dropdown, .wishlist-dropdown { transform: none !important; inset: auto !important; z-index: 2000 !important; }
-    /* تریگرهای سمت چپ صفحه: منو به سمت راست باز شود تا از صفحه بیرون نزند */
-    .user-dropdown, .cart-dropdown, .wishlist-dropdown { left: 0 !important; right: auto !important; max-width: calc(100vw - 24px); }
+    /* منوهای آیکون‌های سمت چپ: نسبت به کل کلاستر باز شوند تا هرگز از صفحه بیرون نزنند */
+    .nav-actions > .dropdown { position: static !important; }
+    .nav-actions .user-dropdown, .nav-actions .cart-dropdown, .nav-actions .wishlist-dropdown {
+        position: absolute !important; top: calc(100% + 14px) !important;
+        left: 0 !important; right: auto !important;
+        max-width: min(380px, calc(100vw - 32px));
+    }
 
     /* Top bar ticker */
     .ticker-wrapper { overflow: hidden; white-space: nowrap; }

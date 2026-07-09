@@ -45,7 +45,7 @@
 <!-- ۴ دسته‌بندی اصلی — ثابت -->
 <section class="p-0">
     <div class="container">
-        <div class="row overlio g-3 py-4">
+        <div class="row g-3 py-4">
 
             <!-- زنانه -->
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
@@ -195,9 +195,9 @@
 <section class="middle pt-0">
     <div class="container">
         <div class="row justify-content-center mb-2">
-            <div class="col-xl-12 d-flex align-items-center justify-content-between">
+            <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
                 <h3 class="ft-bold mb-0">جدیدترین محصولات</h3>
-                <a href="{% url 'catalog:shop_style_1' %}?sort=newest" class="small text-muted">مشاهده همه ←</a>
+                <a href="{% url 'catalog:shop_style_1' %}?collection=new" class="small view-all-link">مشاهده همه ←</a>
             </div>
         </div>
         <div class="products-row-slider" dir="rtl">
@@ -210,12 +210,12 @@
 {% endif %}
 
 {% if men_products %}
-<section class="middle pt-0">
+<section class="middle py-5 home-section-alt">
     <div class="container">
         <div class="row justify-content-center mb-2">
-            <div class="col-xl-12 d-flex align-items-center justify-content-between">
+            <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
                 <h3 class="ft-bold mb-0">پوشاک مردانه</h3>
-                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="small text-muted">مشاهده همه ←</a>
+                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="small view-all-link">مشاهده همه ←</a>
             </div>
         </div>
         <div class="products-row-slider" dir="rtl">
@@ -231,9 +231,9 @@
 <section class="middle pt-0">
     <div class="container">
         <div class="row justify-content-center mb-2">
-            <div class="col-xl-12 d-flex align-items-center justify-content-between">
+            <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
                 <h3 class="ft-bold mb-0">پوشاک زنانه</h3>
-                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="small text-muted">مشاهده همه ←</a>
+                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="small view-all-link">مشاهده همه ←</a>
             </div>
         </div>
         <div class="products-row-slider" dir="rtl">
@@ -302,7 +302,6 @@
 
 {% include 'catalog/_quickview.html' %}
 {% include 'catalog/_search_drawer.html' %}
-{% include 'accounts/_wishlist_drawer.html' %}
 {% include 'cart/_cart_drawer.html' %}
 {% include 'base/footer.html' %}
 
@@ -329,7 +328,7 @@
         // اسلایدهای تمام‌عرض؛ حالت RTL لازم ندارند (باگ slick با rtl+infinite)
         $('.hero-slider').slick({
             autoplay: true, autoplaySpeed: 4500, arrows: false,
-            dots: true, infinite: true
+            dots: true, infinite: true, pauseOnHover: false, pauseOnFocus: false
         });
     });
 </script>

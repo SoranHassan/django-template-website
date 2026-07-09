@@ -49,6 +49,24 @@ urlpatterns = [
     path('reviews/', views.DashboardReviewsListView.as_view(), name='reviews_list'),
     path('reviews/<int:pk>/approve/', views.DashboardReviewApproveView.as_view(), name='review_approve'),
 
+    # Shipping / Announcements / Hero / Blog
+    path('shipping/', views.DashboardShippingListView.as_view(), name='shipping_list'),
+    path('shipping/create/', views.DashboardShippingSaveView.as_view(), name='shipping_create'),
+    path('shipping/<int:pk>/edit/', views.DashboardShippingSaveView.as_view(), name='shipping_edit'),
+    path('shipping/<int:pk>/delete/', views.DashboardShippingDeleteView.as_view(), name='shipping_delete'),
+    path('announcements/', views.DashboardAnnouncementsListView.as_view(), name='announcements_list'),
+    path('announcements/create/', views.DashboardAnnouncementSaveView.as_view(), name='announcement_create'),
+    path('announcements/<int:pk>/edit/', views.DashboardAnnouncementSaveView.as_view(), name='announcement_edit'),
+    path('announcements/<int:pk>/delete/', views.DashboardAnnouncementDeleteView.as_view(), name='announcement_delete'),
+    path('hero/', views.DashboardHeroListView.as_view(), name='hero_list'),
+    path('hero/create/', views.DashboardHeroSaveView.as_view(), name='hero_create'),
+    path('hero/<int:pk>/edit/', views.DashboardHeroSaveView.as_view(), name='hero_edit'),
+    path('hero/<int:pk>/delete/', views.DashboardHeroDeleteView.as_view(), name='hero_delete'),
+    path('blog-posts/', views.DashboardBlogListView.as_view(), name='blog_list'),
+    path('blog-posts/create/', views.DashboardBlogSaveView.as_view(), name='blog_create'),
+    path('blog-posts/<int:pk>/edit/', views.DashboardBlogSaveView.as_view(), name='blog_edit'),
+    path('blog-posts/<int:pk>/delete/', views.DashboardBlogDeleteView.as_view(), name='blog_delete'),
+
     # Analytics
     path('analytics/', views.DashboardAnalyticsView.as_view(), name='analytics'),
 ]

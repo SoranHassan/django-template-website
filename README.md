@@ -48,6 +48,31 @@ celery -A OramShop worker -l info
 celery -A OramShop beat -l info
 ```
 
+## اجرا روی ویندوز (بدون Redis و PostgreSQL)
+
+اگر Redis و PostgreSQL ندارید (مثلاً روی ویندوز)، فقط در `.env` بگذارید:
+
+```
+DEV_MODE=True
+```
+
+دیتابیس sqlite، کش حافظه‌ای و اجرای همزمان تسک‌های Celery فعال می‌شود — بدون هیچ سرویس جانبی:
+
+```bash
+python manage.py migrate
+python manage.py seed_demo
+python manage.py runserver
+```
+
+## امنیت پنل‌ها
+
+آدرس پنل ادمین و داشبورد را در `.env` تغییر دهید تا غیرقابل حدس باشند:
+
+```
+ADMIN_URL=panel-x7k2m9/
+DASHBOARD_URL=manage-q3z8w1/
+```
+
 ## تست‌ها
 
 تست‌ها بدون نیاز به PostgreSQL و Redis و فایل `.env` اجرا می‌شوند:

@@ -8,12 +8,12 @@ from core.views import robots_txt
 from .sitemaps import SITEMAPS
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     path('', include('catalog.urls')),
     path('accounts/', include('accounts.urls')),
     path('cart/', include('cart.urls')),
     path('orders/', include('orders.urls')),
-    path('dashboard/', include('dashboard.urls')),
+    path(settings.DASHBOARD_URL, include('dashboard.urls')),
     path('reviews/', include('reviews.urls')),
     path('blog/', include('blog.urls')),
 

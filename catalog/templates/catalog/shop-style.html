@@ -220,7 +220,19 @@
     <div class="container">
 
         <!-- جستجو -->
-        <form method="GET" action="{% url 'catalog:shop_style_1' %}" class="mb-4">
+        {% if request.GET.q %}
+            <div class="mb-4 p-3 rounded d-flex align-items-center justify-content-between flex-wrap gap-2"
+                 style="background:#EAF9FB; border:1px solid #c9f0f6;">
+                <div>
+                    <h5 class="ft-bold mb-0">نتایج جستجو برای «{{ request.GET.q }}»</h5>
+                    <span class="small text-muted">{{ products|length }} کالا پیدا شد</span>
+                </div>
+                <a href="{% url 'catalog:shop_style_1' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                    <i class="lni lni-close me-1"></i>پاک کردن جستجو
+                </a>
+            </div>
+            {% endif %}
+            <form method="GET" action="{% url 'catalog:shop_style_1' %}" class="mb-4">
             {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
             {% if current_brand %}<input type="hidden" name="brand" value="{{ current_brand }}">{% endif %}
             {% if current_sort %}<input type="hidden" name="sort" value="{{ current_sort }}">{% endif %}
@@ -340,7 +352,6 @@
 
 {% include 'catalog/_quickview.html' %}
 {% include 'catalog/_search_drawer.html' %}
-{% include 'accounts/_wishlist_drawer.html' %}
 {% include 'cart/_cart_drawer.html' %}
 {% include 'base/footer.html' %}
 

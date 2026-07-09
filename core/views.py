@@ -7,10 +7,11 @@ def error_404(request, exception=None):
 
 
 def robots_txt(request):
+    from django.conf import settings
     lines = [
         'User-agent: *',
-        'Disallow: /admin/',
-        'Disallow: /dashboard/',
+        f'Disallow: /{settings.ADMIN_URL}',
+        f'Disallow: /{settings.DASHBOARD_URL}',
         'Disallow: /cart/',
         'Disallow: /orders/',
         'Disallow: /accounts/',

@@ -28,9 +28,7 @@
 
     <link rel="icon" href="{% static 'app/img/favicon.ico' %}" type="image/gif" sizes="18x18">
     <link href="{% static 'app/css/styles.css' %}" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/toastify.min.css' %}">
     {% block css %}{% endblock %}
 
 </head>
@@ -55,7 +53,6 @@
 <script src="{% static 'app/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'app/js/ion.rangeSlider.min.js' %}"></script>
 <script src="{% static 'app/js/slick.js' %}"></script>
-<script src="https://unpkg.com/wicg-inert@3.1.1/dist/inert.min.js"></script>
 <script src="{% static 'app/js/slider-bg.js' %}"></script>
 <script src="{% static 'app/js/lightbox.js' %}"></script>
 <script src="{% static 'app/js/smoothproducts.js' %}"></script>
@@ -65,7 +62,7 @@
 <script src="{% static 'app/js/popup.js' %}"></script>
 <script src="{% static 'app/js/main.js' %}"></script>
 <script src="{% static 'app/js/base.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="{% static 'vendor/toastify.min.js' %}"></script>
 <script>
     // init سراسری ردیف‌های اسلایدی محصولات (هر صفحه‌ای که product_row دارد)
     $(function () {

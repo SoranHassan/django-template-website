@@ -11,6 +11,14 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
+# حالت توسعه سبک (مثلاً روی ویندوز): بدون Redis و PostgreSQL و Celery worker
+# فقط DEV_MODE=True در .env کافی است — دیتابیس sqlite و کش حافظه‌ای می‌شود
+DEV_MODE = config('DEV_MODE', default=False, cast=bool)
+
+# آدرس‌های مخفی پنل‌ها (قابل تغییر از .env تا غیرقابل حدس باشند)
+ADMIN_URL = config('ADMIN_URL', default='admin/').strip('/') + '/'
+DASHBOARD_URL = config('DASHBOARD_URL', default='dashboard/').strip('/') + '/'
+
 
 # APPS
 INSTALLED_APPS = [
@@ -42,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,39 +88,53 @@ WSGI_APPLICATION = 'OramShop.wsgi.application'
 
 
 
-# POSTGRESQL DATABASE
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
-        'OPTIONS': {
-            'connect_timeout': 10,
-        },
-        'CONN_MAX_AGE': 60,
+if DEV_MODE:
+    # sqlite + کش حافظه‌ای — بدون هیچ سرویس جانبی
+    DATABASES = {
+        'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}
     }
-}
-
-# REDIS
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': config('REDIS_URL'),
-        'TIMEOUT': 300,
+    CACHES = {
+        'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}
     }
-}
+    SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+else:
+    # POSTGRESQL DATABASE
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME'),
+            'USER': config('DB_USER'),
+            'PASSWORD': config('DB_PASSWORD'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+            'OPTIONS': {
+                'connect_timeout': 10,
+            },
+            'CONN_MAX_AGE': 60,
+        }
+    }
 
-# cached_db: سرعت کش + ماندگاری در دیتابیس (با ری‌استارت Redis سشن‌ها نمی‌پرند)
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-SESSION_CACHE_ALIAS = 'default'
+    # REDIS
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': config('REDIS_URL'),
+            'TIMEOUT': 300,
+        }
+    }
+
+    # cached_db: سرعت کش + ماندگاری در دیتابیس (با ری‌استارت Redis سشن‌ها نمی‌پرند)
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+    SESSION_CACHE_ALIAS = 'default'
 
 
 # CELERY
-CELERY_BROKER_URL = config('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND')
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='memory://')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='cache+memory://')
+if DEV_MODE:
+    # بدون worker: تسک‌ها همان لحظه در همان پروسه اجرا می‌شوند
+    CELERY_TASK_ALWAYS_EAGER = True
+    CELERY_TASK_EAGER_PROPAGATES = False
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -201,22 +224,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # EMAIL
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_PORT = config('EMAIL_PORT', cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default=25, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER', default='info@example.com')
 
 
 # SMS.IR SERVICE OTP
-SMS_IR_API_KEY = config('SMS_IR_API_KEY')
-SMS_IR_LINE_NUMBER = config('SMS_IR_LINE_NUMBER')
-SMS_IR_TEMPLATE_ID = config('SMS_IR_TEMPLATE_ID')
+SMS_IR_API_KEY = config('SMS_IR_API_KEY', default='')
+SMS_IR_LINE_NUMBER = config('SMS_IR_LINE_NUMBER', default='')
+SMS_IR_TEMPLATE_ID = config('SMS_IR_TEMPLATE_ID', default='')
 
 
 # ZARINPAL TERMINAL
-ZARINPAL_MERCHANT_ID = config('ZARINPAL_MERCHANT_ID')
+ZARINPAL_MERCHANT_ID = config('ZARINPAL_MERCHANT_ID', default='')
 ZARINPAL_SANDBOX = config('ZARINPAL_SANDBOX', default=True, cast=bool)
 
 

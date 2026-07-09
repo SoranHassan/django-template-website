@@ -1,0 +1,96 @@
+{% extends 'dashboard/_layout.html' %}
+
+{% block title %}بنرهای سایت{% endblock %}
+{% block search_placeholder %}جستجو در بنرهای سایت...{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>بنرهای سایت</h1>
+    <p>مدیریت بنرهای سایت فروشگاه — بدون نیاز به پنل پیش‌فرض جنگو</p>
+</div>
+
+<div class="glass-card" style="margin-bottom:16px;">
+    <div class="card-header"><h2>افزودن جدید</h2></div>
+    <form method="POST" action="{% url 'dashboard:hero_create' %}" enctype="multipart/form-data"
+          style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:12px; align-items:end;">
+        {% csrf_token %}
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">عنوان *</label>
+            <input type="text" name="title" required value=""
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">زیرعنوان</label>
+            <input type="text" name="subtitle"  value=""
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">متن دکمه</label>
+            <input type="text" name="button_text"  value="خرید کنید"
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">لینک دکمه</label>
+            <input type="text" name="button_link"  value="/shop/"
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">تصویر *</label>
+            <input type="file" name="image" accept="image/*" required value=""
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <div>
+            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">ترتیب</label>
+            <input type="number" name="order" min="0" value="0"
+                   style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
+        </div>
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; padding-bottom:10px;">
+            <input type="checkbox" name="is_active" checked style="width:16px;height:16px;accent-color:#00B8CC;"> فعال
+        </label>
+        <button type="submit" style="padding:11px 20px; background:#00B8CC; color:#fff; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer;">ذخیره</button>
+    </form>
+</div>
+
+<div class="glass-card">
+    <div class="card-header"><h2>همه موارد ({{ slides|length }})</h2></div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>تصویر</th><th>عنوان</th><th>دکمه</th><th>ترتیب</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+            <tbody>
+            {% for slide in slides %}
+            <tr>
+                <td>{% if slide.image %}<img src="{{ slide.image.url }}" style="width:90px; height:36px; object-fit:cover; border-radius:8px;">{% endif %}</td>
+                <td style="font-weight:600;">{{ slide.title }}<br><small style="color:var(--text-secondary);">{{ slide.subtitle|truncatechars:40 }}</small></td>
+                <td style="font-size:12px;">{{ slide.button_text }} → {{ slide.button_link }}</td>
+                <td>{{ slide.order }}</td>
+                <td>{% if slide.is_active %}<span class="status success">فعال</span>{% else %}<span class="status cancelled">غیرفعال</span>{% endif %}</td>
+                <td>
+                    <details style="display:inline-block;">
+                        <summary class="btn-secondary" style="padding:5px 10px; font-size:11px; cursor:pointer; list-style:none;">ویرایش</summary>
+                        <form method="POST" action="{% url 'dashboard:hero_edit' slide.pk %}" enctype="multipart/form-data"
+                              style="position:absolute; background:#fff; padding:14px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.15); z-index:50; display:grid; gap:8px; min-width:300px;">
+                            {% csrf_token %}
+                            <input type="text" name="title" value="{{ slide.title }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="text" name="subtitle" value="{{ slide.subtitle }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="text" name="button_text" value="{{ slide.button_text }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="text" name="button_link" value="{{ slide.button_link }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="file" name="image" accept="image/*" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <input type="number" name="order" value="{{ slide.order }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
+                            <label style="display:flex; gap:6px; font-size:12px;"><input type="checkbox" name="is_active" {% if slide.is_active %}checked{% endif %}> فعال</label>
+                            <button type="submit" style="padding:8px; background:#00B8CC; color:#fff; border:none; border-radius:8px; font-family:inherit; cursor:pointer;">ذخیره</button>
+                        </form>
+                    </details>
+                    <form method="POST" action="{% url 'dashboard:hero_delete' slide.pk %}" data-confirm="این بنر حذف شود؟" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary" style="padding:5px 10px; font-size:11px; color:#FF3B30;"><i class="fas fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9" style="text-align:center; padding:32px; color:#86868B;">بنری ثبت نشده — از فرم بالا اضافه کنید</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

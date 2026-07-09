@@ -20,11 +20,11 @@
         <div class="shop_thumb position-relative">
             <a href="{% url 'catalog:product_detail' product.pk %}">
                 {% if product.main_image %}
-                <img class="card-img-top"
+                <img class="card-img-top" loading="lazy"
                      src="{{ product.main_image.image.url }}"
                      alt="{{ product.name }}">
                 {% else %}
-                <img class="card-img-top" src="{% static 'app/img/product/1.jpg' %}" alt="{{ product.name }}">
+                <img class="card-img-top" loading="lazy" src="{% static 'app/img/product/1.jpg' %}" alt="{{ product.name }}">
                 {% endif %}
             </a>
         </div>
