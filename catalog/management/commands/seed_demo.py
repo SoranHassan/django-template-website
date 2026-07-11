@@ -82,16 +82,27 @@ class Command(BaseCommand):
                 name=name, defaults={'price': price, 'description': desc, 'order': order_i})
         self.stdout.write('✓ روش‌های ارسال')
 
-        # ---------- برندها (لوگودار) ----------
-        brand_names = ['Nike', 'Adidas', 'Zara', 'H&M', 'Puma', 'Mango', 'Bershka', 'LC Waikiki']
+        # ---------- برندها (لوگوهای گرافیکی یکدست SVG) ----------
+        import os
+        from django.conf import settings as dj_settings
+        brand_svg_map = {
+            'Nike': 'nike', 'Adidas': 'adidas', 'Zara': 'zara', 'H&M': 'hm',
+            'Puma': 'puma', 'Mango': 'mango', 'Bershka': 'bershka', 'LC Waikiki': 'lc-waikiki',
+        }
+        brands_dir = os.path.join(dj_settings.BASE_DIR, 'static', 'app', 'img', 'brands')
         brands = []
-        for name in brand_names:
-            brand, created = Brand.objects.get_or_create(
-                name=name, defaults={'slug': name.lower().replace(' ', '-').replace('&', 'and')})
+        for name, svg_slug in brand_svg_map.items():
+            slug = name.lower().replace(' ', '-').replace('&', 'and')
+            brand, created = Brand.objects.get_or_create(name=name, defaults={'slug': slug})
             if created or not brand.logo:
-                brand.logo.save(f'{brand.slug}.png', brand_logo(name), save=True)
+                svg_path = os.path.join(brands_dir, f'{svg_slug}.svg')
+                if os.path.exists(svg_path):
+                    with open(svg_path, 'rb') as f:
+                        brand.logo.save(f'{svg_slug}.svg', ContentFile(f.read()), save=True)
+                else:
+                    brand.logo.save(f'{slug}.png', brand_logo(name), save=True)
             brands.append(brand)
-        self.stdout.write('✓ برندها')
+        self.stdout.write('✓ برندها (لوگوی گرافیکی)')
 
         # ---------- دسته‌بندی‌ها ----------
         cat_defs = ['تیشرت', 'پیراهن', 'شلوار', 'هودی و سویشرت', 'کفش', 'کاپشن و پالتو', 'اکسسوری', 'ست ورزشی']

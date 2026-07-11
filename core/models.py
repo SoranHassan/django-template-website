@@ -56,6 +56,26 @@ class SiteSetting(models.Model):
     topbar_style = models.CharField(max_length=20, choices=TOPBAR_CHOICES, default='black',
                                     verbose_name='رنگ نوار اطلاعیه بالای سایت')
 
+    # ---------- اطلاعات فوتر / تماس ----------
+    footer_about = models.TextField(
+        blank=True, verbose_name='متن دربارهٔ فوتر',
+        default='اُرام‌شاپ، فروشگاه اینترنتی پوشاک مردانه و زنانه؛ با ضمانت اصالت کالا، ارسال سریع به سراسر ایران و ۷ روز ضمانت بازگشت.')
+    footer_phone = models.CharField(max_length=40, blank=True, default='۰۲۱-۰۰۰۰۰۰۰۰', verbose_name='تلفن پشتیبانی')
+    footer_email = models.CharField(max_length=80, blank=True, default='info@oramshop.com', verbose_name='ایمیل')
+    footer_hours = models.CharField(max_length=80, blank=True, default='شنبه تا پنجشنبه، ۹ تا ۱۸', verbose_name='ساعات کاری')
+    footer_address = models.CharField(max_length=200, blank=True, verbose_name='آدرس')
+    instagram_url = models.CharField(max_length=200, blank=True, verbose_name='لینک اینستاگرام')
+    telegram_url = models.CharField(max_length=200, blank=True, verbose_name='لینک تلگرام')
+    whatsapp_url = models.CharField(max_length=200, blank=True, verbose_name='لینک واتساپ')
+    credit_text = models.CharField(max_length=120, blank=True, default='طراحی و توسعه توسط گروه ساتک کدینگ',
+                                   verbose_name='متن سازندهٔ سایت')
+    credit_url = models.CharField(max_length=200, blank=True, verbose_name='لینک سازنده')
+
+    # ---------- بنر صفحهٔ محصولات ----------
+    shop_banner = models.ImageField(upload_to='banners/', blank=True, null=True, verbose_name='بنر صفحه محصولات')
+    shop_banner_title = models.CharField(max_length=100, blank=True, default='فروشگاه اُرام‌شاپ', verbose_name='عنوان بنر محصولات')
+    shop_banner_subtitle = models.CharField(max_length=160, blank=True, default='جدیدترین کالکشن‌ها با بهترین قیمت', verbose_name='زیرعنوان بنر محصولات')
+
     class Meta:
         verbose_name = 'تنظیمات سایت'
         verbose_name_plural = 'تنظیمات سایت'

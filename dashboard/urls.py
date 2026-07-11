@@ -70,6 +70,9 @@ urlpatterns = [
     # Site settings (watermark + topbar color)
     path('site-settings/', views.DashboardSiteSettingsView.as_view(), name='site_settings'),
 
+    # SEO report
+    path('seo/', views.DashboardSeoView.as_view(), name='seo'),
+
     # Analytics
     path('analytics/', views.DashboardAnalyticsView.as_view(), name='analytics'),
 ]

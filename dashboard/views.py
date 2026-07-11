@@ -877,6 +877,72 @@ class DashboardBlogDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:blog_list')
 
 
+class DashboardSeoView(StaffRequiredMixin, View):
+    """گزارش سئوی واقعی — بر اساس وضعیت واقعی محصولات/محتوای سایت محاسبه می‌شود"""
+
+    def get(self, request):
+        from blog.models import Post
+
+        total = Product.objects.count() or 1
+        active = Product.objects.filter(is_active=True).count()
+        with_desc = Product.objects.exclude(description='').exclude(description__isnull=True).count()
+        with_sku = Product.objects.exclude(sku='').exclude(sku__isnull=True).count()
+        with_image = Product.objects.filter(images__isnull=False).distinct().count()
+        with_price = Product.objects.filter(original_price__isnull=False).count()
+        published_posts = Post.objects.filter(is_published=True).count()
+
+        def pct(n):
+            return round(n / total * 100)
+
+        # هر آیتم: (عنوان، امتیاز۰تا۱۰۰، وزن، پیشنهاد)
+        checks = [
+            {'title': 'فایل robots.txt', 'score': 100, 'weight': 1,
+             'detail': 'فعال است (/robots.txt)', 'ok': True},
+            {'title': 'نقشه سایت (sitemap.xml)', 'score': 100, 'weight': 1,
+             'detail': 'فعال است (/sitemap.xml)', 'ok': True},
+            {'title': 'داده ساختاریافته محصول (Schema.org)', 'score': 100, 'weight': 1,
+             'detail': 'JSON-LD روی صفحه محصول فعال است', 'ok': True},
+            {'title': 'توضیحات محصولات', 'score': pct(with_desc), 'weight': 2,
+             'detail': f'{with_desc} از {total} محصول توضیحات دارند',
+             'ok': pct(with_desc) >= 80},
+            {'title': 'کد محصول (SKU)', 'score': pct(with_sku), 'weight': 1,
+             'detail': f'{with_sku} از {total} محصول SKU دارند',
+             'ok': pct(with_sku) >= 70},
+            {'title': 'تصویر محصولات (alt خودکار)', 'score': pct(with_image), 'weight': 2,
+             'detail': f'{with_image} از {total} محصول حداقل یک تصویر دارند',
+             'ok': pct(with_image) >= 90},
+            {'title': 'محصولات فعال (ایندکس‌شدنی)', 'score': pct(active), 'weight': 1,
+             'detail': f'{active} از {total} محصول فعال‌اند',
+             'ok': pct(active) >= 80},
+            {'title': 'قیمت قبل از تخفیف (رونق ریچ‌اسنیپت)', 'score': pct(with_price), 'weight': 1,
+             'detail': f'{with_price} از {total} محصول قیمت مقایسه‌ای دارند',
+             'ok': pct(with_price) >= 40},
+            {'title': 'محتوای بلاگ (تازگی محتوا)', 'score': min(100, published_posts * 20), 'weight': 2,
+             'detail': f'{published_posts} نوشتهٔ منتشرشده (هدف: ۵+)',
+             'ok': published_posts >= 5},
+        ]
+
+        total_weight = sum(c['weight'] for c in checks)
+        overall = round(sum(c['score'] * c['weight'] for c in checks) / total_weight)
+
+        if overall >= 85:
+            grade, grade_color = 'عالی', '#22c55e'
+        elif overall >= 70:
+            grade, grade_color = 'خوب', '#00B8CC'
+        elif overall >= 50:
+            grade, grade_color = 'متوسط', '#f59e0b'
+        else:
+            grade, grade_color = 'ضعیف', '#ef4444'
+
+        return render(request, 'dashboard/seo.html', {
+            'active_nav': 'seo',
+            'checks': checks,
+            'overall': overall,
+            'grade': grade,
+            'grade_color': grade_color,
+        })
+
+
 class DashboardSiteSettingsView(StaffRequiredMixin, View):
     """تنظیمات ظاهری سایت (متن واترمارک صفحه اصلی + رنگ نوار اطلاعیه)"""
 
@@ -889,10 +955,27 @@ class DashboardSiteSettingsView(StaffRequiredMixin, View):
              'help': 'این متن به‌صورت واترمارک بزرگ پشت بخش پرفروش‌ها نمایش داده می‌شود'},
             {'name': 'topbar_style', 'label': 'رنگ نوار اطلاعیه بالای سایت', 'type': 'select',
              'options': SiteSetting.TOPBAR_CHOICES, 'value': s.topbar_style},
+            # بنر صفحه محصولات
+            {'name': 'shop_banner', 'label': 'بنر صفحه محصولات', 'type': 'image',
+             'value': s.shop_banner.url if s.shop_banner else '', 'full': True},
+            {'name': 'shop_banner_title', 'label': 'عنوان بنر محصولات', 'type': 'text', 'value': s.shop_banner_title},
+            {'name': 'shop_banner_subtitle', 'label': 'زیرعنوان بنر محصولات', 'type': 'text', 'value': s.shop_banner_subtitle},
+            # اطلاعات فوتر
+            {'name': 'footer_about', 'label': 'متن دربارهٔ فوتر', 'type': 'textarea', 'full': True, 'value': s.footer_about},
+            {'name': 'footer_phone', 'label': 'تلفن پشتیبانی', 'type': 'text', 'value': s.footer_phone},
+            {'name': 'footer_email', 'label': 'ایمیل', 'type': 'text', 'value': s.footer_email},
+            {'name': 'footer_hours', 'label': 'ساعات کاری', 'type': 'text', 'value': s.footer_hours},
+            {'name': 'footer_address', 'label': 'آدرس', 'type': 'text', 'full': True, 'value': s.footer_address},
+            {'name': 'instagram_url', 'label': 'لینک اینستاگرام', 'type': 'text', 'value': s.instagram_url},
+            {'name': 'telegram_url', 'label': 'لینک تلگرام', 'type': 'text', 'value': s.telegram_url},
+            {'name': 'whatsapp_url', 'label': 'لینک واتساپ', 'type': 'text', 'value': s.whatsapp_url},
+            # سازنده
+            {'name': 'credit_text', 'label': 'متن سازندهٔ سایت (پایین صفحه)', 'type': 'text', 'value': s.credit_text},
+            {'name': 'credit_url', 'label': 'لینک سازنده', 'type': 'text', 'value': s.credit_url},
         ]
         return render_form_page(
             request, page_title='تنظیمات سایت',
-            page_subtitle='ظاهر صفحه اصلی و نوار اطلاعیه',
+            page_subtitle='ظاهر صفحه اصلی، بنر محصولات، فوتر و سازنده',
             fields=fields, action=request.path, cancel_url=reverse('dashboard:index'))
 
     def post(self, request):
@@ -902,5 +985,21 @@ class DashboardSiteSettingsView(StaffRequiredMixin, View):
         topbar = request.POST.get('topbar_style', 'black')
         if topbar in dict(SiteSetting.TOPBAR_CHOICES):
             s.topbar_style = topbar
+        # بنر محصولات
+        if request.FILES.get('shop_banner'):
+            s.shop_banner = request.FILES['shop_banner']
+        s.shop_banner_title = request.POST.get('shop_banner_title', '').strip()
+        s.shop_banner_subtitle = request.POST.get('shop_banner_subtitle', '').strip()
+        # فوتر
+        s.footer_about = request.POST.get('footer_about', '').strip()
+        s.footer_phone = request.POST.get('footer_phone', '').strip()
+        s.footer_email = request.POST.get('footer_email', '').strip()
+        s.footer_hours = request.POST.get('footer_hours', '').strip()
+        s.footer_address = request.POST.get('footer_address', '').strip()
+        s.instagram_url = request.POST.get('instagram_url', '').strip()
+        s.telegram_url = request.POST.get('telegram_url', '').strip()
+        s.whatsapp_url = request.POST.get('whatsapp_url', '').strip()
+        s.credit_text = request.POST.get('credit_text', '').strip()
+        s.credit_url = request.POST.get('credit_url', '').strip()
         s.save()
         return redirect(f"{reverse('dashboard:site_settings')}?saved=1")

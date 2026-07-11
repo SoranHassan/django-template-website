@@ -8,13 +8,12 @@
             <div class="col-12 col-md-4">
                 <img src="{% static 'app/img/logo-light.svg' %}" alt="Oram Shop" style="max-height: 40px;" class="mb-3">
                 <p class="text-white-50 small lh-lg mb-3">
-                    اُرام‌شاپ، فروشگاه اینترنتی پوشاک مردانه و زنانه؛ با ضمانت اصالت کالا،
-                    ارسال سریع به سراسر ایران و ۷ روز ضمانت بازگشت.
+                    {{ site_settings.footer_about|default:"اُرام‌شاپ، فروشگاه اینترنتی پوشاک مردانه و زنانه؛ با ضمانت اصالت کالا، ارسال سریع به سراسر ایران و ۷ روز ضمانت بازگشت." }}
                 </p>
                 <div class="d-flex gap-3">
-                    <a href="#" class="text-white-50 fs-5" title="اینستاگرام"><i class="lni lni-instagram"></i></a>
-                    <a href="#" class="text-white-50 fs-5" title="تلگرام"><i class="lni lni-telegram-original"></i></a>
-                    <a href="#" class="text-white-50 fs-5" title="واتساپ"><i class="lni lni-whatsapp"></i></a>
+                    <a href="{{ site_settings.instagram_url|default:'#' }}" class="text-white-50 fs-5" title="اینستاگرام"><i class="lni lni-instagram"></i></a>
+                    <a href="{{ site_settings.telegram_url|default:'#' }}" class="text-white-50 fs-5" title="تلگرام"><i class="lni lni-telegram-original"></i></a>
+                    <a href="{{ site_settings.whatsapp_url|default:'#' }}" class="text-white-50 fs-5" title="واتساپ"><i class="lni lni-whatsapp"></i></a>
                 </div>
             </div>
 
@@ -45,9 +44,10 @@
             <div class="col-12 col-md-4">
                 <h6 class="text-white ft-medium mb-3">با ما در تماس باشید</h6>
                 <ul class="list-unstyled small text-white-50">
-                    <li class="mb-2"><i class="lni lni-phone me-2" style="color:#00E6FF;"></i>پشتیبانی: ۰۲۱-۰۰۰۰۰۰۰۰</li>
-                    <li class="mb-2"><i class="lni lni-envelope me-2" style="color:#00E6FF;"></i>info@oramshop.com</li>
-                    <li class="mb-2"><i class="lni lni-alarm-clock me-2" style="color:#00E6FF;"></i>شنبه تا پنجشنبه، ۹ تا ۱۸</li>
+                    <li class="mb-2"><i class="lni lni-phone me-2" style="color:#00E6FF;"></i>پشتیبانی: {{ site_settings.footer_phone|default:"۰۲۱-۰۰۰۰۰۰۰۰" }}</li>
+                    <li class="mb-2"><i class="lni lni-envelope me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_email|default:"info@oramshop.com" }}</li>
+                    <li class="mb-2"><i class="lni lni-alarm-clock me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_hours|default:"شنبه تا پنجشنبه، ۹ تا ۱۸" }}</li>
+                    {% if site_settings.footer_address %}<li class="mb-2"><i class="lni lni-map-marker me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_address }}</li>{% endif %}
                 </ul>
                 <!-- جای نماد اعتماد الکترونیکی -->
                 <div class="d-flex gap-2 mt-3">
@@ -61,8 +61,15 @@
         </div>
 
         <hr class="border-secondary mt-4 mb-3">
-        <p class="text-center text-white-50 small mb-0">
-            © ۲۰۲۶ اُرام‌شاپ — تمامی حقوق محفوظ است.
-        </p>
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2">
+            <p class="text-white-50 small mb-0">
+                © ۲۰۲۶ اُرام‌شاپ — تمامی حقوق محفوظ است.
+            </p>
+            <a href="{{ site_settings.credit_url|default:'#' }}" {% if site_settings.credit_url %}target="_blank" rel="noopener"{% endif %}
+               class="footer-credit small text-decoration-none">
+                <i class="lni lni-code-alt"></i>
+                <span>{{ site_settings.credit_text|default:"طراحی و توسعه توسط گروه ساتک کدینگ" }}</span>
+            </a>
+        </div>
     </div>
 </footer>

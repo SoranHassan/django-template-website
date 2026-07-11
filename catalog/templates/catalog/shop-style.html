@@ -9,12 +9,14 @@
 
 {% include 'base/navbar.html' %}
 <!-- Shop Header -->
-<section class="bg-cover" style="background:url({% static 'app/img/cover-1.jpg' %}) no-repeat;">
+<section class="bg-cover shop-hero-banner"
+         style="background:{% if site_settings.shop_banner %}linear-gradient(rgba(13,13,13,.55),rgba(13,13,13,.55)),url('{{ site_settings.shop_banner.url }}'){% else %}linear-gradient(rgba(13,13,13,.35),rgba(13,13,13,.35)),url({% static 'app/img/cover-1.jpg' %}){% endif %} center/cover no-repeat;">
     <div class="container">
         <div class="row align-items-center justify-content-center">
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                 <div class="text-center py-5 mt-3 mb-3">
-                    <h1 class="ft-medium mb-3">فروشگاه</h1>
+                    <h1 class="ft-medium mb-1 text-white">{{ site_settings.shop_banner_title|default:"فروشگاه" }}</h1>
+                    {% if site_settings.shop_banner_subtitle %}<p class="text-white-50 mb-3">{{ site_settings.shop_banner_subtitle }}</p>{% endif %}
                     <ul class="shop_categories_list m-0 p-0">
                         {% for category in categories %}
                         <li>

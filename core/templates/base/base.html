@@ -26,7 +26,8 @@
 
     {% block structured_data %}{% endblock %}
 
-    <link rel="icon" href="{% static 'app/img/favicon.ico' %}" type="image/gif" sizes="18x18">
+    <link rel="icon" href="{% static 'app/img/favicon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'app/img/favicon.svg' %}">
     <link href="{% static 'app/css/styles.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'vendor/toastify.min.css' %}">
     {% block css %}{% endblock %}

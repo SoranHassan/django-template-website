@@ -64,11 +64,21 @@ def wishlist_context(request):
 
 
 def dashboard_context(request):
-    """آمار داشبورد برای نمایش در navbar"""
+    """آمار داشبورد برای نمایش در navbar/سایدبار (بج‌های اعلان)"""
     if not request.user.is_authenticated or not request.user.is_staff:
         return {}
 
+    from django.utils import timezone
+    from datetime import timedelta
+    from accounts.models import CustomUser
+
+    week_ago = timezone.now() - timedelta(days=7)
     pending_orders_count = Order.objects.filter(status='pending').count()
     pending_reviews_count = Review.objects.filter(is_approved=False).count()
+    new_users_count = CustomUser.objects.filter(date_joined__gte=week_ago).count()
 
-    return {'pending_orders_count': pending_orders_count,'pending_reviews_count': pending_reviews_count}
+    return {
+        'pending_orders_count': pending_orders_count,
+        'pending_reviews_count': pending_reviews_count,
+        'new_users_count': new_users_count,
+    }

@@ -6031,13 +6031,13 @@ a:hover { color: var(--os-cyan-dark); }
   border: 0 !important;
   border-radius: 0 !important;
   background: #fff;
-  width: 38px; min-width: 38px; height: 38px;
+  width: 32px; min-width: 32px; height: 34px;
   display: inline-flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 15px; line-height: 1; color: #e63946;
+  font-weight: 600; line-height: 1; color: #e63946;
   transition: background .18s ease, color .18s ease;
   cursor: pointer; padding: 0;
 }
-.quantity-stepper .qty-btn i { font-size: 15px; }
+.quantity-stepper .qty-btn i { font-size: 11px; margin-inline-end: 0 !important; }
 .quantity-stepper .qty-btn:hover { background: #e63946; color: #fff; }
 .quantity-stepper .qty-btn:active { background: #c92d3a; color: #fff; }
 .quantity-stepper .qty-value {
@@ -6046,8 +6046,8 @@ a:hover { color: var(--os-cyan-dark); }
   border-right: 1px solid #eee !important;
   border-radius: 0 !important;
   background: #fff !important;
-  width: 46px; min-width: 46px; height: 38px;
-  text-align: center; font-weight: 700; font-size: 15px; color: #1a1a1a;
+  width: 40px; min-width: 40px; height: 34px;
+  text-align: center; font-weight: 700; font-size: 14px; color: #1a1a1a;
   box-shadow: none !important; padding: 0;
 }
 .quantity-stepper .qty-value:focus { outline: none; box-shadow: none !important; }
@@ -6129,22 +6129,40 @@ a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
 .user-dropdown-header { border-bottom: 1px solid #f0f0f0; }
 .user-dropdown .dropdown-divider { margin: 6px 4px; }
 
-/* ============ بلاک‌های رنگی سکشن‌های صفحه اصلی ============ */
+/* ============ بلاک‌های رنگی سکشن‌های صفحه اصلی — تیره و برندمحور ============ */
 .home-band > .container,
 .home-band-sale > section > .container {
   border-radius: 22px;
-  padding: 34px 26px !important;
-  margin-bottom: 6px;
+  padding: 40px 26px !important;
+  margin-bottom: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.10);
 }
-.home-band-best > .container   { background: #edfafd; }
-.home-band-new > .container    { background: #f2f1fb; }
-.home-band-men > .container    { background: #eef1f6; }
-.home-band-women > .container  { background: #fdf1f4; }
-.home-band-sale > section > .container { background: #edf9f0; }
-.home-band .off_title { opacity: .5; }
+.home-band-best  > .container            { background: linear-gradient(150deg,#15181c 0%,#1d2226 100%); }
+.home-band-new   > .container            { background: linear-gradient(150deg,#0f2630 0%,#123642 100%); }
+.home-band-men   > .container            { background: linear-gradient(150deg,#1a222e 0%,#212c3a 100%); }
+.home-band-women > .container            { background: linear-gradient(150deg,#241b26 0%,#301f32 100%); }
+.home-band-sale  > section > .container  { background: linear-gradient(150deg,#12241f 0%,#153029 100%); }
+/* متن روشن داخل بلاک‌های تیره */
+.home-band .container h1, .home-band .container h2, .home-band .container h3, .home-band .container h4, .home-band .container h5,
+.home-band-sale section h1, .home-band-sale section h2, .home-band-sale section h3, .home-band-sale section h4 { color: #fff !important; }
+.home-band .off_title { color: rgba(0,230,255,.16) !important; opacity: 1; }
+.home-band .view-all-link, .home-band-sale .view-all-link {
+  background: rgba(255,255,255,.10); color: #fff; border-color: rgba(255,255,255,.2);
+}
+.home-band .view-all-link:hover, .home-band-sale .view-all-link:hover { background: var(--os-cyan); color: #0d0d0d; }
+.home-band .sec-accent::before, .home-band-sale .sec-accent::before { background: var(--os-cyan) !important; }
 @media (max-width: 767px) {
-  .home-band > .container, .home-band-sale > section > .container { padding: 22px 14px !important; border-radius: 16px; }
+  .home-band > .container, .home-band-sale > section > .container { padding: 24px 14px !important; border-radius: 16px; }
 }
+
+/* ============ لینک سازندهٔ سایت در فوتر ============ */
+.footer-credit {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: rgba(255,255,255,.55); padding: 5px 12px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12); transition: all .2s ease;
+}
+.footer-credit:hover { color: var(--os-cyan); border-color: rgba(0,230,255,.4); }
+.footer-credit .lni { color: var(--os-cyan); }
 
 /* ============ یکدستی اندازهٔ کارت محصول (مستقل از عکس کاربر) ============ */
 .os-thumb .card-img-top { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
