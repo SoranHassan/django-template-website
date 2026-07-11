@@ -25,7 +25,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'sort_order')
+    list_editable = ('sort_order',)
+    ordering = ('sort_order', 'name')
     search_fields = ('name',)
 
 

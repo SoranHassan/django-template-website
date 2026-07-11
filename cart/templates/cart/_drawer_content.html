@@ -4,9 +4,11 @@
                 <div class="cart-item-wrapper d-flex align-items-center justify-content-between br-bottom px-2 py-3">
                     <div class="cart_single d-flex align-items-center gap-2">
                         <div class="cart_selected_single_thumb">
-                            <a href="#">
+                            <a href="{% url 'catalog:product_detail' item.variant.product.pk %}">
                                 {% if item.variant.product.main_image %}
-                                    <img src="{{ item.variant.product.main_image.image.url }}" width="50" class="img-fluid rounded" alt="{{ item.variant.product.name }}"/>
+                                    <img src="{{ item.variant.product.main_image.image.url }}" width="52" height="52" style="object-fit:cover;" class="rounded" alt="{{ item.variant.product.name }}"/>
+                                {% else %}
+                                    <span class="d-inline-flex align-items-center justify-content-center rounded bg-light text-muted" style="width:52px;height:52px;"><i class="lni lni-image"></i></span>
                                 {% endif %}
                             </a>
                         </div>

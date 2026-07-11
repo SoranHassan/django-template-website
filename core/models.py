@@ -41,10 +41,14 @@ class SiteSetting(models.Model):
 
     TOPBAR_CHOICES = [
         ('black', 'مشکی ساده'),
-        ('charcoal', 'شارکول'),
-        ('gradient-cyan', 'گرادینت مشکی → سایان'),
-        ('gradient-dark', 'گرادینت سرمه‌ای تیره'),
+        ('charcoal', 'شارکول (خاکستری تیره)'),
+        ('navy', 'سرمه‌ای'),
         ('ivory', 'کرم روشن (متن تیره)'),
+        ('gradient-cyan', 'گرادینت مشکی → سایان'),
+        ('gradient-dark', 'گرادینت آبی نفتی'),
+        ('gradient-purple', 'گرادینت بنفش'),
+        ('gradient-sunset', 'گرادینت غروب (قرمز)'),
+        ('gradient-emerald', 'گرادینت زمردی (سبز)'),
     ]
 
     home_watermark = models.CharField(max_length=60, default='ORAM SHOP',

@@ -7,21 +7,6 @@ class AnnouncementAdmin(admin.ModelAdmin):
     list_editable = ('is_active', 'order')
     search_fields = ('text',)
 
-    def has_module_perms(self, request):
-        return request.user.is_superuser
-
-    def has_view_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_add_permission(self, request):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
-
 from .models import HeroSlide
 
 

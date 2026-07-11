@@ -398,24 +398,6 @@
                                     </tr>
                                     </tbody>
                                 </table>
-                                {% else %}
-                                <!-- کفش / سایر — سایز به سانتی‌متر (طول کف پا) -->
-                                <table class="table table-bordered text-center">
-                                    <thead class="table-dark">
-                                    <tr>
-                                        <th>سایز</th>
-                                        <th>طول کف پا (cm)</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for c in size_charts %}
-                                    <tr>
-                                        <td class="ft-bold">{{ c.size.name }}</td>
-                                        <td>{{ c.foot_length|default:'-' }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
                                 {% endif %}
                                 {% endwith %}
                             </div>

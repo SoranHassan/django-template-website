@@ -16,32 +16,28 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="blog-grid">
             {% for post in page %}
-            <div class="col-12 col-md-6 col-lg-4">
-                <article class="card b-0 h-100 shadow-sm" style="border-radius:14px; overflow:hidden;">
-                    <a href="{{ post.get_absolute_url }}">
-                        {% if post.image %}
-                        <img src="{{ post.image.url }}" alt="{{ post.title }}"
-                             style="width:100%; height:170px; object-fit:cover;">
-                        {% else %}
-                        <div style="width:100%; height:170px; background:linear-gradient(135deg,#1A1A1A,#00B8CC);
-                                    display:flex; align-items:center; justify-content:center;">
-                            <img src="{% static 'app/img/logo-light.svg' %}" style="max-width:50%;" alt="Oram Shop">
-                        </div>
-                        {% endif %}
-                    </a>
-                    <div class="card-body">
-                        <span class="small text-muted">{{ post.created_at|jalali }}</span>
-                        <h6 class="ft-medium mt-1 mb-2">
-                            <a href="{{ post.get_absolute_url }}" class="text-dark">{{ post.title }}</a>
-                        </h5>
-                        <p class="small text-muted mb-0">{{ post.excerpt|default:post.body|striptags|truncatechars:90 }}</p>
+            <article class="blog-card">
+                <a href="{{ post.get_absolute_url }}" class="blog-card-thumb">
+                    {% if post.image %}
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                    {% else %}
+                    <div class="blog-card-ph">
+                        <img src="{% static 'app/img/logo-light.svg' %}" alt="Oram Shop">
                     </div>
-                </article>
-            </div>
+                    {% endif %}
+                </a>
+                <div class="blog-card-body">
+                    <span class="blog-card-date">{{ post.created_at|jalali }}</span>
+                    <h6 class="blog-card-title">
+                        <a href="{{ post.get_absolute_url }}">{{ post.title|truncatechars:42 }}</a>
+                    </h6>
+                    <p class="blog-card-excerpt">{{ post.excerpt|default:post.body|striptags|truncatechars:70 }}</p>
+                </div>
+            </article>
             {% empty %}
-            <div class="col-12 text-center py-5">
+            <div style="grid-column:1/-1;" class="text-center py-5">
                 <i class="lni lni-book" style="font-size:52px; color:#ddd;"></i>
                 <h5 class="ft-bold mt-3">هنوز نوشته‌ای منتشر نشده است</h5>
                 <p class="text-muted">به‌زودی مقالات مد و استایل اینجا منتشر می‌شود</p>

@@ -5,8 +5,12 @@
 <div class="header-top-bar {% if ts == 'ivory' %}topbar-light{% endif %}"
      style="padding: 8px 0; overflow: hidden; border-bottom: 2px solid #00E6FF;
             {% if ts == 'charcoal' %}background:#1A1A1A;
+            {% elif ts == 'navy' %}background:#12233a;
             {% elif ts == 'gradient-cyan' %}background:linear-gradient(90deg,#000 0%,#007a8a 100%);
             {% elif ts == 'gradient-dark' %}background:linear-gradient(90deg,#0f2027 0%,#203a43 60%,#2c5364 100%);
+            {% elif ts == 'gradient-purple' %}background:linear-gradient(90deg,#1a1a2e 0%,#6a11cb 100%);
+            {% elif ts == 'gradient-sunset' %}background:linear-gradient(90deg,#232526 0%,#c94b4b 100%);
+            {% elif ts == 'gradient-emerald' %}background:linear-gradient(90deg,#0f2027 0%,#0b7a5a 100%);
             {% elif ts == 'ivory' %}background:#F5F1E8; border-bottom-color:#1A1A1A;
             {% else %}background:#000;{% endif %}">
     <div class="container">
@@ -45,7 +49,7 @@
             
             <!-- سمت راست: لوگو و منو -->
             <div class="d-flex align-items-center gap-4">
-                <a class="nav-brand" href="{% url 'catalog:index' %}">
+                <a class="nav-brand logo-shine" href="{% url 'catalog:index' %}">
                     <img src="{% static 'app/img/logo.svg' %}" style="max-height: 40px;" alt="Oram Shop">
                 </a>
                 
@@ -449,4 +453,26 @@ window.refreshWishlistDrawer = function () {
             if (el) el.innerHTML = html;
         });
 };
+
+// حذف آیتم از دراور سبد نوبار (با delegation تا بعد از رفرش هم کار کند)
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.close_cart_item');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+    const body = new URLSearchParams({ item_id: btn.dataset.id });
+    btn.disabled = true;
+    fetch('/cart/remove/', { method: 'POST', headers: { 'X-CSRFToken': token }, body })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status !== 'ok') return;
+            if (window.refreshCartDrawer) window.refreshCartDrawer();
+            document.querySelectorAll('.cart-count').forEach(el => {
+                el.textContent = data.count;
+                el.style.display = data.count > 0 ? 'flex' : 'none';
+            });
+        })
+        .catch(() => { btn.disabled = false; });
+}, true);
 </script>

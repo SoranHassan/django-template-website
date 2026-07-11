@@ -4,7 +4,9 @@
                             <div class="d-flex align-items-center justify-content-between br-bottom px-2 py-3">
                                 <a href="/shop/{{ item.id }}/" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
                                     {% if item.image %}
-                                    <img src="{{ item.image }}" width="46" class="img-fluid rounded" alt="{{ item.title }}"/>
+                                    <img src="{{ item.image }}" width="48" height="48" style="object-fit:cover;" class="rounded" alt="{{ item.title }}"/>
+                                    {% else %}
+                                    <span class="d-inline-flex align-items-center justify-content-center rounded bg-light text-muted" style="width:48px;height:48px;"><i class="lni lni-image"></i></span>
                                     {% endif %}
                                     <span>
                                         <span class="fs-sm ft-medium d-block lh-1 mb-1">{{ item.title|truncatechars:28 }}</span>

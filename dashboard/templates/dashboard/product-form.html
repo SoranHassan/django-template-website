@@ -407,7 +407,7 @@
 
 {% if product %}
 <!-- ================== واریانت‌ها (سایز/رنگ/موجودی/قیمت) ================== -->
-<div class="dashboard-content" style="padding-top:0;">
+<div style="margin-top:16px; display:flex; flex-direction:column; gap:16px;">
     <div class="glass-card">
         <div class="card-header"><h2>واریانت‌ها (سایز، رنگ و موجودی)</h2></div>
 
@@ -510,7 +510,7 @@
                 <thead>
                 <tr>
                     <th>سایز</th><th>شانه</th><th>آستین</th><th>سینه</th><th>قد بالاتنه</th>
-                    <th>کمر</th><th>ران</th><th>فاق</th><th>قد پایین‌تنه</th><th>کف پا</th><th></th>
+                    <th>کمر</th><th>ران</th><th>فاق</th><th>قد پایین‌تنه</th><th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -525,7 +525,6 @@
                     <td>{{ chart.hip|default:"—" }}</td>
                     <td>{{ chart.crotch|default:"—" }}</td>
                     <td>{{ chart.length_bottom|default:"—" }}</td>
-                    <td>{{ chart.foot_length|default:"—" }}</td>
                     <td>
                         <form method="POST" action="{% url 'dashboard:sizechart_delete' chart.pk %}"
                               data-confirm="این ردیف سایزبندی حذف شود؟" style="display:inline;">
@@ -537,14 +536,14 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="11" style="text-align:center; color:#86868B; padding:16px;">اندازه‌ای ثبت نشده است</td></tr>
+                <tr><td colspan="10" style="text-align:center; color:#86868B; padding:16px;">اندازه‌ای ثبت نشده است</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
 
         <form method="POST" action="{% url 'dashboard:sizechart_save' product.pk %}"
-              style="display:grid; grid-template-columns: repeat(11, 1fr); gap:8px; margin-top:16px; align-items:end;">
+              style="display:grid; grid-template-columns: repeat(10, 1fr); gap:8px; margin-top:16px; align-items:end;">
             {% csrf_token %}
             <div>
                 <label style="font-size:11px; font-weight:600; display:block; margin-bottom:4px;">سایز *</label>

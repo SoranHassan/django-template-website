@@ -342,7 +342,6 @@ class DashboardProductEditView(StaffRequiredMixin, View):
             'size_chart_fields': [
                 ('shoulder', 'شانه'), ('sleeve', 'آستین'), ('chest', 'سینه'), ('length_top', 'قد بالاتنه'),
                 ('waist', 'کمر'), ('hip', 'ران'), ('crotch', 'فاق'), ('length_bottom', 'قد پایین‌تنه'),
-                ('foot_length', 'طول کف پا (کفش)'),
             ],
             'saved': request.GET.get('saved'),
         })
@@ -657,7 +656,7 @@ class DashboardSizeChartSaveView(StaffRequiredMixin, View):
         if size_id:
             fields = {}
             for f in ['shoulder', 'sleeve', 'chest', 'length_top', 'waist', 'hip',
-                      'crotch', 'length_bottom', 'foot_length']:
+                      'crotch', 'length_bottom']:
                 value = request.POST.get(f, '').strip()
                 fields[f] = value or None
             SizeChart.objects.update_or_create(product=product, size_id=size_id, defaults=fields)
@@ -825,8 +824,8 @@ class DashboardBlogSaveView(StaffRequiredMixin, View):
         fields = [
             {'name': 'title', 'label': 'عنوان نوشته', 'type': 'text', 'required': True, 'full': True,
              'value': p.title if p else ''},
-            {'name': 'slug', 'label': 'اسلاگ (نام دلخواه در URL)', 'type': 'text', 'value': p.slug if p else '',
-             'help': 'می‌توانید فارسی یا انگلیسی بنویسید؛ خالی بگذارید تا خودکار ساخته شود'},
+            {'name': 'slug', 'label': 'اسلاگ (نام انگلیسی در URL)', 'type': 'text', 'value': p.slug if p else '',
+             'help': 'فقط انگلیسی/عدد/خط تیره؛ خالی بگذارید تا خودکار ساخته شود. اگر فارسی وارد شود با شناسه پر می‌شود.'},
             {'name': 'image', 'label': 'تصویر شاخص', 'type': 'image', 'value': p.image.url if p and p.image else ''},
             {'name': 'excerpt', 'label': 'خلاصه', 'type': 'textarea', 'full': True, 'value': p.excerpt if p else ''},
             {'name': 'body', 'label': 'متن نوشته', 'type': 'richtext', 'required': True, 'full': True,
@@ -843,23 +842,32 @@ class DashboardBlogSaveView(StaffRequiredMixin, View):
         from blog.models import Post
         post = get_object_or_404(Post, pk=pk) if pk else Post(author=request.user)
         post.title = request.POST.get('title', post.title or '').strip()
-        requested_slug = request.POST.get('slug', '').strip()
-        if not pk or requested_slug:
-            base = requested_slug or slugify(post.title, allow_unicode=True) or 'post'
-            slug, i = base, 2
-            qs = Post.objects.exclude(pk=post.pk) if pk else Post.objects.all()
-            while qs.filter(slug=slug).exists():
-                slug, i = f'{base}-{i}', i + 1
-            post.slug = slug
         post.excerpt = request.POST.get('excerpt', '')
         post.body = request.POST.get('body', '')
         post.is_published = 'is_published' in request.POST
         if request.FILES.get('image'):
             post.image = request.FILES['image']
-        if post.title and post.body:
-            post.save()
-            return redirect(f"{reverse('dashboard:blog_edit', args=[post.pk])}?saved=1")
-        return redirect('dashboard:blog_list')
+        if not (post.title and post.body):
+            return redirect('dashboard:blog_list')
+
+        # اسلاگ همیشه انگلیسی/اسکی است تا مشکل URL فارسی پیش نیاید؛
+        # اگر ورودی فارسی بود و اسکی چیزی نماند، با شناسه (pk) پر می‌شود.
+        requested = request.POST.get('slug', '').strip()
+        base = slugify(requested, allow_unicode=False) or slugify(post.title, allow_unicode=False)
+        if base and (not pk or requested):
+            slug, i = base, 2
+            qs = Post.objects.exclude(pk=post.pk) if pk else Post.objects.all()
+            while qs.filter(slug=slug).exists():
+                slug, i = f'{base}-{i}', i + 1
+            post.slug = slug
+        elif not post.slug:
+            post.slug = 'post'  # موقت تا pk بگیریم
+
+        post.save()
+        if not base and (post.slug == 'post' or not post.slug):
+            post.slug = f'post-{post.pk}'
+            post.save(update_fields=['slug'])
+        return redirect(f"{reverse('dashboard:blog_edit', args=[post.pk])}?saved=1")
 
 
 class DashboardBlogDeleteView(StaffRequiredMixin, View):
