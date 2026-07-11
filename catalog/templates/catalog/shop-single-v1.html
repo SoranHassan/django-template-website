@@ -322,88 +322,36 @@
                         </div>
                     </div>
 
-                    <!-- اطلاعات تکمیلی -->
+                    <!-- اطلاعات تکمیلی (جدول سایزبندی سانتی‌متر) -->
                     <div class="tab-pane fade" id="information" role="tabpanel">
                         <div class="additionals">
-                            {% if product.size_charts.exists %}
-
-                            <!-- انتخاب سایز برای نمایش جدول -->
-                            <div class="mb-3">
-                                <label class="ft-medium mb-2 d-block">انتخاب سایز برای مشاهده اندازه‌ها:</label>
-                                <div class="d-flex flex-wrap gap-2" id="sizeChartSelector">
-                                    {% for chart in product.size_charts.all %}
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-dark size-chart-btn"
-                                            data-size="{{ chart.size.name }}"
-                                            data-shoulder="{{ chart.shoulder|default:'' }}"
-                                            data-sleeve="{{ chart.sleeve|default:'' }}"
-                                            data-chest="{{ chart.chest|default:'' }}"
-                                            data-length-top="{{ chart.length_top|default:'' }}"
-                                            data-waist="{{ chart.waist|default:'' }}"
-                                            data-hip="{{ chart.hip|default:'' }}"
-                                            data-crotch="{{ chart.crotch|default:'' }}"
-                                            data-length-bottom="{{ chart.length_bottom|default:'' }}"
-                                            {% if forloop.first %}onclick="selectSizeChart(this)"
-                                            style="background:#1a1a2e; color:white;" {% else %}onclick="selectSizeChart(this)" {% endif %}>
-                                        {{ chart.size.name }}
-                                    </button>
+                            {% if size_chart_columns %}
+                            <h5 class="ft-bold mb-3">جدول سایزبندی (سانتی‌متر)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-center align-middle">
+                                    <thead class="table-dark">
+                                    <tr>
+                                        <th>سایز</th>
+                                        {% for field, label in size_chart_columns %}
+                                        <th>{{ label }} (cm)</th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for row in size_chart_rows %}
+                                    <tr>
+                                        <td class="ft-bold">{{ row.size }}</td>
+                                        {% for v in row.values %}
+                                        <td>{{ v|default:'-' }}</td>
+                                        {% endfor %}
+                                    </tr>
                                     {% endfor %}
-                                </div>
-                            </div>
-
-                            <!-- جدول اندازه‌ها -->
-                            <div id="sizeChartTable">
-                                {% with chart=product.size_charts.first %}
-                                {% if product.category_type == 'top' %}
-                                <!-- بالاتنه -->
-                                <table class="table table-bordered text-center">
-                                    <thead class="table-dark">
-                                    <tr>
-                                        <th>سایز</th>
-                                        <th>عرض شانه (cm)</th>
-                                        <th>طول آستین (cm)</th>
-                                        <th>عرض سینه (cm)</th>
-                                        <th>قد (cm)</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="chartBody">
-                                    <tr>
-                                        <td class="ft-bold" id="chart-size">{{ chart.size.name }}</td>
-                                        <td id="chart-shoulder">{{ chart.shoulder|default:'-' }}</td>
-                                        <td id="chart-sleeve">{{ chart.sleeve|default:'-' }}</td>
-                                        <td id="chart-chest">{{ chart.chest|default:'-' }}</td>
-                                        <td id="chart-length-top">{{ chart.length_top|default:'-' }}</td>
-                                    </tr>
                                     </tbody>
                                 </table>
-                                {% elif product.category_type == 'bottom' %}
-                                <!-- پایین‌تنه -->
-                                <table class="table table-bordered text-center">
-                                    <thead class="table-dark">
-                                    <tr>
-                                        <th>سایز</th>
-                                        <th>عرض کمر (cm)</th>
-                                        <th>عرض ران (cm)</th>
-                                        <th>فاق (cm)</th>
-                                        <th>قد (cm)</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="chartBody">
-                                    <tr>
-                                        <td class="ft-bold" id="chart-size">{{ chart.size.name }}</td>
-                                        <td id="chart-waist">{{ chart.waist|default:'-' }}</td>
-                                        <td id="chart-hip">{{ chart.hip|default:'-' }}</td>
-                                        <td id="chart-crotch">{{ chart.crotch|default:'-' }}</td>
-                                        <td id="chart-length-bottom">{{ chart.length_bottom|default:'-' }}</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                {% endif %}
-                                {% endwith %}
                             </div>
-
+                            <p class="small text-muted mt-2">اندازه‌ها ممکن است ۱ تا ۲ سانتی‌متر اختلاف داشته باشند.</p>
                             {% else %}
-                            <p class="text-muted">جدول سایزبندی برای این محصول موجود نیست.</p>
+                            <p class="text-muted">جدول سایزبندی برای این محصول ثبت نشده است.</p>
                             {% endif %}
                         </div>
                     </div>
@@ -676,40 +624,5 @@
         setTimeout(() => el.classList.add('d-none'), 3000);
     }
 
-    function selectSizeChart(btn) {
-        // reset دکمه‌ها
-        document.querySelectorAll('.size-chart-btn').forEach(b => {
-            b.style.background = '';
-            b.style.color = '';
-        });
-        btn.style.background = '#1a1a2e';
-        btn.style.color = 'white';
-
-        const d = btn.dataset;
-
-        // آپدیت جدول
-        const sizeEl = document.getElementById('chart-size');
-        if (sizeEl) sizeEl.textContent = d.size;
-
-        // بالاتنه
-        const shoulder = document.getElementById('chart-shoulder');
-        const sleeve = document.getElementById('chart-sleeve');
-        const chest = document.getElementById('chart-chest');
-        const lengthTop = document.getElementById('chart-length-top');
-        if (shoulder) shoulder.textContent = d.shoulder || '-';
-        if (sleeve) sleeve.textContent = d.sleeve || '-';
-        if (chest) chest.textContent = d.chest || '-';
-        if (lengthTop) lengthTop.textContent = d.lengthTop || '-';
-
-        // پایین‌تنه
-        const waist = document.getElementById('chart-waist');
-        const hip = document.getElementById('chart-hip');
-        const crotch = document.getElementById('chart-crotch');
-        const lengthBottom = document.getElementById('chart-length-bottom');
-        if (waist) waist.textContent = d.waist || '-';
-        if (hip) hip.textContent = d.hip || '-';
-        if (crotch) crotch.textContent = d.crotch || '-';
-        if (lengthBottom) lengthBottom.textContent = d.lengthBottom || '-';
-    }
 </script>
 {% endblock %}

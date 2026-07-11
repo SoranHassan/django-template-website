@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if product %}ویرایش محصول{% else %}محصول جدید{% endif %} - پنل مدیریت</title>
     <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
     <style>
         /* سوییچ وضعیت انتشار — حالا واقعا وضعیت را نشان می‌دهد */
         .os-toggle { position: relative; display: inline-block; width: 50px; height: 28px; }
@@ -42,7 +42,7 @@
             <li><a href="{% url 'dashboard:categories_list' %}"><i class="fas fa-tags"></i><span>دسته‌بندی‌ها</span></a></li>
             <li><a href="{% url 'dashboard:brands_list' %}"><i class="fas fa-copyright"></i><span>برندها</span></a></li>
             <li><a href="{% url 'dashboard:coupons_list' %}"><i class="fas fa-ticket-alt"></i><span>کدهای تخفیف</span></a></li>
-            <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span></a>
+            <li><a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i><span>سفارشات</span>{% if pending_orders_count %}<span class="badge">{{ pending_orders_count }}</span>{% endif %}</a>
             </li>
             <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span></a></li>
             <li><a href="{% url 'dashboard:shipping_list' %}"><i class="fas fa-truck"></i><span>روش‌های ارسال</span></a></li>
@@ -59,7 +59,7 @@
             {% if request.user.avatar %}
             <img src="{{ request.user.avatar.url }}" alt="پروفایل">
             {% else %}
-            <img src="https://i.pravatar.cc/150?img=33" alt="پروفایل">
+            <img src="{% static 'app/img/default-avatar.svg' %}" alt="پروفایل">
             {% endif %}
             <div class="user-info">
                 <h4>{{ request.user.get_full_name }}</h4>

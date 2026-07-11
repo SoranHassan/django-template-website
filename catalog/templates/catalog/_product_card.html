@@ -1,9 +1,9 @@
 {% load static humanize %}
-<div class="product_grid card b-0 mb-4">
+<div class="product_grid card b-0 mb-4 os-product-card">
 
     {% if product.discount_percent %}
-    <div class="position-absolute ab-left">
-        <span class="badge" style="background:#00E6FF; color:#000;">{{ product.discount_percent }}٪</span>
+    <div class="position-absolute ab-left os-badge-wrap">
+        <span class="badge os-discount-badge">{{ product.discount_percent }}٪ تخفیف</span>
     </div>
     {% endif %}
 
@@ -17,39 +17,37 @@
     </button>
 
     <div class="card-body p-0">
-        <div class="shop_thumb position-relative">
+        <div class="shop_thumb position-relative os-thumb">
             <a href="{% url 'catalog:product_detail' product.pk %}">
                 {% if product.main_image %}
                 <img class="card-img-top" loading="lazy"
-                     src="{{ product.main_image.image.url }}"
-                     alt="{{ product.name }}">
+                     src="{{ product.main_image.image.url }}" alt="{{ product.name }}">
                 {% else %}
-                <img class="card-img-top" loading="lazy" src="{% static 'app/img/product/1.jpg' %}" alt="{{ product.name }}">
+                <img class="card-img-top os-placeholder" loading="lazy"
+                     src="{% static 'app/img/product-placeholder.svg' %}" alt="{{ product.name }}">
                 {% endif %}
+            </a>
+            <a href="{% url 'catalog:product_detail' product.pk %}" class="os-card-cart" title="افزودن به سبد خرید">
+                <i class="lni lni-cart"></i>
             </a>
         </div>
     </div>
 
-    <div class="card-footer b-0 pt-3 px-2 bg-white">
+    <div class="card-footer b-0 pt-3 px-2 bg-white os-card-foot">
         <div class="text-right">
             {% if product.category %}
-            <span class="text-muted small">{{ product.category.name }}</span>
+            <span class="text-muted small os-card-cat">{{ product.category.name }}</span>
             {% endif %}
-            <h5 class="product_title fw-normal fs-md mb-0 lh-1 mb-1">
-                <a href="{% url 'catalog:product_detail' product.pk %}"
-                   class="text-dark">
-                    {{ product.name|truncatechars:30 }}
+            <h5 class="product_title fw-normal fs-md mb-0 lh-1 os-card-title">
+                <a href="{% url 'catalog:product_detail' product.pk %}" class="text-dark">
+                    {{ product.name|truncatechars:34 }}
                 </a>
             </h5>
-            <div class="elis_rty">
+            <div class="os-card-prices">
                 {% if product.original_price %}
-                <span class="ft-medium text-muted line-through fs-sm me-1">
-                    {{ product.original_price|intcomma }} تومان
-                </span>
+                <span class="os-old-price">{{ product.original_price|intcomma }} تومان</span>
                 {% endif %}
-                <span class="ft-bold fs-md" style="color: var(--os-cyan-dark);">
-                    {{ product.price|intcomma }} تومان
-                </span>
+                <span class="os-final-price">{{ product.price|intcomma }} تومان</span>
             </div>
         </div>
     </div>

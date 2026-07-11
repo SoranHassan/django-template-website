@@ -271,10 +271,26 @@
 <!-- بنر میانی End -->
 
 <!-- ویژگی‌های فروشگاه -->
-<section class="px-0 py-3 br-top">
+<section class="px-0 py-3 br-top bg-white">
     <div class="container">
         <div class="row">
             {% include 'catalog/features.html' %}
+        </div>
+    </div>
+</section>
+
+<!-- نوار خبرنامه / عضویت — برای پرتر شدن صفحه اصلی -->
+<section class="os-newsletter">
+    <div class="container">
+        <div class="os-newsletter-box">
+            <div class="os-newsletter-text">
+                <h3 class="ft-bold mb-1">از تخفیف‌ها و کالکشن‌های جدید باخبر شو</h3>
+                <p class="mb-0">ایمیل یا شماره‌ات را وارد کن تا جدیدترین‌ها و کدهای تخفیف را دریافت کنی.</p>
+            </div>
+            <form class="os-newsletter-form" onsubmit="return false;">
+                <input type="text" placeholder="ایمیل یا شماره موبایل" aria-label="ایمیل یا شماره موبایل">
+                <button type="submit"><i class="lni lni-envelope me-1"></i> عضویت</button>
+            </form>
         </div>
     </div>
 </section>

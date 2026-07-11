@@ -1,10 +1,20 @@
-{% load humanize jalali %}
+{% load humanize jalali static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+        /* وزیرمتن لوکال — بدون وابستگی به فونت گوگل */
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('{% static "app/css/fonts/Vazirmatn-Regular.woff2" %}') format('woff2');
+            font-weight: 400; font-display: swap;
+        }
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('{% static "app/css/fonts/Vazirmatn-Bold.woff2" %}') format('woff2');
+            font-weight: 700; font-display: swap;
+        }
 
         * {
             margin: 0;

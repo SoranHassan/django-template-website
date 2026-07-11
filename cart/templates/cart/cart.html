@@ -98,19 +98,18 @@
 
                                         <!-- تعداد (+/-) -->
                                         <div class="input-group input-group-sm quantity-stepper"
-                                             style="width: 110px; direction: ltr;"
+                                             style="direction: ltr;"
                                              data-item-id="{{ item.pk }}" data-stock="{{ item.variant.stock }}">
-                                            <button class="btn btn-outline-dark qty-btn" type="button" data-delta="-1">−</button>
+                                            <button class="btn qty-btn qty-minus" type="button" data-delta="-1" aria-label="کاهش"><i class="lni lni-minus"></i></button>
                                             <input type="text" class="form-control text-center qty-value"
-                                                   value="{{ item.quantity }}" readonly
-                                                   style="background:#fff; max-width:44px;">
-                                            <button class="btn btn-outline-dark qty-btn" type="button" data-delta="1">+</button>
+                                                   value="{{ item.quantity }}" readonly>
+                                            <button class="btn qty-btn qty-plus" type="button" data-delta="1" aria-label="افزایش"><i class="lni lni-plus"></i></button>
                                         </div>
 
                                         <!-- حذف -->
                                         <button class="btn btn-sm btn-outline-danger remove-item-btn"
                                                 data-item-id="{{ item.pk }}">
-                                            <i class="lni lni-trash me-1"></i>حذف
+                                            <i class="lni lni-trash-can me-1"></i>حذف
                                         </button>
 
                                     </div>

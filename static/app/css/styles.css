@@ -1,5 +1,5 @@
 /*
-* Theme Name: Kumo- Django Fashion eCommerce Template
+* Theme Name: Oram Shop — Django Fashion eCommerce
 * Author: Shreethemes
 * Version: 1.0
 * Last Change: 14 Oct 2021
@@ -36,9 +36,7 @@
 /*------------------------------------
 	Fonts
 ------------------------------------ */
-/* @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap'); */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Kaushan+Script&display=swap');
-/* @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap'); */
+/* فونت‌های گوگل حذف شدند — همه‌چیز لوکال (وزیرمتن) برای سازگاری با نت ملی */
 
 /*------------------------------------------------------------
 	Global Settings
@@ -49,10 +47,10 @@
     overflow: hidden !important;
 }
 body {
-	background: #ffffff;
+	background: #f5f6f8;
 	color:#707070;
 	font-size:14px;
-	font-family: "DM Sans", sans-serif;
+	font-family: 'Vazirmatn', Tahoma, sans-serif;
 	margin: 0;
 	overflow-x: hidden !important;
 	font-weight: 400;
@@ -6032,15 +6030,16 @@ a:hover { color: var(--os-cyan-dark); }
 .quantity-stepper .qty-btn {
   border: 0 !important;
   border-radius: 0 !important;
-  background: #fafafa;
+  background: #fff;
   width: 38px; min-width: 38px; height: 38px;
   display: inline-flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 18px; line-height: 1; color: #333;
+  font-weight: 600; font-size: 15px; line-height: 1; color: #e63946;
   transition: background .18s ease, color .18s ease;
   cursor: pointer; padding: 0;
 }
-.quantity-stepper .qty-btn:hover { background: var(--os-charcoal); color: var(--os-cyan); }
-.quantity-stepper .qty-btn:active { background: #000; }
+.quantity-stepper .qty-btn i { font-size: 15px; }
+.quantity-stepper .qty-btn:hover { background: #e63946; color: #fff; }
+.quantity-stepper .qty-btn:active { background: #c92d3a; color: #fff; }
 .quantity-stepper .qty-value {
   border: 0 !important;
   border-left: 1px solid #eee !important;
@@ -6092,6 +6091,79 @@ a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
 @media (prefers-reduced-motion: reduce) {
   .logo-shine::after { animation: none; }
 }
+
+/* ============ آیکون حذف قرمز در کل سایت ============ */
+.lni-trash-can { color: #e63946; }
+.close_cart_item .lni-trash-can, .remove-item-btn .lni-trash-can { color: inherit; }
+
+/* ============ نوار خبرنامه صفحه اصلی ============ */
+.os-newsletter { padding: 40px 0; background: #f5f6f8; }
+.os-newsletter-box {
+  background: linear-gradient(120deg, #1A1A1A 0%, #0b3a45 60%, #007a8a 100%);
+  border-radius: 20px; padding: 34px 40px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  flex-wrap: wrap; box-shadow: 0 16px 40px rgba(0,0,0,.15);
+}
+.os-newsletter-text h3 { color: #fff; font-size: 20px; }
+.os-newsletter-text p { color: rgba(255,255,255,.75); font-size: 13px; }
+.os-newsletter-form { display: flex; gap: 8px; flex: 1; max-width: 440px; min-width: 260px; }
+.os-newsletter-form input {
+  flex: 1; border: none; border-radius: 12px; padding: 13px 16px;
+  font-family: inherit; font-size: 14px; outline: none;
+}
+.os-newsletter-form button {
+  border: none; border-radius: 12px; padding: 13px 24px;
+  background: var(--os-cyan); color: #0d0d0d; font-weight: 700; font-family: inherit;
+  cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center;
+  transition: background .18s ease;
+}
+.os-newsletter-form button:hover { background: #fff; }
+@media (max-width: 767px) {
+  .os-newsletter-box { padding: 24px; flex-direction: column; text-align: center; }
+  .os-newsletter-form { max-width: 100%; width: 100%; }
+}
+
+/* ============ کارت محصول — هم‌سایز، مرتب، با دکمه سبد ============ */
+.os-product-card { height: 100%; display: flex; flex-direction: column; }
+.os-product-card .card-body { flex: 0 0 auto; }
+.os-card-foot { margin-top: auto; }
+.os-thumb { overflow: hidden; }
+.os-thumb .card-img-top {
+  width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;
+  transition: transform .35s ease;
+}
+.os-product-card:hover .os-thumb .card-img-top { transform: scale(1.04); }
+.os-placeholder { object-fit: cover; background: #0d0d0d; }
+/* دکمه سبد روی تصویر */
+.os-card-cart {
+  position: absolute; bottom: 10px; left: 10px;
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--os-charcoal); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .25s ease, transform .25s ease, background .2s ease;
+  z-index: 3;
+}
+.os-product-card:hover .os-card-cart { opacity: 1; transform: translateY(0); }
+.os-card-cart:hover { background: var(--os-cyan); color: #0d0d0d; }
+@media (max-width: 767px) { .os-card-cart { opacity: 1; transform: none; width: 38px; height: 38px; font-size: 16px; } }
+/* بج تخفیف */
+.os-discount-badge {
+  background: #e63946 !important; color: #fff !important;
+  font-size: 11px; padding: 5px 9px; border-radius: 8px; font-weight: 700;
+}
+/* عنوان و دسته */
+.os-card-cat { display: block; font-size: 11px; color: #9a9a9a; margin-bottom: 3px; }
+.os-card-title { font-size: 14px; line-height: 1.6; margin-bottom: 8px !important; min-height: 2.6em; }
+.os-card-title a { color: #1a1a1a; }
+.os-card-title a:hover { color: var(--os-cyan-dark); }
+/* قیمت‌ها — با فاصله مشخص */
+.os-card-prices { display: flex; flex-direction: column; gap: 2px; }
+.os-old-price {
+  font-size: 12px; color: #b0b0b0; text-decoration: line-through;
+}
+.os-final-price { font-size: 15px; font-weight: 800; color: var(--os-cyan-dark); }
 
 /* ============ گرید بلاگ — همیشه هماهنگ و ریسپانسیو ============ */
 .blog-grid {

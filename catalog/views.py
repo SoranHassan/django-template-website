@@ -146,8 +146,23 @@ class ProductDetailView(View):
                 sizes.append(v.size)
         colors = list({v.color.pk: v.color for v in variants if v.color}.values())
 
-        # جدول سایزبندی (سانتی‌متر) — برای کفش شامل طول کف پا
-        size_charts = product.size_charts.select_related('size').all()
+        # جدول سایزبندی (سانتی‌متر) — همیشه نمایش داده شود اگر داده‌ای هست،
+        # فقط ستون‌هایی که حداقل یک مقدار دارند نشان داده می‌شوند (مستقل از نوع محصول)
+        size_charts = list(product.size_charts.select_related('size').all())
+        _chart_labels = [
+            ('shoulder', 'عرض شانه'), ('sleeve', 'طول آستین'), ('chest', 'عرض سینه'),
+            ('length_top', 'قد بالاتنه'), ('waist', 'عرض کمر'), ('hip', 'عرض ران'),
+            ('crotch', 'فاق'), ('length_bottom', 'قد پایین‌تنه'),
+        ]
+        size_chart_columns = [
+            (f, label) for f, label in _chart_labels
+            if any(getattr(c, f) is not None for c in size_charts)
+        ]
+        # ردیف‌ها را با ستون‌های فعال آماده می‌کنیم تا در قالب ساده رندر شوند
+        size_chart_rows = [
+            {'size': c.size.name, 'values': [getattr(c, f) for f, _ in size_chart_columns]}
+            for c in size_charts
+        ]
 
         similar_products = Product.objects.filter(
             is_active=True,
@@ -167,6 +182,8 @@ class ProductDetailView(View):
             'sizes': sizes,
             'colors': colors,
             'size_charts': size_charts,
+            'size_chart_columns': size_chart_columns,
+            'size_chart_rows': size_chart_rows,
             'reviews': reviews,
             'avg_rating': avg_rating,
             'similar_products': similar_products,
