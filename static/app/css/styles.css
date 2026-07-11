@@ -6092,9 +6092,65 @@ a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
   .logo-shine::after { animation: none; }
 }
 
+/* ============ فاصلهٔ استاندارد آیکون و متن در کل سایت ============ */
+.lni, .fa, .fas, .far, .fab { margin-inline-end: .4em; }
+/* آیکون‌های تنها (بدون متن کنارشان) بدون فاصله */
+.nav-icon-btn > .lni, .qty-btn > .lni, .btn_love > .lni, .os-card-cart > .lni,
+.close_cart_item > .lni, .menu-toggle > .lni, .menu-toggle > .fa,
+.header-btn > .fa, .close-btn > .fa, .btn-icon > .lni,
+.star-rating .fa, .star-rating .fas,
+.wishlist-btn.btn_love > .lni, .simple-nav-btn > .lni { margin-inline-end: 0; }
+
 /* ============ آیکون حذف قرمز در کل سایت ============ */
 .lni-trash-can { color: #e63946; }
 .close_cart_item .lni-trash-can, .remove-item-btn .lni-trash-can { color: inherit; }
+
+/* ============ دراپ‌داون‌های نوبار — تمیز و مرتب ============ */
+.custom-dropdown, .user-dropdown, .cart-dropdown, .wishlist-dropdown {
+  border: 1px solid #eee !important;
+  border-radius: 14px !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,.10) !important;
+  padding: 8px !important;
+  margin-top: 10px !important;
+}
+.custom-dropdown .dropdown-item, .user-dropdown .dropdown-item {
+  border-radius: 9px; padding: 9px 12px; font-size: 14px;
+  display: flex; align-items: center; transition: background .15s ease, color .15s ease;
+}
+.custom-dropdown .dropdown-item:hover, .user-dropdown .dropdown-item:hover {
+  background: #f3f5f7; color: var(--os-cyan-dark);
+}
+.mega-menu.custom-dropdown { padding: 12px !important; min-width: 460px; }
+.mega-menu .dropdown-item {
+  border-radius: 9px; padding: 8px 12px; font-size: 13px;
+  border: 1px solid transparent;
+}
+.mega-menu .dropdown-item:hover { background: #f3f5f7; border-color: #e6e6e6; color: var(--os-cyan-dark); }
+.user-dropdown-header { border-bottom: 1px solid #f0f0f0; }
+.user-dropdown .dropdown-divider { margin: 6px 4px; }
+
+/* ============ بلاک‌های رنگی سکشن‌های صفحه اصلی ============ */
+.home-band > .container,
+.home-band-sale > section > .container {
+  border-radius: 22px;
+  padding: 34px 26px !important;
+  margin-bottom: 6px;
+}
+.home-band-best > .container   { background: #edfafd; }
+.home-band-new > .container    { background: #f2f1fb; }
+.home-band-men > .container    { background: #eef1f6; }
+.home-band-women > .container  { background: #fdf1f4; }
+.home-band-sale > section > .container { background: #edf9f0; }
+.home-band .off_title { opacity: .5; }
+@media (max-width: 767px) {
+  .home-band > .container, .home-band-sale > section > .container { padding: 22px 14px !important; border-radius: 16px; }
+}
+
+/* ============ یکدستی اندازهٔ کارت محصول (مستقل از عکس کاربر) ============ */
+.os-thumb .card-img-top { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+@supports not (aspect-ratio: 1) {
+  .os-thumb .card-img-top { height: 300px; }
+}
 
 /* ============ آیکون‌های نوبار — لوکس و یکدست ============ */
 .nav-actions { gap: 6px !important; }

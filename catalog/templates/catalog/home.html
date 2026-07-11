@@ -112,7 +112,7 @@
 <!-- دسته‌بندی‌ها End -->
 
 <!-- محصولات پرفروش -->
-<section class="middle">
+<section class="middle home-band home-band-best">
     <div class="container">
 
         <div class="row justify-content-center mb-4">
@@ -171,7 +171,7 @@
 
 <!-- ردیف‌های داینامیک: جدیدترین / مردانه / زنانه -->
 {% if new_products %}
-<section class="middle pt-0">
+<section class="middle home-band home-band-new">
     <div class="container">
         <div class="row justify-content-center mb-2">
             <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
@@ -189,7 +189,7 @@
 {% endif %}
 
 {% if men_products %}
-<section class="middle py-5 home-section-alt">
+<section class="middle home-band home-band-men">
     <div class="container">
         <div class="row justify-content-center mb-2">
             <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
@@ -207,7 +207,7 @@
 {% endif %}
 
 {% if women_products %}
-<section class="middle pt-0">
+<section class="middle home-band home-band-women">
     <div class="container">
         <div class="row justify-content-center mb-2">
             <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
@@ -224,7 +224,7 @@
 </section>
 {% endif %}
 
-{% product_row 'discount' 'تخفیف‌دارها' 10 %}
+<div class="home-band-sale">{% product_row 'discount' 'تخفیف‌دارها' 10 %}</div>
 
 <!-- برندها -->
 {% if brands %}
