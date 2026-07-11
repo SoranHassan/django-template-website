@@ -6092,6 +6092,19 @@ a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
   .logo-shine::after { animation: none; }
 }
 
+/* ============ حذف خط زیر دکمه‌ها + استایل دکمه‌های بدون کلاس ============ */
+.btn, a.btn, button, .btn-os, .view-all-link, .simple-nav-btn,
+.os-card-cart, .footer-credit, [class*="btn-"] { text-decoration: none !important; }
+.btn:hover, a.btn:hover, .view-all-link:hover { text-decoration: none !important; }
+/* دکمه‌های بدون استایل یک ظاهر پایه بگیرند */
+button:not([class]) {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border: none; border-radius: 10px;
+  background: var(--os-charcoal); color: #fff; font-family: inherit;
+  font-weight: 600; font-size: 14px; cursor: pointer; transition: background .18s ease;
+}
+button:not([class]):hover { background: #000; color: var(--os-cyan); }
+
 /* ============ فاصلهٔ استاندارد آیکون و متن در کل سایت ============ */
 .lni, .fa, .fas, .far, .fab { margin-inline-end: .4em; }
 /* آیکون‌های تنها (بدون متن کنارشان) بدون فاصله */
@@ -6130,29 +6143,23 @@ a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
 .user-dropdown .dropdown-divider { margin: 6px 4px; }
 
 /* ============ بلاک‌های رنگی سکشن‌های صفحه اصلی — تیره و برندمحور ============ */
-.home-band > .container,
-.home-band-sale > section > .container {
+/* تیتر و «مشاهده همه» بیرونِ بلاک (بالای آن) قرار می‌گیرند؛ فقط محصولات داخل بلاک تیره‌اند */
+.home-band-inner {
   border-radius: 22px;
-  padding: 40px 26px !important;
-  margin-bottom: 14px;
+  padding: 28px 22px;
+  margin-bottom: 8px;
   box-shadow: 0 10px 30px rgba(0,0,0,.10);
 }
-.home-band-best  > .container            { background: linear-gradient(150deg,#15181c 0%,#1d2226 100%); }
-.home-band-new   > .container            { background: linear-gradient(150deg,#0f2630 0%,#123642 100%); }
-.home-band-men   > .container            { background: linear-gradient(150deg,#1a222e 0%,#212c3a 100%); }
-.home-band-women > .container            { background: linear-gradient(150deg,#241b26 0%,#301f32 100%); }
-.home-band-sale  > section > .container  { background: linear-gradient(150deg,#12241f 0%,#153029 100%); }
-/* متن روشن داخل بلاک‌های تیره */
-.home-band .container h1, .home-band .container h2, .home-band .container h3, .home-band .container h4, .home-band .container h5,
-.home-band-sale section h1, .home-band-sale section h2, .home-band-sale section h3, .home-band-sale section h4 { color: #fff !important; }
-.home-band .off_title { color: rgba(0,230,255,.16) !important; opacity: 1; }
-.home-band .view-all-link, .home-band-sale .view-all-link {
-  background: rgba(255,255,255,.10); color: #fff; border-color: rgba(255,255,255,.2);
-}
-.home-band .view-all-link:hover, .home-band-sale .view-all-link:hover { background: var(--os-cyan); color: #0d0d0d; }
-.home-band .sec-accent::before, .home-band-sale .sec-accent::before { background: var(--os-cyan) !important; }
+.home-band-best  .home-band-inner { background: linear-gradient(150deg,#15181c 0%,#1d2226 100%); }
+.home-band-new   .home-band-inner { background: linear-gradient(150deg,#0f2630 0%,#123642 100%); }
+.home-band-men   .home-band-inner { background: linear-gradient(150deg,#1a222e 0%,#212c3a 100%); }
+.home-band-women .home-band-inner { background: linear-gradient(150deg,#241b26 0%,#301f32 100%); }
+.home-band-sale  .home-band-inner { background: linear-gradient(150deg,#12241f 0%,#153029 100%); }
+/* سرتیتر بیرون بلاک — متن تیره روی زمینهٔ روشن صفحه */
+.home-band-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.home-band-head h2, .home-band-head h3 { margin: 0; }
 @media (max-width: 767px) {
-  .home-band > .container, .home-band-sale > section > .container { padding: 24px 14px !important; border-radius: 16px; }
+  .home-band-inner { padding: 18px 12px; border-radius: 16px; }
 }
 
 /* ============ لینک سازندهٔ سایت در فوتر ============ */

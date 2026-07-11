@@ -115,13 +115,14 @@
 <section class="middle home-band home-band-best">
     <div class="container">
 
-        <div class="row justify-content-center mb-4">
+        <div class="row justify-content-center mb-3">
             <div class="col-xl-12 text-center">
                 <h2 class="off_title">{% if site_settings %}{{ site_settings.home_watermark }}{% else %}ORAM SHOP{% endif %}</h2>
                 <h3 class="ft-bold pt-2">پرفروش‌ترین‌ها</h3>
             </div>
         </div>
 
+        <div class="home-band-inner">
         <div class="row align-items-center rows-products">
             {% for product in products %}
             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6">
@@ -154,6 +155,7 @@
             {% endfor %}
             {% endfor %}
         </div>
+        </div><!-- /home-band-inner -->
 
         <div class="row justify-content-center mt-3">
             <div class="col-auto">
@@ -179,10 +181,12 @@
                 <a href="{% url 'catalog:shop_style_1' %}?collection=new" class="small view-all-link">مشاهده همه ←</a>
             </div>
         </div>
+        <div class="home-band-inner">
         <div class="products-row-slider" dir="rtl">
             {% for product in new_products %}
             <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
             {% endfor %}
+        </div>
         </div>
     </div>
 </section>
@@ -197,10 +201,12 @@
                 <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="small view-all-link">مشاهده همه ←</a>
             </div>
         </div>
+        <div class="home-band-inner">
         <div class="products-row-slider" dir="rtl">
             {% for product in men_products %}
             <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
             {% endfor %}
+        </div>
         </div>
     </div>
 </section>
@@ -215,16 +221,18 @@
                 <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="small view-all-link">مشاهده همه ←</a>
             </div>
         </div>
+        <div class="home-band-inner">
         <div class="products-row-slider" dir="rtl">
             {% for product in women_products %}
             <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
             {% endfor %}
         </div>
+        </div>
     </div>
 </section>
 {% endif %}
 
-<div class="home-band-sale">{% product_row 'discount' 'تخفیف‌دارها' 10 %}</div>
+{% product_row 'discount' 'تخفیف‌دارها' 10 %}
 
 <!-- برندها -->
 {% if brands %}

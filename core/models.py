@@ -71,6 +71,12 @@ class SiteSetting(models.Model):
                                    verbose_name='متن سازندهٔ سایت')
     credit_url = models.CharField(max_length=200, blank=True, verbose_name='لینک سازنده')
 
+    # ---------- رتبهٔ جستجو (از سرچ‌کنسول گوگل وارد می‌شود) ----------
+    search_rank = models.PositiveIntegerField(
+        default=0, verbose_name='رتبهٔ فعلی در جستجوی گوگل',
+        help_text='این عدد را از گوگل سرچ‌کنسول وارد کنید (۰ یعنی نامشخص). اگر ۱ تا ۱۰ باشد، در داشبورد آلرت داده می‌شود.')
+    search_keyword = models.CharField(max_length=100, blank=True, verbose_name='کلمهٔ کلیدی رتبه')
+
     # ---------- بنر صفحهٔ محصولات ----------
     shop_banner = models.ImageField(upload_to='banners/', blank=True, null=True, verbose_name='بنر صفحه محصولات')
     shop_banner_title = models.CharField(max_length=100, blank=True, default='فروشگاه اُرام‌شاپ', verbose_name='عنوان بنر محصولات')

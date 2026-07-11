@@ -1,0 +1,14 @@
+{% load static %}
+<div class="header-actions">
+    <a href="{% url 'catalog:index' %}" target="_blank" class="header-action-btn" title="مشاهده سایت">
+        <i class="fas fa-external-link-alt"></i><span>مشاهده سایت</span>
+    </a>
+    <a href="{% url 'accounts:profile_info' %}" class="header-action-btn" title="پروفایل">
+        <i class="fas fa-user-circle"></i><span>پروفایل</span>
+    </a>
+    <form method="post" action="{% url 'accounts:logout' %}" style="margin:0;">{% csrf_token %}
+        <button type="submit" class="header-action-btn header-action-logout" title="خروج">
+            <i class="fas fa-sign-out-alt"></i><span>خروج</span>
+        </button>
+    </form>
+</div>

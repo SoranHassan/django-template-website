@@ -10,59 +10,7 @@
 </head>
 <body>
 
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="logo">
-            <i class="fas fa-crown"></i>
-            <span>پنل مدیریت</span>
-        </div>
-        <button class="close-btn" id="closeSidebar">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-
-    <nav class="sidebar-nav">
-        <ul>
-            <li><a href="{% url 'dashboard:index' %}"><i class="fas fa-home"></i><span>داشبورد</span></a></li>
-            <li><a href="{% url 'dashboard:users_list' %}"><i class="fas fa-users"></i><span>کاربران</span></a></li>
-            <li><a href="{% url 'dashboard:products_list' %}"><i class="fas fa-box"></i><span>محصولات</span></a></li>
-            <li><a href="{% url 'dashboard:categories_list' %}"><i class="fas fa-tags"></i><span>دسته‌بندی‌ها</span></a></li>
-            <li><a href="{% url 'dashboard:brands_list' %}"><i class="fas fa-copyright"></i><span>برندها</span></a></li>
-            <li><a href="{% url 'dashboard:coupons_list' %}"><i class="fas fa-ticket-alt"></i><span>کدهای تخفیف</span></a></li>
-            <li>
-            <li class="active">
-                <a href="{% url 'dashboard:orders_list' %}">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>سفارشات</span>
-                </a>
-            </li>
-            <li><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if pending_reviews_count %}<span class="badge">{{ pending_reviews_count }}</span>{% endif %}</a></li>
-            <li><a href="{% url 'dashboard:shipping_list' %}"><i class="fas fa-truck"></i><span>روش‌های ارسال</span></a></li>
-            <li><a href="{% url 'dashboard:hero_list' %}"><i class="fas fa-images"></i><span>بنرهای سایت</span></a></li>
-            <li><a href="{% url 'dashboard:announcements_list' %}"><i class="fas fa-bullhorn"></i><span>اطلاعیه‌ها</span></a></li>
-            <li><a href="{% url 'dashboard:blog_list' %}"><i class="fas fa-newspaper"></i><span>بلاگ</span></a></li>
-            <li><a href="{% url 'dashboard:analytics' %}"><i
-                    class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
-        </ul>
-    </nav>
-
-    <div class="sidebar-footer">
-        <div class="user-profile">
-            {% if request.user.avatar %}
-            <img src="{{ request.user.avatar.url }}" alt="پروفایل">
-            {% else %}
-            <img src="{% static 'app/img/default-avatar.svg' %}" alt="پروفایل">
-            {% endif %}
-            <div class="user-info">
-                <h4>{{ request.user.get_full_name }}</h4>
-                <p>مدیر سیستم</p>
-            </div>
-        </div>
-        <form method="post" action="{% url 'accounts:logout' %}" style="display:inline">{% csrf_token %}<button type="submit" class="logout-btn" style="background:none;border:none;padding:0;cursor:pointer;color:inherit;font:inherit;text-align:inherit">
-            <i class="fas fa-sign-out-alt"></i>
-        </button></form>
-    </div>
-</aside>
+{% include 'dashboard/_sidebar.html' %}
 
 <main class="main-content">
     <header class="top-header">
@@ -73,20 +21,7 @@
             <i class="fas fa-search"></i>
             <input type="text" placeholder="جستجو...">
         </div>
-        <div class="header-actions">
-            {% if order.status in 'paid,processing,shipped,delivered' %}
-            <a href="{% url 'orders:invoice' order.pk %}"
-               class="header-btn" title="دانلود فاکتور" target="_blank">
-                <i class="fas fa-file-invoice"></i>
-            </a>
-            {% endif %}
-            <a href="{% url 'catalog:index' %}" class="header-btn" title="مشاهده سایت">
-                <i class="fas fa-external-link-alt"></i>
-            </a>
-            <a href="{% url 'accounts:profile_info' %}" class="header-btn">
-                <i class="fas fa-user-circle"></i>
-            </a>
-        </div>
+        {% include 'dashboard/_header_actions.html' %}
     </header>
 
     <div class="dashboard-content">

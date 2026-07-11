@@ -21,6 +21,31 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_staff
 
+
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """فقط سوپریوزر — برای عملیات حساس مثل ویرایش کاربران"""
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+
+class DashboardUserToggleView(SuperuserRequiredMixin, View):
+    """فعال/غیرفعال یا مدیر کردن کاربر — فقط سوپریوزر"""
+
+    def post(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        field = request.POST.get('field')
+        # سوپریوزر نباید خودش را از دسترسی خارج کند
+        if user == request.user:
+            return redirect('dashboard:users_list')
+        if field == 'is_active':
+            user.is_active = not user.is_active
+            user.save(update_fields=['is_active'])
+        elif field == 'is_staff':
+            user.is_staff = not user.is_staff
+            user.save(update_fields=['is_staff'])
+        return redirect('dashboard:users_list')
+
 class DashboardIndexView(StaffRequiredMixin, View):
     def get(self, request):
         now = timezone.now()
@@ -36,6 +61,7 @@ class DashboardIndexView(StaffRequiredMixin, View):
         pending_reviews_count = Review.objects.filter(is_approved=False).count()
 
         return render(request, 'dashboard/index.html', {
+            'active_nav': 'index',
             'users_count': users_count,
             'orders_count': pending_orders_count,
             'products_count': products_count,
@@ -53,7 +79,7 @@ class DashboardUsersListView(StaffRequiredMixin, View):
     def get(self, request):
         users = CustomUser.objects.all().order_by('-date_joined')
         staff_count = users.filter(is_staff=True).count()
-        return render(request, 'dashboard/users-list.html', {'users': users,'staff_count': staff_count})
+        return render(request, 'dashboard/users-list.html', {'users': users, 'staff_count': staff_count, 'active_nav': 'users'})
 
 class DashboardProductsListView(StaffRequiredMixin, View):
     def get(self, request):
@@ -72,6 +98,7 @@ class DashboardProductsListView(StaffRequiredMixin, View):
             products = products.filter(gender=gender)
 
         return render(request, 'dashboard/products-list.html', {
+            'active_nav': 'products',
             'products': products,
             'categories': Category.objects.all(),
             'total_products': Product.objects.count(),
@@ -80,8 +107,12 @@ class DashboardProductsListView(StaffRequiredMixin, View):
             'categories_count': Category.objects.count()})
 
 def _unique_product_slug(name, requested_slug='', exclude_pk=None):
-    """اسلاگ یکتا می‌سازد؛ اگر تکراری بود شماره اضافه می‌کند (مثل tshirt-2)"""
-    base = (requested_slug or '').strip() or slugify(name or '', allow_unicode=True) or 'product'
+    """اسلاگ همیشه انگلیسی/اسکی و یکتا (مثل SKU)؛ فارسی هرگز در URL نمی‌آید.
+    اگر نام فارسی بود و اسکی چیزی نماند، از الگوی product-<کد یکتا> استفاده می‌شود."""
+    base = slugify((requested_slug or '').strip(), allow_unicode=False) \
+        or slugify(name or '', allow_unicode=False)
+    if not base:
+        base = 'product'
     slug = base
     counter = 2
     qs = Product.objects.all()
@@ -103,11 +134,12 @@ def _parse_price(value):
 
 class DashboardProductCreateView(StaffRequiredMixin, View):
     def get(self, request):
-        return render(request, 'dashboard/product-form.html', {'categories': Category.objects.all(), 'brands': Brand.objects.all(),})
+        return render(request, 'dashboard/product-form.html', {'categories': Category.objects.all(), 'brands': Brand.objects.all(), 'active_nav': 'products'})
 
     def post(self, request):
         def form_error(message):
             return render(request, 'dashboard/product-form.html', {
+                'active_nav': 'products',
                 'categories': Category.objects.all(),
                 'brands': Brand.objects.all(),
                 'error': message})
@@ -163,6 +195,7 @@ class DashboardOrdersListView(StaffRequiredMixin, View):
             orders = orders.filter(status=status)
 
         return render(request, 'dashboard/orders-list.html', {
+            'active_nav': 'orders',
             'orders': orders,
             'status_choices': Order.STATUS_CHOICES,
             'current_status': status,
@@ -175,7 +208,7 @@ class DashboardOrderDetailView(StaffRequiredMixin, View):
     def get(self, request, pk):
         order = get_object_or_404(
             Order.objects.select_related('user', 'address').prefetch_related('items__variant__product'),pk=pk)
-        return render(request, 'dashboard/order-detail.html', {'order': order, 'status_choices': Order.STATUS_CHOICES})
+        return render(request, 'dashboard/order-detail.html', {'order': order, 'status_choices': Order.STATUS_CHOICES, 'active_nav': 'orders'})
 
     def post(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
@@ -206,6 +239,7 @@ class DashboardReviewsListView(StaffRequiredMixin, View):
             reviews = reviews.filter(is_approved=False)
 
         return render(request, 'dashboard/reviews-list.html', {
+            'active_nav': 'reviews',
             'reviews': reviews,
             'total_count': Review.objects.count(),
             'pending_reviews_count': Review.objects.filter(is_approved=False).count(),
@@ -310,6 +344,7 @@ class DashboardAnalyticsView(StaffRequiredMixin, View):
         recent_users = CustomUser.objects.order_by('-date_joined')[:6]
 
         return render(request, 'dashboard/analytics.html', {
+            'active_nav': 'analytics',
             'period': period,
             'total_revenue': total_revenue,
             'total_orders': total_orders,
@@ -332,6 +367,7 @@ class DashboardProductEditView(StaffRequiredMixin, View):
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         return render(request, 'dashboard/product-form.html', {
+            'active_nav': 'products',
             'product': product,
             'categories': Category.objects.all(),
             'brands': Brand.objects.all(),
@@ -351,6 +387,7 @@ class DashboardProductEditView(StaffRequiredMixin, View):
 
         def form_error(message):
             return render(request, 'dashboard/product-form.html', {
+                'active_nav': 'products',
                 'product': product,
                 'categories': Category.objects.all(),
                 'brands': Brand.objects.all(),
@@ -972,6 +1009,10 @@ class DashboardSiteSettingsView(StaffRequiredMixin, View):
             # سازنده
             {'name': 'credit_text', 'label': 'متن سازندهٔ سایت (پایین صفحه)', 'type': 'text', 'value': s.credit_text},
             {'name': 'credit_url', 'label': 'لینک سازنده', 'type': 'text', 'value': s.credit_url},
+            # رتبهٔ جستجو
+            {'name': 'search_rank', 'label': 'رتبهٔ فعلی در گوگل (از سرچ‌کنسول)', 'type': 'number',
+             'value': s.search_rank, 'help': 'اگر ۱ تا ۱۰ باشد، در داشبورد آلرت تبریک نمایش داده می‌شود'},
+            {'name': 'search_keyword', 'label': 'کلمهٔ کلیدی رتبه', 'type': 'text', 'value': s.search_keyword},
         ]
         return render_form_page(
             request, page_title='تنظیمات سایت',
@@ -1001,5 +1042,10 @@ class DashboardSiteSettingsView(StaffRequiredMixin, View):
         s.whatsapp_url = request.POST.get('whatsapp_url', '').strip()
         s.credit_text = request.POST.get('credit_text', '').strip()
         s.credit_url = request.POST.get('credit_url', '').strip()
+        try:
+            s.search_rank = int(request.POST.get('search_rank') or 0)
+        except (TypeError, ValueError):
+            s.search_rank = 0
+        s.search_keyword = request.POST.get('search_keyword', '').strip()
         s.save()
         return redirect(f"{reverse('dashboard:site_settings')}?saved=1")

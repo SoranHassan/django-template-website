@@ -8,6 +8,7 @@ urlpatterns = [
 
     # Users
     path('users/', views.DashboardUsersListView.as_view(), name='users_list'),
+    path('users/<int:pk>/toggle/', views.DashboardUserToggleView.as_view(), name='user_toggle'),
 
     # Products
     path('products/', views.DashboardProductsListView.as_view(), name='products_list'),

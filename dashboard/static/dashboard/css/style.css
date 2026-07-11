@@ -1196,3 +1196,35 @@ body {
 }
 .dash-add-btn:hover { background: #009fb2; transform: translateY(-1px); }
 .btn-secondary { display: inline-flex; align-items: center; gap: 5px; }
+
+/* ---------- دکمه‌های هدر با متن + خروج ---------- */
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.header-action-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 14px; border-radius: 10px;
+    background: #f4f5f7; color: #333; border: none;
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    text-decoration: none; cursor: pointer; white-space: nowrap;
+    transition: background .15s, color .15s;
+}
+.header-action-btn:hover { background: #00B8CC; color: #fff; }
+.header-action-btn i { font-size: 14px; }
+.header-action-logout { background: #fdecec; color: #d33; }
+.header-action-logout:hover { background: #e53935; color: #fff; }
+@media (max-width: 640px) { .header-action-btn span { display: none; } }
+
+/* ---------- حذف خط زیر دکمه‌ها + استایل دکمه‌های بدون کلاس ---------- */
+.btn-secondary, .btn-primary, .btn-info, .dash-add-btn, a[class*="btn"],
+button[class*="btn"], .header-action-btn { text-decoration: none !important; }
+.btn-info {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 10px; background: #00B8CC; color: #fff;
+    font-weight: 600; font-size: 13px; text-decoration: none; border: none; cursor: pointer;
+}
+.btn-info:hover { background: #009fb2; color: #fff; }
+button:not([class]) {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border: none; border-radius: 10px;
+    background: #1a1a1a; color: #fff; font-family: inherit; font-weight: 600;
+    font-size: 13px; cursor: pointer;
+}
