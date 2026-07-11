@@ -6096,6 +6096,25 @@ a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
 .lni-trash-can { color: #e63946; }
 .close_cart_item .lni-trash-can, .remove-item-btn .lni-trash-can { color: inherit; }
 
+/* ============ آیکون‌های نوبار — لوکس و یکدست ============ */
+.nav-actions { gap: 6px !important; }
+.nav-icon-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex !important; align-items: center; justify-content: center;
+  font-size: 21px !important; color: #1a1a1a;
+  transition: background .2s ease, color .2s ease, transform .15s ease;
+}
+.nav-icon-btn:hover { background: #f2f4f6; color: var(--os-cyan-dark); transform: translateY(-1px); }
+.nav-icon-btn > i { line-height: 1; }
+/* شمارندهٔ روی آیکون‌ها یکدست */
+.nav-icon-btn .dn-counter {
+  top: 4px; inset-inline-start: 4px;
+  min-width: 18px; height: 18px; font-size: 10px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
+}
+/* آیکون‌های خطی کمی نازک‌تر و مینیمال‌تر برای حس لوکس */
+.lni { font-weight: 400; }
+
 /* ============ نوار خبرنامه صفحه اصلی ============ */
 .os-newsletter { padding: 40px 0; background: #f5f6f8; }
 .os-newsletter-box {
