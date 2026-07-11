@@ -13,7 +13,7 @@
             data-price="{{ product.price }}"
             data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
             data-slug="{{ product.slug }}">
-        <i class="lni lni-heart"></i>
+        <i class="lni {% if product.pk|stringformat:'s' in wishlist_ids %}lni-heart-filled{% else %}lni-heart{% endif %}"></i>
     </button>
 
     <div class="card-body p-0">

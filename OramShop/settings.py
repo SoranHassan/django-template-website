@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'axes',
     'storages',
+    'django_ckeditor_5',
 
     # local apps
     'accounts',
@@ -79,6 +80,7 @@ TEMPLATES = [
                 'core.context_processors.wishlist_context',
                 'core.context_processors.dashboard_context',
                 'core.context_processors.announcements_context',
+                'core.context_processors.site_settings_context',
             ],
         },
     },
@@ -266,6 +268,18 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# CKEDITOR 5 (ادیتور متن بلاگ — کاملاً local)
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'language': 'fa',
+        'toolbar': ['heading', '|', 'bold', 'italic', 'underline', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote', '|',
+                    'insertTable', 'undo', 'redo'],
+    },
+}
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'staff'
 
 
 # LOGS

@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static jalali %}
 
 {% block title %}{{ post.title }} | بلاگ OramShop{% endblock %}
 {% block meta_description %}{{ post.excerpt|default:post.body|striptags|truncatechars:150 }}{% endblock %}
@@ -22,7 +22,7 @@
 
                 <h1 class="ft-bold mb-2">{{ post.title }}</h1>
                 <div class="d-flex align-items-center gap-3 text-muted small mb-4">
-                    <span><i class="lni lni-calendar me-1"></i>{{ post.created_at|date:"Y/m/d" }}</span>
+                    <span><i class="lni lni-calendar me-1"></i>{{ post.created_at|jalali }}</span>
                     {% if post.author %}<span><i class="lni lni-user me-1"></i>{{ post.author.get_full_name }}</span>{% endif %}
                 </div>
 
@@ -31,26 +31,41 @@
                      style="width:100%; max-height:420px; object-fit:cover;">
                 {% endif %}
 
-                <div class="lh-lg fs-md" style="white-space: pre-line;">{{ post.body }}</div>
+                <div class="lh-lg fs-md blog-body">{{ post.body|safe }}</div>
 
                 {% if other_posts %}
-                <hr class="my-5">
-                <h5 class="ft-bold mb-3">مطالب دیگر</h5>
-                <div class="row g-3">
+                <hr class="my-4">
+                <h6 class="ft-bold mb-2">مطالب دیگر</h6>
+                <ul class="list-unstyled small mb-0">
                     {% for other in other_posts %}
-                    <div class="col-12 col-md-4">
-                        <a href="{{ other.get_absolute_url }}" class="text-dark small ft-medium d-block border rounded p-3 h-100">
-                            {{ other.title }}
-                            <span class="d-block text-muted mt-1" style="font-size:11px;">{{ other.created_at|date:"Y/m/d" }}</span>
-                        </a>
-                    </div>
+                    <li class="py-2 border-bottom d-flex justify-content-between align-items-center gap-2">
+                        <a href="{{ other.get_absolute_url }}" class="text-dark">{{ other.title|truncatechars:60 }}</a>
+                        <span class="text-muted flex-shrink-0" style="font-size:11px;">{{ other.created_at|jalali }}</span>
+                    </li>
                     {% endfor %}
-                </div>
+                </ul>
                 {% endif %}
             </div>
         </div>
     </div>
 </section>
+
+{% if related_products %}
+<section class="middle pt-2 pb-4">
+    <div class="container">
+        <div class="row justify-content-center mb-2">
+            <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
+                <h4 class="ft-bold mb-0">{{ related_title }}</h4>
+            </div>
+        </div>
+        <div class="products-row-slider" dir="rtl">
+            {% for product in related_products %}
+            <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 
 {% include 'base/footer.html' %}
 {% endblock %}

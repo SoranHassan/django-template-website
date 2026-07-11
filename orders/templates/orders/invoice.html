@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load humanize jalali %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -262,7 +262,7 @@
                 </tr>
                 <tr>
                     <td>تاریخ صدور:</td>
-                    <td>{{ order.created_at|date:"Y/m/d" }}</td>
+                    <td>{{ order.created_at|jalali }}</td>
                 </tr>
                 <tr>
                     <td>وضعیت:</td>

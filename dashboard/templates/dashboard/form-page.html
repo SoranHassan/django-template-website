@@ -1,0 +1,123 @@
+{% extends 'dashboard/_layout.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>{{ page_title }}</h1>
+    {% if page_subtitle %}<p>{{ page_subtitle }}</p>{% endif %}
+</div>
+
+{% if saved %}
+<div class="alert-success" style="background:#e6faf4; color:#0a7c56; border:1px solid #29c397; padding:12px 16px; border-radius:12px; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+    <i class="fas fa-check-circle"></i> با موفقیت ذخیره شد.
+</div>
+{% endif %}
+{% if error %}
+<div class="alert-error" style="background:#fdecec; color:#c62828; border:1px solid #ef9a9a; padding:12px 16px; border-radius:12px; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+</div>
+{% endif %}
+
+<div class="glass-card">
+    <form method="POST" action="{{ action }}" enctype="multipart/form-data" class="dash-form">
+        {% csrf_token %}
+        <div class="dash-form-grid">
+            {% for f in fields %}
+            <div class="dash-field {% if f.full %}dash-field-full{% endif %}">
+                {% if f.type == 'checkbox' %}
+                <label class="dash-check">
+                    <input type="checkbox" name="{{ f.name }}" {% if f.value %}checked{% endif %}>
+                    <span>{{ f.label }}</span>
+                </label>
+                {% else %}
+                <label class="dash-label">{{ f.label }}{% if f.required %} <span style="color:#e53935;">*</span>{% endif %}</label>
+
+                {% if f.type == 'textarea' %}
+                <textarea name="{{ f.name }}" rows="4" {% if f.required %}required{% endif %} class="dash-input">{{ f.value|default_if_none:'' }}</textarea>
+
+                {% elif f.type == 'richtext' %}
+                <textarea name="{{ f.name }}" id="id_{{ f.name }}" rows="10" {% if f.required %}required{% endif %} class="dash-input dash-richtext">{{ f.value|default_if_none:'' }}</textarea>
+
+                {% elif f.type == 'select' %}
+                <select name="{{ f.name }}" class="dash-input">
+                    {% if f.allow_blank %}<option value="">— انتخاب کنید —</option>{% endif %}
+                    {% for opt in f.options %}
+                    <option value="{{ opt.0 }}" {% if opt.0|stringformat:'s' == f.value|stringformat:'s' %}selected{% endif %}>{{ opt.1 }}</option>
+                    {% endfor %}
+                </select>
+
+                {% elif f.type == 'image' %}
+                {% if f.value %}<div style="margin-bottom:8px;"><img src="{{ f.value }}" alt="" style="max-height:90px; border-radius:8px; border:1px solid #eee;"></div>{% endif %}
+                <input type="file" name="{{ f.name }}" accept="image/*" class="dash-input">
+
+                {% elif f.type == 'color' %}
+                <input type="text" name="{{ f.name }}" value="{{ f.value|default_if_none:'' }}" class="dash-input" placeholder="#00B8CC" data-color-preview>
+
+                {% else %}
+                <input type="{{ f.type|default:'text' }}" name="{{ f.name }}" value="{{ f.value|default_if_none:'' }}"
+                       {% if f.required %}required{% endif %} {% if f.step %}step="{{ f.step }}"{% endif %} class="dash-input"
+                       {% if f.placeholder %}placeholder="{{ f.placeholder }}"{% endif %}>
+                {% endif %}
+
+                {% if f.help %}<small class="dash-help">{{ f.help }}</small>{% endif %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="dash-form-actions">
+            <button type="submit" class="dash-btn-primary"><i class="fas fa-save"></i> ذخیره</button>
+            <a href="{{ cancel_url }}" class="dash-btn-ghost">انصراف</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.dash-form-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px; }
+.dash-field-full { grid-column:1 / -1; }
+.dash-label { font-size:13px; font-weight:600; display:block; margin-bottom:6px; color:#1a1a1a; }
+.dash-input { width:100%; padding:10px 13px; border:1px solid #dcdcdc; border-radius:10px;
+              font-family:inherit; font-size:14px; background:#fff; transition:border-color .15s, box-shadow .15s; }
+.dash-input:focus { outline:none; border-color:#00B8CC; box-shadow:0 0 0 3px rgba(0,182,204,.15); }
+.dash-help { display:block; margin-top:5px; font-size:11px; color:#8a8a8a; }
+.dash-check { display:flex; align-items:center; gap:9px; font-size:14px; font-weight:600; cursor:pointer;
+              padding:11px 14px; border:1px solid #dcdcdc; border-radius:10px; background:#fafafa; }
+.dash-check input { width:18px; height:18px; accent-color:#00B8CC; }
+.dash-form-actions { display:flex; gap:12px; margin-top:22px; padding-top:18px; border-top:1px solid #f0f0f0; }
+.dash-btn-primary { padding:12px 30px; background:#00B8CC; color:#fff; border:none; border-radius:10px;
+                    font-family:inherit; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px;
+                    font-size:14px; transition:background .15s; }
+.dash-btn-primary:hover { background:#009fb2; }
+.dash-btn-ghost { padding:12px 26px; background:#f2f2f2; color:#444; border-radius:10px; text-decoration:none;
+                  font-weight:600; display:inline-flex; align-items:center; font-size:14px; }
+@media (max-width:768px){ .dash-form-grid { grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% block js %}
+{% if has_richtext %}
+<link rel="stylesheet" href="{% static 'django_ckeditor_5/dist/styles.css' %}">
+<style>
+  .ck-editor__editable { min-height:300px; }
+  .ck.ck-editor { direction:rtl; }
+  .dash-richtext { min-height:120px; }
+</style>
+<script src="{% static 'django_ckeditor_5/dist/bundle.js' %}"></script>
+<script src="{% static 'django_ckeditor_5/dist/translations/fa.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof window.ClassicEditor === 'undefined') return;
+    document.querySelectorAll('textarea.dash-richtext').forEach(function (el) {
+        window.ClassicEditor.create(el, {
+            licenseKey: 'GPL',
+            language: 'fa',
+            toolbar: ['heading','|','bold','italic','link','bulletedList','numberedList','|',
+                      'blockQuote','insertTable','|','undo','redo']
+        }).catch(function (e) { console.error('CKEditor:', e); });
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

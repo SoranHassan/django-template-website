@@ -42,90 +42,69 @@
 </div>
 <!-- Hero Banner End -->
 
-<!-- ۴ دسته‌بندی اصلی — ثابت -->
+<!-- ۴ کارت دسته‌بندی — قابل مدیریت از پنل ادمین (HomeCategoryCard) -->
 <section class="p-0">
     <div class="container">
         <div class="row g-3 py-4">
 
-            <!-- زنانه -->
+            {% for card in home_cards %}
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=women"
-                   class="text-decoration-none">
-                    <div class="category-card text-center p-4 rounded-3"
-                         style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
-                        <div class="mx-auto mb-3"
-                             style="width: 70px; height: 70px;
-                                    background: rgba(255,255,255,0.4);
-                                    border-radius: 50%; display: flex;
-                                    align-items: center; justify-content: center;">
-                            <i class="lni lni-crown" style="font-size: 32px; color: #c2185b;"></i>
+                <a href="{{ card.link }}" class="text-decoration-none">
+                    <div class="category-card home-cat-card text-center p-4 rounded-3">
+                        {% if card.image %}
+                        <div class="home-cat-img mx-auto mb-3">
+                            <img src="{{ card.image.url }}" alt="{{ card.title }}" loading="lazy">
                         </div>
-                        <h5 class="ft-bold mb-1" style="color: #880e4f;">زنانه</h5>
-                        <span style="color: #c2185b; font-size: 12px;">کالکشن جدید</span>
+                        {% else %}
+                        <div class="home-cat-icon mx-auto mb-3" style="color: {{ card.color }};">
+                            <i class="{{ card.icon_class }}"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="ft-bold mb-1">{{ card.title }}</h5>
+                        {% if card.subtitle %}<span class="home-cat-sub">{{ card.subtitle }}</span>{% endif %}
                     </div>
                 </a>
             </div>
 
-            <!-- مردانه -->
+            {% empty %}
+            <!-- پیش‌فرض تا زمانی که کارتی در پنل تعریف نشده -->
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=men"
-                   class="text-decoration-none">
-                    <div class="category-card text-center p-4 rounded-3"
-                         style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
-                        <div class="mx-auto mb-3"
-                             style="width: 70px; height: 70px;
-                                    background: rgba(255,255,255,0.4);
-                                    border-radius: 50%; display: flex;
-                                    align-items: center; justify-content: center;">
-                            <i class="lni lni-tshirt" style="font-size: 32px; color: #1565c0;"></i>
-                        </div>
-                        <h5 class="ft-bold mb-1" style="color: #0d47a1;">مردانه</h5>
-                        <span style="color: #1565c0; font-size: 12px;">استایل روز</span>
+                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="text-decoration-none">
+                    <div class="category-card home-cat-card text-center p-4 rounded-3">
+                        <div class="home-cat-icon mx-auto mb-3" style="color: #c2185b;"><i class="lni lni-crown"></i></div>
+                        <h5 class="ft-bold mb-1">زنانه</h5>
+                        <span class="home-cat-sub">کالکشن جدید</span>
                     </div>
                 </a>
             </div>
-
-            <!-- بچگانه -->
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=kids"
-                   class="text-decoration-none">
-                    <div class="category-card text-center p-4 rounded-3"
-                         style="background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);
-                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
-                        <div class="mx-auto mb-3"
-                             style="width: 70px; height: 70px;
-                                    background: rgba(255,255,255,0.4);
-                                    border-radius: 50%; display: flex;
-                                    align-items: center; justify-content: center;">
-                            <i class="lni lni-star" style="font-size: 32px; color: #f57f17;"></i>
-                        </div>
-                        <h5 class="ft-bold mb-1" style="color: #e65100;">بچگانه</h5>
-                        <span style="color: #f57f17; font-size: 12px;">شاد و رنگارنگ</span>
+                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="text-decoration-none">
+                    <div class="category-card home-cat-card text-center p-4 rounded-3">
+                        <div class="home-cat-icon mx-auto mb-3" style="color: #1565c0;"><i class="lni lni-tshirt"></i></div>
+                        <h5 class="ft-bold mb-1">مردانه</h5>
+                        <span class="home-cat-sub">استایل روز</span>
                     </div>
                 </a>
             </div>
-
-            <!-- اکسسوری -->
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?category=accessories"
-                   class="text-decoration-none">
-                    <div class="category-card text-center p-4 rounded-3"
-                         style="background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-                                min-height: 160px; transition: transform 0.3s, box-shadow 0.3s;">
-                        <div class="mx-auto mb-3"
-                             style="width: 70px; height: 70px;
-                                    background: rgba(255,255,255,0.4);
-                                    border-radius: 50%; display: flex;
-                                    align-items: center; justify-content: center;">
-                            <i class="lni lni-diamond" style="font-size: 32px; color: #2e7d32;"></i>
-                        </div>
-                        <h5 class="ft-bold mb-1" style="color: #1b5e20;">اکسسوری</h5>
-                        <span style="color: #2e7d32; font-size: 12px;">تکمیل استایل</span>
+                <a href="{% url 'catalog:shop_style_1' %}?gender=kids" class="text-decoration-none">
+                    <div class="category-card home-cat-card text-center p-4 rounded-3">
+                        <div class="home-cat-icon mx-auto mb-3" style="color: #f57f17;"><i class="lni lni-star"></i></div>
+                        <h5 class="ft-bold mb-1">بچگانه</h5>
+                        <span class="home-cat-sub">شاد و رنگارنگ</span>
                     </div>
                 </a>
             </div>
+            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
+                <a href="{% url 'catalog:shop_style_1' %}?category=accessories" class="text-decoration-none">
+                    <div class="category-card home-cat-card text-center p-4 rounded-3">
+                        <div class="home-cat-icon mx-auto mb-3" style="color: #2e7d32;"><i class="lni lni-diamond"></i></div>
+                        <h5 class="ft-bold mb-1">اکسسوری</h5>
+                        <span class="home-cat-sub">تکمیل استایل</span>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
 
         </div>
     </div>
@@ -138,7 +117,7 @@
 
         <div class="row justify-content-center mb-4">
             <div class="col-xl-12 text-center">
-                <h2 class="off_title">محصولات ویژه</h2>
+                <h2 class="off_title">{% if site_settings %}{{ site_settings.home_watermark }}{% else %}ORAM SHOP{% endif %}</h2>
                 <h3 class="ft-bold pt-2">پرفروش‌ترین‌ها</h3>
             </div>
         </div>

@@ -25,14 +25,14 @@ urlpatterns = [
 
     # Categories
     path('categories/', views.DashboardCategoriesListView.as_view(), name='categories_list'),
-    path('categories/create/', views.DashboardCategoryCreateView.as_view(), name='category_create'),
-    path('categories/<int:pk>/edit/', views.DashboardCategoryEditView.as_view(), name='category_edit'),
+    path('categories/create/', views.DashboardCategorySaveView.as_view(), name='category_create'),
+    path('categories/<int:pk>/edit/', views.DashboardCategorySaveView.as_view(), name='category_edit'),
     path('categories/<int:pk>/delete/', views.DashboardCategoryDeleteView.as_view(), name='category_delete'),
 
     # Brands
     path('brands/', views.DashboardBrandsListView.as_view(), name='brands_list'),
-    path('brands/create/', views.DashboardBrandCreateView.as_view(), name='brand_create'),
-    path('brands/<int:pk>/edit/', views.DashboardBrandEditView.as_view(), name='brand_edit'),
+    path('brands/create/', views.DashboardBrandSaveView.as_view(), name='brand_create'),
+    path('brands/<int:pk>/edit/', views.DashboardBrandSaveView.as_view(), name='brand_edit'),
     path('brands/<int:pk>/delete/', views.DashboardBrandDeleteView.as_view(), name='brand_delete'),
 
     # Coupons
@@ -66,6 +66,9 @@ urlpatterns = [
     path('blog-posts/create/', views.DashboardBlogSaveView.as_view(), name='blog_create'),
     path('blog-posts/<int:pk>/edit/', views.DashboardBlogSaveView.as_view(), name='blog_edit'),
     path('blog-posts/<int:pk>/delete/', views.DashboardBlogDeleteView.as_view(), name='blog_delete'),
+
+    # Site settings (watermark + topbar color)
+    path('site-settings/', views.DashboardSiteSettingsView.as_view(), name='site_settings'),
 
     # Analytics
     path('analytics/', views.DashboardAnalyticsView.as_view(), name='analytics'),

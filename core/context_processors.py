@@ -8,6 +8,16 @@ def announcements_context(request):
     return {'announcements': Announcement.objects.filter(is_active=True)}
 
 
+def site_settings_context(request):
+    """تنظیمات ظاهری سایت (واترمارک، رنگ تاپ‌بار) برای همه صفحات"""
+    from .models import SiteSetting
+    try:
+        return {'site_settings': SiteSetting.get()}
+    except Exception:
+        # قبل از اجرای مایگریشن‌ها جدول وجود ندارد
+        return {'site_settings': None}
+
+
 def categories_context(request):
     """دسته‌بندی‌های فعال برای مگامنوی ناوبار"""
     from catalog.models import Category

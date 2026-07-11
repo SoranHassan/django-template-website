@@ -6010,3 +6010,55 @@ a:hover { color: var(--os-cyan-dark); }
   border: 1px solid #f0f0f0 !important;
 }
 .product_grid.card:hover { box-shadow: 0 14px 34px rgba(0,0,0,.08); transform: translateY(-3px); }
+
+/* ============ فاصله استاندارد متن و آیکون روی دکمه‌ها ============ */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn > i, .btn > svg { flex-shrink: 0; }
+/* آیکون‌هایی که با margin دستی فاصله می‌گرفتند خنثی می‌شوند تا gap یکدست شود */
+.btn > i.me-1, .btn > i.me-2, .btn > i.ms-1, .btn > i.ms-2 { margin-right: 0 !important; margin-left: 0 !important; }
+.wishlist-btn, .add-to-cart, .btn-os { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ============ استپر تعداد — نسخه لوکس ============ */
+.quantity-stepper {
+  display: inline-flex; align-items: center;
+  border-radius: 999px; overflow: hidden;
+  border: 1px solid #ececec;
+  background: linear-gradient(#ffffff, #f7f7f7);
+  box-shadow: 0 2px 8px rgba(0,0,0,.05), inset 0 0 0 1px rgba(255,255,255,.6);
+  padding: 3px;
+}
+.quantity-stepper .qty-btn {
+  border: none !important; background: #fff;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 17px; line-height: 1; color: #1a1a1a;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  transition: transform .12s ease, background .18s ease, color .18s ease;
+  cursor: pointer;
+}
+.quantity-stepper .qty-btn:hover {
+  background: var(--os-charcoal); color: var(--os-cyan);
+  transform: translateY(-1px);
+}
+.quantity-stepper .qty-btn:active { transform: scale(.92); }
+.quantity-stepper .qty-value {
+  border: none !important; background: transparent;
+  width: 44px; text-align: center; font-weight: 700; font-size: 15px; color: #1a1a1a;
+}
+.quantity-stepper .qty-value:focus { outline: none; }
+
+/* قلب کاملاً قرمز و پر وقتی در علاقه‌مندی است */
+.wishlist-btn.in-wishlist i,
+.p_icon .wishlist-btn.in-wishlist i,
+a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
+.lni-heart-filled::before { color: inherit; }
+
+/* کارت دسته‌بندی صفحه اصلی */
+.home-cat-card { transition: transform .3s, box-shadow .3s; background: #fafafa; }
+.home-cat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.08); }
+.home-cat-icon { width: 70px; height: 70px; border-radius: 50%; background: rgba(0,0,0,.04);
+  display: flex; align-items: center; justify-content: center; }
+.home-cat-icon i { font-size: 30px; }
+.home-cat-img { width: 70px; height: 70px; border-radius: 50%; overflow: hidden; }
+.home-cat-img img { width: 100%; height: 100%; object-fit: cover; }
+.home-cat-sub { font-size: 12px; color: #888; }

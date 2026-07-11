@@ -1,3 +1,4 @@
+{% load jalali %}
 {% comment %} نمایش نظرات تأییدشده محصول — context: reviews {% endcomment %}
 {% for review in reviews %}
 <div class="d-flex align-items-start gap-3 border rounded p-3 mb-3">
@@ -8,7 +9,7 @@
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
                 <h6 class="mb-0 ft-medium">{{ review.user.get_full_name }}</h6>
-                <span class="small text-muted">{{ review.created_at|date:"Y/m/d" }}</span>
+                <span class="small text-muted">{{ review.created_at|jalali }}</span>
             </div>
             <div class="star-rating d-flex align-items-center gap-1">
                 {% for i in "12345" %}

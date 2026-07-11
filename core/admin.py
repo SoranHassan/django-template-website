@@ -30,3 +30,25 @@ class HeroSlideAdmin(admin.ModelAdmin):
     list_display = ('title', 'order', 'is_active')
     list_editable = ('order', 'is_active')
     search_fields = ('title',)
+
+
+from .models import SiteSetting, HomeCategoryCard
+
+
+@admin.register(SiteSetting)
+class SiteSettingAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'home_watermark', 'topbar_style')
+
+    def has_add_permission(self, request):
+        # فقط یک ردیف تنظیمات — اگر وجود ندارد اجازه ساخت بده
+        return not SiteSetting.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(HomeCategoryCard)
+class HomeCategoryCardAdmin(admin.ModelAdmin):
+    list_display = ('title', 'link', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+    search_fields = ('title',)

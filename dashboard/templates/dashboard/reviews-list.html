@@ -1,4 +1,4 @@
-{% load static %}
+{% load static jalali %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -172,7 +172,7 @@
                                         {{ review.user.get_full_name|default:review.user.mobile }}
                                     </span>
                                 <span style="color: var(--text-secondary); font-size: 12px; margin-right: 8px;">
-                                        {{ review.created_at|date:"Y/m/d H:i" }}
+                                        {{ review.created_at|jalali_dt }}
                                     </span>
                             </div>
 

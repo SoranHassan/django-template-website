@@ -35,6 +35,7 @@ class HomeView(View):
         base_qs = Product.objects.filter(is_active=True).prefetch_related('images')
 
         from .templatetags.catalog_extras import collection_queryset
+        from core.models import HomeCategoryCard
 
         return render(request, 'catalog/home.html', {
             'hero_slides': HeroSlide.objects.filter(is_active=True),
@@ -43,6 +44,7 @@ class HomeView(View):
             'men_products': base_qs.filter(gender__in=['men', 'unisex']).order_by('-created_at')[:10],
             'women_products': base_qs.filter(gender__in=['women', 'unisex']).order_by('-created_at')[:10],
             'brands': Brand.objects.filter(is_active=True),
+            'home_cards': HomeCategoryCard.objects.filter(is_active=True),
         })
 
 
@@ -135,8 +137,17 @@ class ProductDetailView(View):
         )
 
         variants = product.variants.all()
-        sizes = set(v.size for v in variants if v.size)
-        colors = set(v.color for v in variants if v.color)
+        # سایزها به ترتیب عددی/منطقی (کوچک به بزرگ) نه تصادفی
+        seen = set()
+        sizes = []
+        for v in sorted(variants, key=lambda x: (x.size.sort_order, x.size.name) if x.size else (0, '')):
+            if v.size and v.size.pk not in seen:
+                seen.add(v.size.pk)
+                sizes.append(v.size)
+        colors = list({v.color.pk: v.color for v in variants if v.color}.values())
+
+        # جدول سایزبندی (سانتی‌متر) — برای کفش شامل طول کف پا
+        size_charts = product.size_charts.select_related('size').all()
 
         similar_products = Product.objects.filter(
             is_active=True,
@@ -155,7 +166,8 @@ class ProductDetailView(View):
             'variants': variants,
             'sizes': sizes,
             'colors': colors,
-            'similar_products': similar_products,
+            'size_charts': size_charts,
             'reviews': reviews,
             'avg_rating': avg_rating,
+            'similar_products': similar_products,
         })

@@ -7,6 +7,18 @@
     <title>{% if product %}ویرایش محصول{% else %}محصول جدید{% endif %} - پنل مدیریت</title>
     <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* سوییچ وضعیت انتشار — حالا واقعا وضعیت را نشان می‌دهد */
+        .os-toggle { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .os-toggle input { opacity: 0; width: 0; height: 0; }
+        .os-toggle-slider { position: absolute; cursor: pointer; inset: 0;
+            background: #c8c8c8; border-radius: 28px; transition: .25s; }
+        .os-toggle-slider::before { content: ""; position: absolute; height: 22px; width: 22px;
+            top: 3px; right: 3px; background: #fff; border-radius: 50%; transition: .25s;
+            box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+        .os-toggle input:checked + .os-toggle-slider { background: #34C759; }
+        .os-toggle input:checked + .os-toggle-slider::before { transform: translateX(-22px); }
+    </style>
 </head>
 <body>
 
@@ -92,8 +104,15 @@
             <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
         </div>
         {% endif %}
+        {% if saved %}
+        <div style="background: rgba(52,199,89,0.12); border: 1px solid rgba(52,199,89,0.35);
+                        border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; color: #1e8e4e;">
+            <i class="fas fa-check-circle me-2"></i>
+            {% if saved == 'variant' %}واریانت با موفقیت ذخیره شد.{% elif saved == 'chart' %}جدول سایزبندی ذخیره شد.{% else %}تغییرات با موفقیت ذخیره شد.{% endif %}
+        </div>
+        {% endif %}
 
-        <form method="POST" action="{% url 'dashboard:product_create' %}" enctype="multipart/form-data">
+        <form method="POST" action="{% if product %}{% url 'dashboard:product_edit' product.pk %}{% else %}{% url 'dashboard:product_create' %}{% endif %}" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div style="display: grid; grid-template-columns: 1fr 360px; gap: 16px;">
@@ -325,7 +344,7 @@
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;
-                                        padding: 12px; background: rgba(52,199,89,0.1);
+                                        padding: 12px; background: #f7f7f7;
                                         border-radius: 12px; margin-bottom: 12px;">
                             <div>
                                 <div style="font-weight: 600; font-size: 14px;">فعال</div>
@@ -333,15 +352,10 @@
                                     نمایش در سایت
                                 </div>
                             </div>
-                            <label style="position: relative; display: inline-block;
-                                              width: 48px; height: 28px;">
+                            <label class="os-toggle">
                                 <input type="checkbox" name="is_active" id="isActive"
-                                       {% if not product or product.is_active %}checked{% endif %}
-                                       style="opacity: 0; width: 0; height: 0;">
-                                <span style="position: absolute; cursor: pointer; top: 0; left: 0;
-                                                 right: 0; bottom: 0; background: #34C759;
-                                                 border-radius: 28px; transition: 0.3s;"
-                                      id="toggleSlider"></span>
+                                       {% if not product or product.is_active %}checked{% endif %}>
+                                <span class="os-toggle-slider"></span>
                             </label>
                         </div>
 
@@ -496,7 +510,7 @@
                 <thead>
                 <tr>
                     <th>سایز</th><th>شانه</th><th>آستین</th><th>سینه</th><th>قد بالاتنه</th>
-                    <th>کمر</th><th>ران</th><th>فاق</th><th>قد پایین‌تنه</th><th></th>
+                    <th>کمر</th><th>ران</th><th>فاق</th><th>قد پایین‌تنه</th><th>کف پا</th><th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -511,6 +525,7 @@
                     <td>{{ chart.hip|default:"—" }}</td>
                     <td>{{ chart.crotch|default:"—" }}</td>
                     <td>{{ chart.length_bottom|default:"—" }}</td>
+                    <td>{{ chart.foot_length|default:"—" }}</td>
                     <td>
                         <form method="POST" action="{% url 'dashboard:sizechart_delete' chart.pk %}"
                               data-confirm="این ردیف سایزبندی حذف شود؟" style="display:inline;">
@@ -522,14 +537,14 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="10" style="text-align:center; color:#86868B; padding:16px;">اندازه‌ای ثبت نشده است</td></tr>
+                <tr><td colspan="11" style="text-align:center; color:#86868B; padding:16px;">اندازه‌ای ثبت نشده است</td></tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
 
         <form method="POST" action="{% url 'dashboard:sizechart_save' product.pk %}"
-              style="display:grid; grid-template-columns: repeat(10, 1fr); gap:8px; margin-top:16px; align-items:end;">
+              style="display:grid; grid-template-columns: repeat(11, 1fr); gap:8px; margin-top:16px; align-items:end;">
             {% csrf_token %}
             <div>
                 <label style="font-size:11px; font-weight:600; display:block; margin-bottom:4px;">سایز *</label>

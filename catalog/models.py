@@ -33,10 +33,13 @@ class Category(models.Model):
 
 class Size(models.Model):
     name = models.CharField(max_length=10, verbose_name='سایز')
+    sort_order = models.PositiveIntegerField(default=0, verbose_name='ترتیب نمایش',
+                                             help_text='کوچک به بزرگ؛ برای سایز عددی خودکار پر می‌شود')
 
     class Meta:
         verbose_name = 'سایز'
         verbose_name_plural = 'سایزها'
+        ordering = ('sort_order', 'name')
 
     def __str__(self):
         return self.name
@@ -118,6 +121,9 @@ class SizeChart(models.Model):
     hip = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='عرض ران (cm)')
     crotch = models.DecimalField(max_digits=5, decimal_places=1,null=True, blank=True,verbose_name='فاق (cm)')
     length_bottom = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='قد (cm)')
+
+    # کفش
+    foot_length = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='طول کف پا (cm)')
 
     class Meta:
         verbose_name = 'جدول سایزبندی'

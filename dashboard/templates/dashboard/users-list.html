@@ -1,4 +1,4 @@
-{% load static %}
+{% load static jalali %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -202,7 +202,7 @@
                         </td>
                         <td>{{ user.mobile }}</td>
                         <td>{{ user.email|default:"-" }}</td>
-                        <td>{{ user.date_joined|date:"Y/m/d" }}</td>
+                        <td>{{ user.date_joined|jalali }}</td>
                         <td>
                             {% if user.is_superuser %}
                             <span class="status" style="background: rgba(88,86,214,0.2);

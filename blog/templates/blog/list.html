@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static jalali %}
 
 {% block title %}بلاگ | OramShop{% endblock %}
 {% block meta_description %}مقالات مد و استایل اُرام‌شاپ — راهنمای خرید، ست کردن لباس و ترندهای روز{% endblock %}
@@ -23,20 +23,20 @@
                     <a href="{{ post.get_absolute_url }}">
                         {% if post.image %}
                         <img src="{{ post.image.url }}" alt="{{ post.title }}"
-                             style="width:100%; aspect-ratio:16/9; object-fit:cover;">
+                             style="width:100%; height:170px; object-fit:cover;">
                         {% else %}
-                        <div style="width:100%; aspect-ratio:16/9; background:linear-gradient(135deg,#1A1A1A,#00B8CC);
+                        <div style="width:100%; height:170px; background:linear-gradient(135deg,#1A1A1A,#00B8CC);
                                     display:flex; align-items:center; justify-content:center;">
                             <img src="{% static 'app/img/logo-light.svg' %}" style="max-width:50%;" alt="Oram Shop">
                         </div>
                         {% endif %}
                     </a>
                     <div class="card-body">
-                        <span class="small text-muted">{{ post.created_at|date:"Y/m/d" }}</span>
-                        <h5 class="ft-medium mt-1 mb-2">
+                        <span class="small text-muted">{{ post.created_at|jalali }}</span>
+                        <h6 class="ft-medium mt-1 mb-2">
                             <a href="{{ post.get_absolute_url }}" class="text-dark">{{ post.title }}</a>
                         </h5>
-                        <p class="small text-muted mb-0">{{ post.excerpt|default:post.body|striptags|truncatechars:110 }}</p>
+                        <p class="small text-muted mb-0">{{ post.excerpt|default:post.body|striptags|truncatechars:90 }}</p>
                     </div>
                 </article>
             </div>

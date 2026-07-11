@@ -16,6 +16,7 @@ urlpatterns = [
     path(settings.DASHBOARD_URL, include('dashboard.urls')),
     path('reviews/', include('reviews.urls')),
     path('blog/', include('blog.urls')),
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
 
     # SEO
     path('sitemap.xml', sitemap, {'sitemaps': SITEMAPS}, name='sitemap'),

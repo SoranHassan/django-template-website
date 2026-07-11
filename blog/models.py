@@ -1,4 +1,5 @@
 from django.db import models
+from django_ckeditor_5.fields import CKEditor5Field
 from django.urls import reverse
 
 from accounts.models import CustomUser
@@ -11,7 +12,7 @@ class Post(models.Model):
                                related_name='posts', verbose_name='نویسنده')
     image = models.ImageField(upload_to='blog/', blank=True, null=True, verbose_name='تصویر شاخص')
     excerpt = models.CharField(max_length=300, blank=True, verbose_name='خلاصه')
-    body = models.TextField(verbose_name='متن')
+    body = CKEditor5Field(verbose_name='متن', config_name='default')
     is_published = models.BooleanField(default=True, verbose_name='منتشر شده')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ انتشار')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='آخرین ویرایش')

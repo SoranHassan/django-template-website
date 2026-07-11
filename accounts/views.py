@@ -276,6 +276,13 @@ class WishlistView(LoginRequiredMixin, View):
         return render(request, 'accounts/wishlist.html', {'wishlist': wishlist})
 
 
+class WishlistDrawerView(View):
+    """HTML دراپ‌داون علاقه‌مندی برای رفرش زنده"""
+
+    def get(self, request):
+        return render(request, 'accounts/_wishlist_dropdown.html')
+
+
 class WishlistToggleView(View):
     """افزودن/حذف با یک کلیک — قلب قرمز/خالی"""
 

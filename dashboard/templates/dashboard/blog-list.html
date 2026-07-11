@@ -1,47 +1,16 @@
 {% extends 'dashboard/_layout.html' %}
+{% load jalali %}
 
 {% block title %}بلاگ{% endblock %}
 {% block search_placeholder %}جستجو در نوشته‌ها...{% endblock %}
 
 {% block content %}
-<div class="page-title">
-    <h1>بلاگ</h1>
-    <p>مدیریت نوشته‌های بلاگ فروشگاه</p>
-</div>
-
-<div class="glass-card" style="margin-bottom:16px;">
-    <div class="card-header"><h2>نوشته جدید</h2></div>
-    <form method="POST" action="{% url 'dashboard:blog_create' %}" enctype="multipart/form-data" style="display:grid; gap:12px;">
-        {% csrf_token %}
-        <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px;">
-            <div>
-                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">عنوان *</label>
-                <input type="text" name="title" required style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
-            </div>
-            <div>
-                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">اسلاگ (اختیاری)</label>
-                <input type="text" name="slug" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
-            </div>
-            <div>
-                <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">تصویر شاخص</label>
-                <input type="file" name="image" accept="image/*" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
-            </div>
-        </div>
-        <div>
-            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">خلاصه</label>
-            <input type="text" name="excerpt" maxlength="300" style="width:100%; padding:9px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;">
-        </div>
-        <div>
-            <label style="font-size:12px; font-weight:600; display:block; margin-bottom:4px;">متن *</label>
-            <textarea name="body" rows="7" required style="width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:10px; font-family:inherit;"></textarea>
-        </div>
-        <div style="display:flex; align-items:center; gap:16px;">
-            <label style="display:flex; align-items:center; gap:8px; font-size:13px;">
-                <input type="checkbox" name="is_published" checked style="width:16px;height:16px;accent-color:#00B8CC;"> منتشر شود
-            </label>
-            <button type="submit" style="padding:11px 28px; background:#00B8CC; color:#fff; border:none; border-radius:10px; font-family:inherit; font-weight:600; cursor:pointer;">ذخیره نوشته</button>
-        </div>
-    </form>
+<div class="page-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div>
+        <h1>بلاگ</h1>
+        <p>مدیریت نوشته‌های بلاگ فروشگاه</p>
+    </div>
+    <a href="{% url 'dashboard:blog_create' %}" class="dash-add-btn"><i class="fas fa-plus"></i> نوشته جدید</a>
 </div>
 
 <div class="glass-card">
@@ -54,23 +23,11 @@
             <tr>
                 <td style="font-weight:600;">{{ post.title }}</td>
                 <td>{{ post.author.get_full_name|default:"—" }}</td>
-                <td>{{ post.created_at|date:"Y/m/d" }}</td>
+                <td>{{ post.created_at|jalali }}</td>
                 <td>{% if post.is_published %}<span class="status success">منتشر شده</span>{% else %}<span class="status pending">پیش‌نویس</span>{% endif %}</td>
                 <td>
                     <a href="{{ post.get_absolute_url }}" target="_blank" class="btn-secondary" style="padding:5px 10px; font-size:11px;"><i class="fas fa-eye"></i></a>
-                    <details style="display:inline-block;">
-                        <summary class="btn-secondary" style="padding:5px 10px; font-size:11px; cursor:pointer; list-style:none;">ویرایش</summary>
-                        <form method="POST" action="{% url 'dashboard:blog_edit' post.pk %}" enctype="multipart/form-data"
-                              style="position:absolute; background:#fff; padding:14px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.15); z-index:50; display:grid; gap:8px; min-width:340px; max-width:90vw;">
-                            {% csrf_token %}
-                            <input type="text" name="title" value="{{ post.title }}" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
-                            <input type="text" name="excerpt" value="{{ post.excerpt }}" placeholder="خلاصه" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
-                            <textarea name="body" rows="6" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">{{ post.body }}</textarea>
-                            <input type="file" name="image" accept="image/*" style="padding:8px; border:1px solid #ddd; border-radius:8px; font-family:inherit;">
-                            <label style="display:flex; gap:6px; font-size:12px;"><input type="checkbox" name="is_published" {% if post.is_published %}checked{% endif %}> منتشر شود</label>
-                            <button type="submit" style="padding:8px; background:#00B8CC; color:#fff; border:none; border-radius:8px; font-family:inherit; cursor:pointer;">ذخیره</button>
-                        </form>
-                    </details>
+                    <a href="{% url 'dashboard:blog_edit' post.pk %}" class="btn-secondary" style="padding:5px 12px; font-size:11px;"><i class="fas fa-edit"></i> ویرایش</a>
                     <form method="POST" action="{% url 'dashboard:blog_delete' post.pk %}" data-confirm="این نوشته حذف شود؟" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn-secondary" style="padding:5px 10px; font-size:11px; color:#FF3B30;"><i class="fas fa-trash"></i></button>

@@ -1,4 +1,4 @@
-{% load static humanize %}
+{% load static humanize jalali %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -208,7 +208,7 @@
                         </div>
                         <div>
                             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">تاریخ عضویت</div>
-                            <div style="font-weight: 600;">{{ order.user.date_joined|date:"Y/m/d" }}</div>
+                            <div style="font-weight: 600;">{{ order.user.date_joined|jalali }}</div>
                         </div>
                     </div>
                 </div>
@@ -316,7 +316,7 @@
                         {% endif %}
                         <div style="display: flex; justify-content: space-between;">
                             <span style="color: var(--text-secondary);">تاریخ ثبت</span>
-                            <strong>{{ order.created_at|date:"Y/m/d H:i" }}</strong>
+                            <strong>{{ order.created_at|jalali_dt }}</strong>
                         </div>
                     </div>
                 </div>

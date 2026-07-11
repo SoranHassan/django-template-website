@@ -12,6 +12,7 @@ from orders.models import Order, OrderItem
 from reviews.models import Review
 from catalog.models import Product, Category, Brand, ProductImage, ProductVariant, Size, Color, SizeChart
 from django.utils.text import slugify
+from django.urls import reverse
 
 
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -151,7 +152,8 @@ class DashboardProductCreateView(StaffRequiredMixin, View):
 class DashboardCategoriesListView(StaffRequiredMixin, View):
     def get(self, request):
         categories = Category.objects.all()
-        return render(request, 'dashboard/categories-list.html', {'categories': categories})
+        return render(request, 'dashboard/categories-list.html',
+                      {'categories': categories, 'active_nav': 'categories'})
 
 class DashboardOrdersListView(StaffRequiredMixin, View):
     def get(self, request):
@@ -335,12 +337,14 @@ class DashboardProductEditView(StaffRequiredMixin, View):
             'brands': Brand.objects.all(),
             'variants': product.variants.select_related('size', 'color'),
             'size_charts': product.size_charts.select_related('size'),
-            'all_sizes': Size.objects.all(),
+            'all_sizes': Size.objects.all().order_by('sort_order', 'name'),
             'all_colors': Color.objects.all(),
             'size_chart_fields': [
                 ('shoulder', 'شانه'), ('sleeve', 'آستین'), ('chest', 'سینه'), ('length_top', 'قد بالاتنه'),
                 ('waist', 'کمر'), ('hip', 'ران'), ('crotch', 'فاق'), ('length_bottom', 'قد پایین‌تنه'),
+                ('foot_length', 'طول کف پا (کفش)'),
             ],
+            'saved': request.GET.get('saved'),
         })
 
     def post(self, request, pk):
@@ -391,30 +395,63 @@ class DashboardProductEditView(StaffRequiredMixin, View):
 
 # ---------- CRUD کامل داخل داشبورد (بدون ریدایرکت به ادمین جنگو) ----------
 
-class DashboardCategoryCreateView(StaffRequiredMixin, View):
-    def post(self, request):
+def render_form_page(request, *, page_title, fields, action, cancel_url,
+                     page_subtitle='', has_richtext=False, error=''):
+    """صفحه فرم استاندارد داشبورد (مثل ادمین جنگو) — همه ویرایش‌ها در یک صفحه جدا"""
+    return render(request, 'dashboard/form-page.html', {
+        'page_title': page_title,
+        'page_subtitle': page_subtitle,
+        'fields': fields,
+        'action': action,
+        'cancel_url': cancel_url,
+        'has_richtext': has_richtext,
+        'saved': request.GET.get('saved') == '1',
+        'error': error,
+    })
+
+
+def _dt_local(value):
+    """فرمت datetime برای input[type=datetime-local]"""
+    if not value:
+        return ''
+    return timezone.localtime(value).strftime('%Y-%m-%dT%H:%M')
+
+
+class DashboardCategorySaveView(StaffRequiredMixin, View):
+    """ایجاد/ویرایش دسته‌بندی در یک صفحه جدا"""
+
+    def get(self, request, pk=None):
+        cat = get_object_or_404(Category, pk=pk) if pk else None
+        parent_qs = Category.objects.exclude(pk=pk) if pk else Category.objects.all()
+        parents = [(c.pk, c.name) for c in parent_qs]
+        fields = [
+            {'name': 'name', 'label': 'نام دسته‌بندی', 'type': 'text', 'required': True, 'value': cat.name if cat else ''},
+            {'name': 'slug', 'label': 'اسلاگ (اختیاری)', 'type': 'text', 'value': cat.slug if cat else '',
+             'help': 'خالی بگذارید تا خودکار از روی نام ساخته شود'},
+            {'name': 'parent', 'label': 'دسته والد', 'type': 'select', 'allow_blank': True,
+             'options': parents, 'value': cat.parent_id if cat and cat.parent_id else ''},
+            {'name': 'image', 'label': 'تصویر', 'type': 'image',
+             'value': cat.image.url if cat and cat.image else ''},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': cat.is_active if cat else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش دسته‌بندی' if pk else 'دسته‌بندی جدید',
+            fields=fields,
+            action=request.path, cancel_url=reverse('dashboard:categories_list'))
+
+    def post(self, request, pk=None):
+        cat = get_object_or_404(Category, pk=pk) if pk else Category()
         name = request.POST.get('name', '').strip()
-        if name:
-            Category.objects.create(
-                name=name,
-                slug=request.POST.get('slug') or slugify(name, allow_unicode=True),
-                parent_id=request.POST.get('parent') or None,
-                image=request.FILES.get('image'),
-                is_active='is_active' not in request.POST or request.POST.get('is_active') == 'on')
-        return redirect('dashboard:categories_list')
-
-
-class DashboardCategoryEditView(StaffRequiredMixin, View):
-    def post(self, request, pk):
-        category = get_object_or_404(Category, pk=pk)
-        category.name = request.POST.get('name', category.name)
-        category.slug = request.POST.get('slug') or category.slug
-        category.parent_id = request.POST.get('parent') or None
-        category.is_active = request.POST.get('is_active') == 'on'
+        if not name:
+            return redirect('dashboard:categories_list')
+        cat.name = name
+        cat.slug = request.POST.get('slug', '').strip() or cat.slug or slugify(name, allow_unicode=True)
+        cat.parent_id = request.POST.get('parent') or None
+        cat.is_active = 'is_active' in request.POST
         if request.FILES.get('image'):
-            category.image = request.FILES['image']
-        category.save()
-        return redirect('dashboard:categories_list')
+            cat.image = request.FILES['image']
+        cat.save()
+        return redirect(f"{reverse('dashboard:category_edit', args=[cat.pk])}?saved=1")
 
 
 class DashboardCategoryDeleteView(StaffRequiredMixin, View):
@@ -425,31 +462,38 @@ class DashboardCategoryDeleteView(StaffRequiredMixin, View):
 
 class DashboardBrandsListView(StaffRequiredMixin, View):
     def get(self, request):
-        return render(request, 'dashboard/brands-list.html', {'brands': Brand.objects.all()})
+        return render(request, 'dashboard/brands-list.html',
+                      {'brands': Brand.objects.all(), 'active_nav': 'brands'})
 
 
-class DashboardBrandCreateView(StaffRequiredMixin, View):
-    def post(self, request):
+class DashboardBrandSaveView(StaffRequiredMixin, View):
+    """ایجاد/ویرایش برند در یک صفحه جدا"""
+
+    def get(self, request, pk=None):
+        brand = get_object_or_404(Brand, pk=pk) if pk else None
+        fields = [
+            {'name': 'name', 'label': 'نام برند', 'type': 'text', 'required': True, 'value': brand.name if brand else ''},
+            {'name': 'slug', 'label': 'اسلاگ (اختیاری)', 'type': 'text', 'value': brand.slug if brand else '',
+             'help': 'خالی بگذارید تا خودکار ساخته شود'},
+            {'name': 'logo', 'label': 'لوگو', 'type': 'image', 'value': brand.logo.url if brand and brand.logo else ''},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': brand.is_active if brand else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش برند' if pk else 'برند جدید',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:brands_list'))
+
+    def post(self, request, pk=None):
+        brand = get_object_or_404(Brand, pk=pk) if pk else Brand()
         name = request.POST.get('name', '').strip()
-        if name:
-            Brand.objects.create(
-                name=name,
-                slug=request.POST.get('slug') or slugify(name, allow_unicode=True),
-                logo=request.FILES.get('logo'),
-                is_active=True)
-        return redirect('dashboard:brands_list')
-
-
-class DashboardBrandEditView(StaffRequiredMixin, View):
-    def post(self, request, pk):
-        brand = get_object_or_404(Brand, pk=pk)
-        brand.name = request.POST.get('name', brand.name)
-        brand.slug = request.POST.get('slug') or brand.slug
-        brand.is_active = request.POST.get('is_active') == 'on'
+        if not name:
+            return redirect('dashboard:brands_list')
+        brand.name = name
+        brand.slug = request.POST.get('slug', '').strip() or brand.slug or slugify(name, allow_unicode=True)
+        brand.is_active = 'is_active' in request.POST
         if request.FILES.get('logo'):
             brand.logo = request.FILES['logo']
         brand.save()
-        return redirect('dashboard:brands_list')
+        return redirect(f"{reverse('dashboard:brand_edit', args=[brand.pk])}?saved=1")
 
 
 class DashboardBrandDeleteView(StaffRequiredMixin, View):
@@ -482,11 +526,40 @@ class DashboardCouponsListView(StaffRequiredMixin, View):
     def get(self, request):
         from orders.models import Coupon
         return render(request, 'dashboard/coupons-list.html', {
-            'coupons': Coupon.objects.all().order_by('-created_at'), 'now': timezone.now()})
+            'coupons': Coupon.objects.all().order_by('-created_at'),
+            'now': timezone.now(), 'active_nav': 'coupons'})
 
 
 class DashboardCouponSaveView(StaffRequiredMixin, View):
-    """ایجاد (بدون pk) یا ویرایش (با pk) کد تخفیف"""
+    """ایجاد (بدون pk) یا ویرایش (با pk) کد تخفیف در یک صفحه جدا"""
+
+    def get(self, request, pk=None):
+        from orders.models import Coupon
+        c = get_object_or_404(Coupon, pk=pk) if pk else None
+        fields = [
+            {'name': 'code', 'label': 'کد تخفیف', 'type': 'text', 'required': True, 'value': c.code if c else ''},
+            {'name': 'discount_type', 'label': 'نوع تخفیف', 'type': 'select',
+             'options': [('percent', 'درصدی'), ('fixed', 'مبلغ ثابت')],
+             'value': c.discount_type if c else 'percent'},
+            {'name': 'discount_value', 'label': 'مقدار تخفیف', 'type': 'number', 'required': True,
+             'value': c.discount_value if c else ''},
+            {'name': 'min_order_amount', 'label': 'حداقل مبلغ سفارش', 'type': 'number',
+             'value': c.min_order_amount if c else 0},
+            {'name': 'max_discount_amount', 'label': 'سقف تخفیف (اختیاری)', 'type': 'number',
+             'value': c.max_discount_amount if c and c.max_discount_amount else ''},
+            {'name': 'max_uses', 'label': 'حداکثر دفعات استفاده (۰=نامحدود)', 'type': 'number',
+             'value': c.max_uses if c else 0},
+            {'name': 'max_uses_per_user', 'label': 'حداکثر برای هر کاربر', 'type': 'number',
+             'value': c.max_uses_per_user if c else 1},
+            {'name': 'valid_from', 'label': 'اعتبار از', 'type': 'datetime-local',
+             'value': _dt_local(c.valid_from) if c else ''},
+            {'name': 'valid_until', 'label': 'اعتبار تا', 'type': 'datetime-local',
+             'value': _dt_local(c.valid_until) if c else ''},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': c.is_active if c else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش کد تخفیف' if pk else 'کد تخفیف جدید',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:coupons_list'))
 
     def post(self, request, pk=None):
         from orders.models import Coupon
@@ -501,10 +574,11 @@ class DashboardCouponSaveView(StaffRequiredMixin, View):
         coupon.max_uses_per_user = request.POST.get('max_uses_per_user') or 1
         coupon.valid_from = _parse_dt(request.POST.get('valid_from')) or coupon.valid_from or timezone.now()
         coupon.valid_until = _parse_dt(request.POST.get('valid_until')) or coupon.valid_until or timezone.now()
-        coupon.is_active = request.POST.get('is_active') == 'on'
+        coupon.is_active = 'is_active' in request.POST
 
         if coupon.code:
             coupon.save()
+            return redirect(f"{reverse('dashboard:coupon_edit', args=[coupon.pk])}?saved=1")
         return redirect('dashboard:coupons_list')
 
 
@@ -528,7 +602,7 @@ class DashboardVariantSaveView(StaffRequiredMixin, View):
                 'stock': request.POST.get('stock') or 0,
                 'price': request.POST.get('price') or None,
             })
-        return redirect('dashboard:product_edit', pk=pk)
+        return redirect(f"{reverse('dashboard:product_edit', args=[pk])}?saved=variant")
 
 
 class DashboardVariantDeleteView(StaffRequiredMixin, View):
@@ -561,7 +635,13 @@ class DashboardSizeCreateView(StaffRequiredMixin, View):
     def post(self, request):
         name = request.POST.get('name', '').strip()
         if name:
-            Size.objects.get_or_create(name=name)
+            # برای سایز عددی (مثل 40، 42) ترتیب خودکار بر اساس مقدار عدد
+            sort_order = 0
+            try:
+                sort_order = int(float(name.replace('٫', '.').replace('،', '')))
+            except (TypeError, ValueError):
+                sort_order = 0
+            Size.objects.get_or_create(name=name, defaults={'sort_order': sort_order})
         next_url = request.POST.get('next', '')
         if next_url.startswith('/dashboard/'):
             return redirect(next_url)
@@ -576,11 +656,12 @@ class DashboardSizeChartSaveView(StaffRequiredMixin, View):
         size_id = request.POST.get('size')
         if size_id:
             fields = {}
-            for f in ['shoulder', 'sleeve', 'chest', 'length_top', 'waist', 'hip', 'crotch', 'length_bottom']:
+            for f in ['shoulder', 'sleeve', 'chest', 'length_top', 'waist', 'hip',
+                      'crotch', 'length_bottom', 'foot_length']:
                 value = request.POST.get(f, '').strip()
                 fields[f] = value or None
             SizeChart.objects.update_or_create(product=product, size_id=size_id, defaults=fields)
-        return redirect('dashboard:product_edit', pk=pk)
+        return redirect(f"{reverse('dashboard:product_edit', args=[pk])}?saved=chart")
 
 
 class DashboardSizeChartDeleteView(StaffRequiredMixin, View):
@@ -601,6 +682,21 @@ class DashboardShippingListView(StaffRequiredMixin, View):
 
 
 class DashboardShippingSaveView(StaffRequiredMixin, View):
+    def get(self, request, pk=None):
+        from orders.models import ShippingMethod
+        m = get_object_or_404(ShippingMethod, pk=pk) if pk else None
+        fields = [
+            {'name': 'name', 'label': 'نام روش ارسال', 'type': 'text', 'required': True, 'value': m.name if m else ''},
+            {'name': 'price', 'label': 'هزینه (تومان)', 'type': 'number', 'required': True, 'value': m.price if m else ''},
+            {'name': 'description', 'label': 'توضیحات', 'type': 'textarea', 'full': True,
+             'value': m.description if m else ''},
+            {'name': 'order', 'label': 'ترتیب نمایش', 'type': 'number', 'value': m.order if m else 0},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': m.is_active if m else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش روش ارسال' if pk else 'روش ارسال جدید',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:shipping_list'))
+
     def post(self, request, pk=None):
         from orders.models import ShippingMethod
         method = get_object_or_404(ShippingMethod, pk=pk) if pk else ShippingMethod()
@@ -608,9 +704,10 @@ class DashboardShippingSaveView(StaffRequiredMixin, View):
         method.price = _parse_price(request.POST.get('price')) or 0
         method.description = request.POST.get('description', '')
         method.order = request.POST.get('order') or 0
-        method.is_active = request.POST.get('is_active') == 'on'
+        method.is_active = 'is_active' in request.POST
         if method.name:
             method.save()
+            return redirect(f"{reverse('dashboard:shipping_edit', args=[method.pk])}?saved=1")
         return redirect('dashboard:shipping_list')
 
 
@@ -629,6 +726,21 @@ class DashboardAnnouncementsListView(StaffRequiredMixin, View):
 
 
 class DashboardAnnouncementSaveView(StaffRequiredMixin, View):
+    def get(self, request, pk=None):
+        from core.models import Announcement
+        a = get_object_or_404(Announcement, pk=pk) if pk else None
+        fields = [
+            {'name': 'text', 'label': 'متن اطلاعیه', 'type': 'text', 'required': True, 'full': True,
+             'value': a.text if a else ''},
+            {'name': 'link', 'label': 'لینک (اختیاری)', 'type': 'url', 'value': a.link if a else ''},
+            {'name': 'link_text', 'label': 'متن لینک', 'type': 'text', 'value': a.link_text if a else ''},
+            {'name': 'order', 'label': 'ترتیب نمایش', 'type': 'number', 'value': a.order if a else 0},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': a.is_active if a else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش اطلاعیه' if pk else 'اطلاعیه جدید',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:announcements_list'))
+
     def post(self, request, pk=None):
         from core.models import Announcement
         item = get_object_or_404(Announcement, pk=pk) if pk else Announcement()
@@ -636,9 +748,10 @@ class DashboardAnnouncementSaveView(StaffRequiredMixin, View):
         item.link = request.POST.get('link', '')
         item.link_text = request.POST.get('link_text', '')
         item.order = request.POST.get('order') or 0
-        item.is_active = request.POST.get('is_active') == 'on'
+        item.is_active = 'is_active' in request.POST
         if item.text:
             item.save()
+            return redirect(f"{reverse('dashboard:announcement_edit', args=[item.pk])}?saved=1")
         return redirect('dashboard:announcements_list')
 
 
@@ -657,6 +770,23 @@ class DashboardHeroListView(StaffRequiredMixin, View):
 
 
 class DashboardHeroSaveView(StaffRequiredMixin, View):
+    def get(self, request, pk=None):
+        from core.models import HeroSlide
+        s = get_object_or_404(HeroSlide, pk=pk) if pk else None
+        fields = [
+            {'name': 'title', 'label': 'عنوان', 'type': 'text', 'required': True, 'value': s.title if s else ''},
+            {'name': 'subtitle', 'label': 'زیرعنوان', 'type': 'text', 'full': True, 'value': s.subtitle if s else ''},
+            {'name': 'image', 'label': 'تصویر بنر', 'type': 'image', 'value': s.image.url if s and s.image else '',
+             'help': 'ابعاد پیشنهادی: عریض (مثلاً ۱۹۲۰×۷۰۰)'},
+            {'name': 'button_text', 'label': 'متن دکمه', 'type': 'text', 'value': s.button_text if s else 'خرید کنید'},
+            {'name': 'button_link', 'label': 'لینک دکمه', 'type': 'text', 'value': s.button_link if s else '/shop/'},
+            {'name': 'order', 'label': 'ترتیب نمایش', 'type': 'number', 'value': s.order if s else 0},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': s.is_active if s else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش بنر' if pk else 'بنر جدید',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:hero_list'))
+
     def post(self, request, pk=None):
         from core.models import HeroSlide
         slide = get_object_or_404(HeroSlide, pk=pk) if pk else HeroSlide()
@@ -665,11 +795,12 @@ class DashboardHeroSaveView(StaffRequiredMixin, View):
         slide.button_text = request.POST.get('button_text', 'خرید کنید')
         slide.button_link = request.POST.get('button_link', '/shop/')
         slide.order = request.POST.get('order') or 0
-        slide.is_active = request.POST.get('is_active') == 'on'
+        slide.is_active = 'is_active' in request.POST
         if request.FILES.get('image'):
             slide.image = request.FILES['image']
         if slide.title and (slide.image or pk):
             slide.save()
+            return redirect(f"{reverse('dashboard:hero_edit', args=[slide.pk])}?saved=1")
         return redirect('dashboard:hero_list')
 
 
@@ -688,6 +819,26 @@ class DashboardBlogListView(StaffRequiredMixin, View):
 
 
 class DashboardBlogSaveView(StaffRequiredMixin, View):
+    def get(self, request, pk=None):
+        from blog.models import Post
+        p = get_object_or_404(Post, pk=pk) if pk else None
+        fields = [
+            {'name': 'title', 'label': 'عنوان نوشته', 'type': 'text', 'required': True, 'full': True,
+             'value': p.title if p else ''},
+            {'name': 'slug', 'label': 'اسلاگ (نام دلخواه در URL)', 'type': 'text', 'value': p.slug if p else '',
+             'help': 'می‌توانید فارسی یا انگلیسی بنویسید؛ خالی بگذارید تا خودکار ساخته شود'},
+            {'name': 'image', 'label': 'تصویر شاخص', 'type': 'image', 'value': p.image.url if p and p.image else ''},
+            {'name': 'excerpt', 'label': 'خلاصه', 'type': 'textarea', 'full': True, 'value': p.excerpt if p else ''},
+            {'name': 'body', 'label': 'متن نوشته', 'type': 'richtext', 'required': True, 'full': True,
+             'value': p.body if p else ''},
+            {'name': 'is_published', 'label': 'منتشر شود', 'type': 'checkbox',
+             'value': p.is_published if p else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش نوشته' if pk else 'نوشته جدید',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:blog_list'),
+            has_richtext=True)
+
     def post(self, request, pk=None):
         from blog.models import Post
         post = get_object_or_404(Post, pk=pk) if pk else Post(author=request.user)
@@ -702,11 +853,12 @@ class DashboardBlogSaveView(StaffRequiredMixin, View):
             post.slug = slug
         post.excerpt = request.POST.get('excerpt', '')
         post.body = request.POST.get('body', '')
-        post.is_published = request.POST.get('is_published') == 'on'
+        post.is_published = 'is_published' in request.POST
         if request.FILES.get('image'):
             post.image = request.FILES['image']
         if post.title and post.body:
             post.save()
+            return redirect(f"{reverse('dashboard:blog_edit', args=[post.pk])}?saved=1")
         return redirect('dashboard:blog_list')
 
 
@@ -715,3 +867,32 @@ class DashboardBlogDeleteView(StaffRequiredMixin, View):
         from blog.models import Post
         get_object_or_404(Post, pk=pk).delete()
         return redirect('dashboard:blog_list')
+
+
+class DashboardSiteSettingsView(StaffRequiredMixin, View):
+    """تنظیمات ظاهری سایت (متن واترمارک صفحه اصلی + رنگ نوار اطلاعیه)"""
+
+    def get(self, request):
+        from core.models import SiteSetting
+        s = SiteSetting.get()
+        fields = [
+            {'name': 'home_watermark', 'label': 'متن بزرگ صفحه اصلی (جای «محصولات ویژه»)',
+             'type': 'text', 'full': True, 'value': s.home_watermark,
+             'help': 'این متن به‌صورت واترمارک بزرگ پشت بخش پرفروش‌ها نمایش داده می‌شود'},
+            {'name': 'topbar_style', 'label': 'رنگ نوار اطلاعیه بالای سایت', 'type': 'select',
+             'options': SiteSetting.TOPBAR_CHOICES, 'value': s.topbar_style},
+        ]
+        return render_form_page(
+            request, page_title='تنظیمات سایت',
+            page_subtitle='ظاهر صفحه اصلی و نوار اطلاعیه',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:index'))
+
+    def post(self, request):
+        from core.models import SiteSetting
+        s = SiteSetting.get()
+        s.home_watermark = request.POST.get('home_watermark', '').strip() or 'ORAM SHOP'
+        topbar = request.POST.get('topbar_style', 'black')
+        if topbar in dict(SiteSetting.TOPBAR_CHOICES):
+            s.topbar_style = topbar
+        s.save()
+        return redirect(f"{reverse('dashboard:site_settings')}?saved=1")

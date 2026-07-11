@@ -1,0 +1,27 @@
+{% load humanize %}
+                        <div class="cart-items-list">
+                            {% for item in wishlist %}
+                            <div class="d-flex align-items-center justify-content-between br-bottom px-2 py-3">
+                                <a href="/shop/{{ item.id }}/" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                                    {% if item.image %}
+                                    <img src="{{ item.image }}" width="46" class="img-fluid rounded" alt="{{ item.title }}"/>
+                                    {% endif %}
+                                    <span>
+                                        <span class="fs-sm ft-medium d-block lh-1 mb-1">{{ item.title|truncatechars:28 }}</span>
+                                        <small class="text-muted">{{ item.price|floatformat:0|intcomma }} تومان</small>
+                                    </span>
+                                </a>
+                                <button class="btn btn-sm btn-link p-0 text-danger wishlist-btn"
+                                        data-id="{{ item.id }}" title="حذف">
+                                    <i class="lni lni-close"></i>
+                                </button>
+                            </div>
+                            {% empty %}
+                            <p class="text-center text-muted py-4 mb-0">لیست علاقه‌مندی خالی است.</p>
+                            {% endfor %}
+                        </div>
+                        {% if wishlist %}
+                        <div class="cart-footer mt-2 px-2">
+                            <a href="{% url 'accounts:wishlist' %}" class="btn btn-outline-dark w-100">مشاهده همه علاقه‌مندی‌ها</a>
+                        </div>
+                        {% endif %}

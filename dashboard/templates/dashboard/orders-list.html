@@ -1,4 +1,4 @@
-{% load static humanize %}
+{% load static humanize jalali %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -181,7 +181,7 @@
                                 {{ order.user.mobile }}
                             </div>
                         </td>
-                        <td>{{ order.created_at|date:"Y/m/d H:i" }}</td>
+                        <td>{{ order.created_at|jalali_dt }}</td>
                         <td>{{ order.items.count }} قلم</td>
                         <td>
                             <strong>{{ order.final_total|intcomma }} تومان</strong>

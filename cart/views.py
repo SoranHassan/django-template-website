@@ -123,3 +123,16 @@ class CartUpdateView(View):
             'subtotal': str(cart.subtotal),
             'total': str(cart.total),
         })
+
+
+class CartDrawerView(View):
+    """HTML دراور سبد برای رفرش زنده بعد از افزودن/حذف"""
+
+    def get(self, request):
+        from orders.views import _get_session_coupon  # noqa: F401 (سازگاری import)
+        cart = _get_or_create_cart(request)
+        items = cart.items.select_related('variant__product', 'variant__size', 'variant__color').prefetch_related('variant__product__images')
+        return render(request, 'cart/_drawer_content.html', {
+            'nav_cart_items': items,
+            'nav_cart_total': cart.subtotal,
+        })

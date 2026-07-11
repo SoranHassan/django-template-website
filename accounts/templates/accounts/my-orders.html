@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static humanize %}
+{% load static humanize jalali %}
 
 {% block title %}سفارش‌های من - OramShop{% endblock %}
 
@@ -75,7 +75,7 @@
                             <div>
                                 <p class="m-0 small text-muted">تاریخ</p>
                                 <h6 class="mb-0 ft-medium">
-                                    {{ order.created_at|date:"Y/m/d" }}
+                                    {{ order.created_at|jalali }}
                                 </h6>
                             </div>
                             <div>

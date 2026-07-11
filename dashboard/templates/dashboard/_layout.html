@@ -30,6 +30,7 @@
             <li {% if active_nav == 'hero' %}class="active"{% endif %}><a href="{% url 'dashboard:hero_list' %}"><i class="fas fa-images"></i><span>بنرهای سایت</span></a></li>
             <li {% if active_nav == 'announcements' %}class="active"{% endif %}><a href="{% url 'dashboard:announcements_list' %}"><i class="fas fa-bullhorn"></i><span>اطلاعیه‌ها</span></a></li>
             <li {% if active_nav == 'blog' %}class="active"{% endif %}><a href="{% url 'dashboard:blog_list' %}"><i class="fas fa-newspaper"></i><span>بلاگ</span></a></li>
+            <li {% if active_nav == 'site_settings' %}class="active"{% endif %}><a href="{% url 'dashboard:site_settings' %}"><i class="fas fa-palette"></i><span>تنظیمات ظاهری</span></a></li>
             <li {% if active_nav == 'analytics' %}class="active"{% endif %}><a href="{% url 'dashboard:analytics' %}"><i class="fas fa-chart-line"></i><span>تحلیل و گزارش</span></a></li>
         </ul>
     </nav>

@@ -1,4 +1,4 @@
-{% load static humanize %}
+{% load static humanize jalali %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -285,7 +285,7 @@
                         {% endif %}
                         <div class="customer-info">
                             <h4>{{ user.get_full_name|default:"بدون نام" }}</h4>
-                            <p>{{ user.mobile }} • {{ user.date_joined|date:"Y/m/d" }}</p>
+                            <p>{{ user.mobile }} • {{ user.date_joined|jalali }}</p>
                         </div>
                         <div>
                             {% if user.is_staff %}
