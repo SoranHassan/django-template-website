@@ -92,7 +92,9 @@
 <section class="py-3">
     <div class="container">
         <div class="os-features-band">
-            {% include 'catalog/features.html' %}
+            <div class="row g-0 align-items-center">
+                {% include 'catalog/features.html' %}
+            </div>
         </div>
     </div>
 </section>
@@ -134,16 +136,18 @@
             </div>
         </div>
 
+        {% if products %}
         <div class="home-band-inner">
-        <div class="row align-items-center rows-products">
+        <div class="products-row-slider" dir="rtl">
             {% for product in products %}
-            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6">
-                {% include 'catalog/_product_card.html' %}
-            </div>
-
-            {% empty %}
-            <!-- Skeleton محصولات -->
-            {% for i in "12345678" %}
+            <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
+            {% endfor %}
+        </div>
+        </div><!-- /home-band-inner -->
+        {% else %}
+        <!-- Skeleton محصولات -->
+        <div class="row align-items-center rows-products">
+            {% for i in "1234" %}
             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6">
                 <div class="product_grid card b-0 mb-4">
                     <div class="card-body p-0">
@@ -165,9 +169,8 @@
                 </div>
             </div>
             {% endfor %}
-            {% endfor %}
         </div>
-        </div><!-- /home-band-inner -->
+        {% endif %}
 
         <div class="row justify-content-center mt-3">
             <div class="col-auto">
@@ -182,9 +185,6 @@
     </div>
 </section>
 <!-- محصولات End -->
-
-<!-- نوار جداکننده -->
-<div class="container"><div class="os-strip"><i class="lni lni-delivery"></i> ارسال رایگان برای خرید بالای ۱٬۰۰۰٬۰۰۰ تومان به سراسر ایران</div></div>
 
 <!-- ردیف‌های داینامیک: جدیدترین / مردانه / زنانه -->
 {% if new_products %}
@@ -207,9 +207,6 @@
 </section>
 {% endif %}
 
-<!-- نوار جداکننده -->
-<div class="container"><div class="os-strip alt"><i class="lni lni-package"></i> ضمانت اصالت کالا و تحویل سریع در سراسر کشور</div></div>
-
 {% if men_products %}
 <section class="middle home-band home-band-men">
     <div class="container">
@@ -229,9 +226,6 @@
     </div>
 </section>
 {% endif %}
-
-<!-- نوار جداکننده -->
-<div class="container"><div class="os-strip alt"><i class="lni lni-shield"></i> ۷ روز ضمانت بازگشت کالا + پرداخت امن با درگاه بانکی معتبر</div></div>
 
 {% if women_products %}
 <section class="middle home-band home-band-women">

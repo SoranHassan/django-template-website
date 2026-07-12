@@ -5931,12 +5931,13 @@ body, h1, h2, h3, h4, h5, h6, p, a, span, li, input, textarea, select, button,
 a:hover { color: var(--os-cyan-dark); }
 .text-danger.price, .prt_01 .text-danger { color: var(--os-cyan-dark) !important; }
 
-/* دکمه اصلی برند */
+/* دکمه اصلی برند — هم‌رنگ لوگو */
 .btn-os {
-  background: var(--os-charcoal); color: #fff; border: none;
+  background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%);
+  color: #fff; border: none;
   transition: all .2s ease;
 }
-.btn-os:hover { background: var(--os-black); color: var(--os-cyan); }
+.btn-os:hover { background: linear-gradient(120deg, #00a5b8, #008ba0); color: #fff; box-shadow: 0 6px 18px rgba(0,184,204,.35); }
 
 /* اسلایدر هیرو */
 .hero-slider .hero-slide { position: relative; }
@@ -5987,15 +5988,6 @@ a:hover { color: var(--os-cyan-dark); }
 .wishlist-btn.in-wishlist i { color: #e63946 !important; }
 .wishlist-btn.in-wishlist .wishlist-label::after { content: ' ✓'; }
 
-/* استپر تعداد سبد */
-.quantity-stepper { border-radius: 999px; overflow: hidden; border: 1px solid #e3e3e3; }
-.quantity-stepper .qty-btn {
-  border: none !important; background: #fafafa; width: 34px; font-weight: 700;
-  color: #333; transition: all .15s;
-}
-.quantity-stepper .qty-btn:hover { background: var(--os-charcoal); color: var(--os-cyan); }
-.quantity-stepper .qty-value { border: none !important; font-weight: 600; }
-
 /* دکمه حذف آیتم */
 .remove-item-btn, .close_cart_item {
   border-radius: 999px !important; transition: all .15s ease;
@@ -6016,38 +6008,38 @@ a:hover { color: var(--os-cyan-dark); }
 .btn > i.me-1, .btn > i.me-2, .btn > i.ms-1, .btn > i.ms-2 { margin-right: 0 !important; margin-left: 0 !important; }
 .wishlist-btn, .add-to-cart, .btn-os { display: inline-flex; align-items: center; gap: 8px; }
 
-/* ============ استپر تعداد — طراحی یکدست و ظریف ============ */
+/* ============ استپر تعداد — کوچک، ظریف و لوکس ============ */
 .quantity-stepper {
   display: inline-flex !important;
   align-items: stretch;
   width: auto !important;
-  border: 1px solid #e6e6e6;
-  border-radius: 12px;
+  border: 1px solid #ebebeb;
+  border-radius: 999px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  box-shadow: none;
 }
 .quantity-stepper .qty-btn {
   border: 0 !important;
   border-radius: 0 !important;
   background: #fff;
-  width: 32px; min-width: 32px; height: 34px;
+  width: 26px; min-width: 26px; height: 28px;
   display: inline-flex; align-items: center; justify-content: center;
   font-weight: 600; line-height: 1; color: #e63946;
   transition: background .18s ease, color .18s ease;
   cursor: pointer; padding: 0;
 }
-.quantity-stepper .qty-btn i { font-size: 11px; margin-inline-end: 0 !important; }
-.quantity-stepper .qty-btn:hover { background: #e63946; color: #fff; }
-.quantity-stepper .qty-btn:active { background: #c92d3a; color: #fff; }
+.quantity-stepper .qty-btn i { font-size: 9px; margin-inline-end: 0 !important; }
+.quantity-stepper .qty-btn:hover { background: #fdeef0; color: #e63946; }
+.quantity-stepper .qty-btn:active { background: #e63946; color: #fff; }
 .quantity-stepper .qty-value {
   border: 0 !important;
-  border-left: 1px solid #eee !important;
-  border-right: 1px solid #eee !important;
+  border-left: 1px solid #f1f1f1 !important;
+  border-right: 1px solid #f1f1f1 !important;
   border-radius: 0 !important;
   background: #fff !important;
-  width: 40px; min-width: 40px; height: 34px;
-  text-align: center; font-weight: 700; font-size: 14px; color: #1a1a1a;
+  width: 32px; min-width: 32px; height: 28px;
+  text-align: center; font-weight: 700; font-size: 12.5px; color: #1a1a1a;
   box-shadow: none !important; padding: 0;
 }
 .quantity-stepper .qty-value:focus { outline: none; box-shadow: none !important; }
@@ -6142,19 +6134,20 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .user-dropdown-header { border-bottom: 1px solid #f0f0f0; }
 .user-dropdown .dropdown-divider { margin: 6px 4px; }
 
-/* ============ بلاک‌های رنگی سکشن‌های صفحه اصلی — تیره و برندمحور ============ */
-/* تیتر و «مشاهده همه» بیرونِ بلاک (بالای آن) قرار می‌گیرند؛ فقط محصولات داخل بلاک تیره‌اند */
+/* ============ بلاک‌های رنگی سکشن‌های صفحه اصلی — روشن و لطیف ============ */
+/* تیتر و «مشاهده همه» بیرونِ بلاک (بالای آن) قرار می‌گیرند */
 .home-band-inner {
   border-radius: 22px;
-  padding: 28px 22px;
+  padding: 26px 20px;
   margin-bottom: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.10);
+  border: 1px solid rgba(0,0,0,.05);
+  box-shadow: 0 8px 24px rgba(0,0,0,.05);
 }
-.home-band-best  .home-band-inner { background: linear-gradient(150deg,#15181c 0%,#1d2226 100%); }
-.home-band-new   .home-band-inner { background: linear-gradient(150deg,#0f2630 0%,#123642 100%); }
-.home-band-men   .home-band-inner { background: linear-gradient(150deg,#1a222e 0%,#212c3a 100%); }
-.home-band-women .home-band-inner { background: linear-gradient(150deg,#241b26 0%,#301f32 100%); }
-.home-band-sale  .home-band-inner { background: linear-gradient(150deg,#12241f 0%,#153029 100%); }
+.home-band-best  .home-band-inner { background: linear-gradient(150deg,#f8f9fb 0%,#eef1f5 100%); }
+.home-band-new   .home-band-inner { background: linear-gradient(150deg,#eefafd 0%,#e3f4f8 100%); }
+.home-band-men   .home-band-inner { background: linear-gradient(150deg,#f0f4f9 0%,#e7edf5 100%); }
+.home-band-women .home-band-inner { background: linear-gradient(150deg,#fbf2f8 0%,#f4e8f1 100%); }
+.home-band-sale  .home-band-inner { background: linear-gradient(150deg,#eefaf5 0%,#e3f4ec 100%); }
 /* سرتیتر بیرون بلاک — متن تیره روی زمینهٔ روشن صفحه */
 .home-band-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 .home-band-head h2, .home-band-head h3 { margin: 0; }
@@ -6199,43 +6192,59 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 /* ============ فلش‌های اسلایدر محصولات — تمیز و برندمحور ============ */
 .products-row-slider { position: relative; }
 .products-row-slider .slick-arrow {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: #fff; border: 1px solid #ececec;
-  box-shadow: 0 6px 18px rgba(0,0,0,.14);
-  z-index: 6; top: 40%; transition: background .2s ease, transform .15s ease;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: #fff; border: 1px solid #e8e8e8;
+  box-shadow: 0 4px 14px rgba(0,0,0,.10);
+  z-index: 6; top: 35%; margin-top: 0; transform: translateY(-50%);
+  display: flex !important; align-items: center; justify-content: center;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
-.products-row-slider .slick-arrow:hover { background: var(--os-charcoal); transform: scale(1.08); }
-.products-row-slider .slick-prev { left: -10px; right: auto; }
-.products-row-slider .slick-next { right: -10px; left: auto; }
+.products-row-slider .slick-arrow:hover {
+  background: var(--os-cyan-dark); border-color: var(--os-cyan-dark);
+  box-shadow: 0 6px 18px rgba(0,184,204,.35);
+}
+.products-row-slider .slick-prev { left: -12px; right: auto; }
+.products-row-slider .slick-next { right: -12px; left: auto; }
 .products-row-slider .slick-arrow::before {
-  content: ""; display: inline-block; width: 10px; height: 10px;
-  border-top: 2.6px solid #1a1a1a; border-right: 2.6px solid #1a1a1a; opacity: 1;
+  content: ""; display: block; width: 9px; height: 9px; flex: 0 0 auto;
+  border-top: 2.2px solid #1a1a1a; border-right: 2.2px solid #1a1a1a; opacity: 1;
   transition: border-color .2s ease;
 }
-.products-row-slider .slick-prev::before { transform: rotate(-135deg); margin-left: 4px; }
-.products-row-slider .slick-next::before { transform: rotate(45deg); margin-right: 4px; }
-.products-row-slider .slick-arrow:hover::before { border-color: var(--os-cyan); }
-.products-row-slider .slick-disabled { opacity: .35; cursor: default; box-shadow: none; }
+.products-row-slider .slick-prev::before { transform: rotate(-135deg); margin-inline-start: 3px; }
+.products-row-slider .slick-next::before { transform: rotate(45deg); margin-inline-end: 3px; }
+.products-row-slider .slick-arrow:hover::before { border-color: #fff; }
 @media (max-width: 767px) {
-  .products-row-slider .slick-prev { left: 2px; }
-  .products-row-slider .slick-next { right: 2px; }
+  .products-row-slider .slick-prev { left: 0; }
+  .products-row-slider .slick-next { right: 0; }
 }
 
-/* ============ نوار ویژگی‌ها (بالای صفحه، داخل کارت) ============ */
+/* ============ نوار ویژگی‌ها (بالای صفحه، داخل کارت — همه در یک خط) ============ */
 .os-features-band {
   background: #fff; border: 1px solid #f0f0f0; border-radius: 18px;
-  padding: 22px 10px; box-shadow: 0 8px 24px rgba(0,0,0,.05);
+  padding: 10px 8px; box-shadow: 0 8px 24px rgba(0,0,0,.05);
+}
+.os-features-band .row > div { border-inline-end: 1px solid #f2f2f2; }
+.os-features-band .row > div:last-child { border-inline-end: none; }
+@media (max-width: 767px) {
+  .os-features-band .row > div:nth-child(2) { border-inline-end: none; }
 }
 
-/* ============ نوار جداکننده بین بخش‌های محصول ============ */
-.os-strip {
-  border-radius: 16px; padding: 16px 22px; margin: 6px 0 18px;
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  color: #fff; font-weight: 600; font-size: 14px; text-align: center;
-  background: linear-gradient(120deg, #1a1a1a 0%, #007a8a 100%);
+/* ============ دکمه‌های اصلی سایت — هم‌رنگ لوگو (سایان) ============ */
+.btn-dark, a.btn-dark {
+  background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%) !important;
+  border-color: var(--os-cyan-dark) !important; color: #fff !important;
 }
-.os-strip .lni { color: var(--os-cyan); font-size: 22px; }
-.os-strip.alt { background: linear-gradient(120deg, #0f2630 0%, #0b7a5a 100%); }
+.btn-dark:hover, a.btn-dark:hover {
+  background: linear-gradient(120deg, #00a5b8 0%, #008ba0 100%) !important;
+  border-color: #00a5b8 !important; color: #fff !important;
+}
+.btn-outline-dark, a.btn-outline-dark {
+  color: var(--os-cyan-dark) !important; border-color: var(--os-cyan-dark) !important;
+  background: transparent !important;
+}
+.btn-outline-dark:hover, a.btn-outline-dark:hover {
+  background: var(--os-cyan-dark) !important; color: #fff !important;
+}
 
 /* ============ نوار آمار برند ============ */
 .os-stats-band {
@@ -6367,14 +6376,15 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .os-old-price { font-size: 12px; color: #b0b0b0; text-decoration: line-through; }
 .os-final-price { font-size: 15px; font-weight: 800; color: var(--os-cyan-dark); }
 
-/* دکمه افزودن به سبد روی کارت */
+/* دکمه افزودن به سبد روی کارت — هم‌رنگ لوگو */
 .os-card-addbtn {
   width: 100%; border: none; border-radius: 10px; padding: 9px 12px;
-  background: var(--os-charcoal); color: #fff; font-family: inherit; font-weight: 700;
+  background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%);
+  color: #fff; font-family: inherit; font-weight: 700;
   font-size: 13px; cursor: pointer; display: inline-flex; align-items: center;
-  justify-content: center; gap: 7px; transition: background .18s ease;
+  justify-content: center; gap: 7px; transition: background .18s ease, box-shadow .18s ease;
 }
-.os-card-addbtn:hover { background: #000; color: var(--os-cyan); }
+.os-card-addbtn:hover { background: linear-gradient(120deg, #00a5b8, #008ba0); color: #fff; box-shadow: 0 6px 16px rgba(0,184,204,.30); }
 .os-card-addbtn .lni { font-size: 15px; }
 
 /* پنل انتخاب سریع سایز/رنگ/تعداد */
@@ -6398,12 +6408,14 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 }
 .qa-color.sel { box-shadow: 0 0 0 2px var(--os-cyan-dark); }
 .qa-bottom { justify-content: space-between; }
-.qa-stepper { transform: scale(.9); transform-origin: right; }
+.qa-stepper { transform: none; }
 .qa-confirm {
-  border: none; border-radius: 9px; padding: 8px 16px; background: var(--os-cyan);
-  color: #0d0d0d; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
+  border: none; border-radius: 9px; padding: 7px 16px;
+  background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%);
+  color: #fff; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
+  transition: background .18s ease, box-shadow .18s ease;
 }
-.qa-confirm:hover { background: #00c8de; }
+.qa-confirm:hover { background: linear-gradient(120deg, #00a5b8, #008ba0); box-shadow: 0 5px 14px rgba(0,184,204,.30); }
 .qa-msg { font-size: 11px; min-height: 14px; }
 .qa-msg.ok { color: #16a34a; }
 .qa-msg.err { color: #e63946; }
