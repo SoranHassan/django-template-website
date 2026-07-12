@@ -32,10 +32,10 @@ class SearchSuggestView(View):
 
 class HomeView(View):
     def get(self, request):
+        from .templatetags.catalog_extras import collection_queryset, rating_subquery
         base_qs = Product.objects.filter(is_active=True).prefetch_related(
-            'images', 'variants__size', 'variants__color')
+            'images', 'variants__size', 'variants__color').annotate(avg_rating=rating_subquery())
 
-        from .templatetags.catalog_extras import collection_queryset
         from core.models import HomeCategoryCard
         from reviews.models import Review
         from accounts.models import CustomUser
@@ -80,7 +80,9 @@ class HomeView(View):
 
 class ProductListView(View):
     def get(self, request):
-        products = Product.objects.filter(is_active=True).prefetch_related('images', 'variants__size', 'variants__color')
+        from .templatetags.catalog_extras import rating_subquery
+        products = Product.objects.filter(is_active=True).prefetch_related(
+            'images', 'variants__size', 'variants__color').annotate(avg_rating=rating_subquery())
         category_slug = request.GET.get('category')
         if category_slug:
             products = products.filter(category__slug=category_slug)

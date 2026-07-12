@@ -50,7 +50,11 @@
 
                 {% elif f.type == 'image' %}
                 {% if f.value %}<div style="margin-bottom:8px;"><img src="{{ f.value }}" alt="" style="max-height:90px; border-radius:8px; border:1px solid #eee;"></div>{% endif %}
-                <input type="file" name="{{ f.name }}" accept="image/*" class="dash-input">
+                <input type="file" name="{{ f.name }}" accept="image/*" class="dash-input dash-image-input">
+                <div class="dash-img-edited" hidden>
+                    <img alt="" style="max-height:70px; border-radius:8px; border:1px solid #cdeef3;">
+                    <small style="color:#00919f;"><i class="fas fa-crop-alt"></i> تصویر ویرایش شد — همین نسخه آپلود می‌شود</small>
+                </div>
 
                 {% elif f.type == 'color' %}
                 <input type="text" name="{{ f.name }}" value="{{ f.value|default_if_none:'' }}" class="dash-input" placeholder="#00B8CC" data-color-preview>
@@ -97,6 +101,146 @@
 {% endblock %}
 
 {% block js %}
+<!-- ویرایشگر تصویر هنگام آپلود: برش، تغییر اندازه و چرخش (Cropper.js — لوکال) -->
+<link rel="stylesheet" href="{% static 'vendor/cropperjs/cropper.min.css' %}">
+<div id="imgEditorModal" class="img-editor-overlay" hidden>
+    <div class="img-editor-box">
+        <div class="img-editor-head">
+            <strong><i class="fas fa-crop-alt"></i> ویرایش تصویر</strong>
+            <span class="img-editor-hint">با موس بکشید تا برش دهید — چرخ موس = بزرگ‌نمایی</span>
+        </div>
+        <div class="img-editor-canvas"><img id="imgEditorTarget" alt=""></div>
+        <div class="img-editor-tools">
+            <button type="button" data-act="rot-left" title="چرخش به چپ"><i class="fas fa-undo"></i> چرخش</button>
+            <button type="button" data-act="rot-right" title="چرخش به راست"><i class="fas fa-redo"></i> چرخش</button>
+            <button type="button" data-act="flip-h" title="قرینه افقی"><i class="fas fa-arrows-alt-h"></i> قرینه</button>
+            <button type="button" data-act="ar-free" class="ar-btn active">آزاد</button>
+            <button type="button" data-act="ar-wide" class="ar-btn">عریض ۱۶:۹</button>
+            <button type="button" data-act="ar-square" class="ar-btn">مربع ۱:۱</button>
+            <button type="button" data-act="reset"><i class="fas fa-sync"></i> از نو</button>
+            <span class="img-editor-dims" id="imgEditorDims"></span>
+        </div>
+        <div class="img-editor-actions">
+            <button type="button" class="dash-btn-primary" data-act="apply"><i class="fas fa-check"></i> اعمال و استفاده</button>
+            <button type="button" class="dash-btn-ghost" data-act="skip">بدون ویرایش</button>
+            <button type="button" class="dash-btn-ghost" data-act="cancel" style="color:#e53935;">انصراف</button>
+        </div>
+    </div>
+</div>
+<style>
+.dash-img-edited { margin-top:8px; display:flex; align-items:center; gap:10px; }
+.dash-img-edited[hidden] { display:none; }
+.img-editor-overlay {
+    position:fixed; inset:0; z-index:2000; background:rgba(10,14,18,.72);
+    display:flex; align-items:center; justify-content:center; padding:18px;
+}
+.img-editor-overlay[hidden] { display:none; }
+.img-editor-box {
+    background:#fff; border-radius:18px; width:min(860px, 100%);
+    padding:16px; display:flex; flex-direction:column; gap:12px;
+    box-shadow:0 30px 80px rgba(0,0,0,.35);
+}
+.img-editor-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.img-editor-head strong { font-size:15px; }
+.img-editor-hint { font-size:11.5px; color:#8a8a8a; }
+.img-editor-canvas { background:#0f1418; border-radius:12px; overflow:hidden; height:min(52vh, 460px); }
+.img-editor-canvas img { display:block; max-width:100%; }
+.img-editor-tools { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.img-editor-tools button {
+    border:1px solid #e2e2e2; background:#fafafa; color:#333; border-radius:9px;
+    padding:7px 13px; font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px; transition:all .15s;
+}
+.img-editor-tools button:hover { border-color:#00B8CC; color:#00919f; }
+.img-editor-tools .ar-btn.active { background:#e5f8fb; border-color:#00B8CC; color:#00919f; }
+.img-editor-dims { margin-inline-start:auto; font-size:11.5px; color:#8a8a8a; direction:ltr; }
+.img-editor-actions { display:flex; gap:10px; padding-top:4px; border-top:1px solid #f0f0f0; }
+</style>
+<script src="{% static 'vendor/cropperjs/cropper.min.js' %}"></script>
+<script>
+(function () {
+    var modal = document.getElementById('imgEditorModal');
+    if (!modal) return;
+    var imgEl = document.getElementById('imgEditorTarget');
+    var dimsEl = document.getElementById('imgEditorDims');
+    var cropper = null, activeInput = null, origFile = null, objUrl = null;
+
+    function openEditor(input, file) {
+        activeInput = input; origFile = file;
+        if (objUrl) URL.revokeObjectURL(objUrl);
+        objUrl = URL.createObjectURL(file);
+        imgEl.src = objUrl;
+        modal.removeAttribute('hidden');
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imgEl, {
+            viewMode: 1, autoCropArea: 1, background: false, responsive: true,
+            crop: function (e) {
+                dimsEl.textContent = Math.round(e.detail.width) + ' × ' + Math.round(e.detail.height) + ' px';
+            }
+        });
+        setAr(null);
+    }
+    function closeEditor() {
+        modal.setAttribute('hidden', '');
+        if (cropper) { cropper.destroy(); cropper = null; }
+        if (objUrl) { URL.revokeObjectURL(objUrl); objUrl = null; }
+    }
+    function setAr(ratio) {
+        if (cropper) cropper.setAspectRatio(ratio || NaN);
+        modal.querySelectorAll('.ar-btn').forEach(function (b) { b.classList.remove('active'); });
+        var map = {null: 'ar-free', '1.7777777777777777': 'ar-wide', '1': 'ar-square'};
+        var key = ratio === null ? 'ar-free' : (ratio === 1 ? 'ar-square' : 'ar-wide');
+        var btn = modal.querySelector('[data-act="' + key + '"]');
+        if (btn) btn.classList.add('active');
+    }
+    function setEditedFile(file, previewUrl) {
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        activeInput.files = dt.files;
+        var box = activeInput.parentElement.querySelector('.dash-img-edited');
+        if (box) {
+            box.querySelector('img').src = previewUrl;
+            box.removeAttribute('hidden');
+        }
+    }
+
+    document.addEventListener('change', function (e) {
+        var input = e.target.closest('.dash-image-input');
+        if (!input || !input.files || !input.files[0]) return;
+        var f = input.files[0];
+        if (!/^image\/(jpeg|png|webp|jpg)/i.test(f.type)) return; // svg و غیره بدون ویرایش
+        var box = input.parentElement.querySelector('.dash-img-edited');
+        if (box) box.setAttribute('hidden', '');
+        openEditor(input, f);
+    });
+
+    modal.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-act]');
+        if (!btn) { if (e.target === modal) closeEditor(); return; }
+        var act = btn.dataset.act;
+        if (act === 'rot-left') cropper.rotate(-90);
+        else if (act === 'rot-right') cropper.rotate(90);
+        else if (act === 'flip-h') cropper.scaleX(-(cropper.getData().scaleX || 1));
+        else if (act === 'ar-free') setAr(null);
+        else if (act === 'ar-wide') setAr(16 / 9);
+        else if (act === 'ar-square') setAr(1);
+        else if (act === 'reset') cropper.reset();
+        else if (act === 'skip') closeEditor(); // فایل اصلی دست‌نخورده می‌ماند
+        else if (act === 'cancel') { activeInput.value = ''; closeEditor(); }
+        else if (act === 'apply') {
+            var canvas = cropper.getCroppedCanvas({maxWidth: 2400, maxHeight: 2400});
+            var isPng = origFile.type === 'image/png';
+            canvas.toBlob(function (blob) {
+                if (!blob) { closeEditor(); return; }
+                var name = origFile.name.replace(/\.\w+$/, '') + (isPng ? '.png' : '.jpg');
+                var file = new File([blob], name, {type: isPng ? 'image/png' : 'image/jpeg'});
+                setEditedFile(file, canvas.toDataURL(isPng ? 'image/png' : 'image/jpeg', .85));
+                closeEditor();
+            }, isPng ? 'image/png' : 'image/jpeg', .92);
+        }
+    });
+})();
+</script>
 {% if has_richtext %}
 <link rel="stylesheet" href="{% static 'django_ckeditor_5/dist/styles.css' %}">
 <style>

@@ -1,0 +1,53 @@
+{% extends 'dashboard/_layout.html' %}
+
+{% block title %}کارت‌های دسته‌بندی صفحه اصلی{% endblock %}
+{% block search_placeholder %}جستجو در کارت‌ها...{% endblock %}
+
+{% block content %}
+<div class="page-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div>
+        <h1>کارت‌های دسته‌بندی صفحه اصلی</h1>
+        <p>۴ کارت زیر بنر اصلی — اگر خالی باشد کارت‌های پیش‌فرض (تیشرت/هودی/شلوار/کفش) نمایش داده می‌شوند</p>
+    </div>
+    <a href="{% url 'dashboard:home_card_create' %}" class="dash-add-btn"><i class="fas fa-plus"></i> کارت جدید</a>
+</div>
+
+<div class="glass-card">
+    <div class="card-header"><h2>همه موارد ({{ cards|length }})</h2></div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>تصویر/آیکون</th><th>عنوان</th><th>لینک</th><th>ترتیب</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+            <tbody>
+            {% for card in cards %}
+            <tr>
+                <td>
+                    {% if card.image %}
+                    <img src="{{ card.image.url }}" style="width:52px; height:52px; object-fit:cover; border-radius:10px;">
+                    {% else %}
+                    <span style="display:inline-flex; width:52px; height:52px; border-radius:10px; background:#f3f6f8; align-items:center; justify-content:center;">
+                        <i class="{{ card.icon_class }}" style="font-size:22px; color:{{ card.color }};"></i>
+                    </span>
+                    {% endif %}
+                </td>
+                <td style="font-weight:600;">{{ card.title }}<br><small style="color:var(--text-secondary);">{{ card.subtitle }}</small></td>
+                <td style="font-size:12px; direction:ltr; text-align:right;">{{ card.link }}</td>
+                <td>{{ card.order }}</td>
+                <td>{% if card.is_active %}<span class="status success">فعال</span>{% else %}<span class="status cancelled">غیرفعال</span>{% endif %}</td>
+                <td>
+                    <a href="{% url 'dashboard:home_card_edit' card.pk %}" class="btn-secondary" style="padding:5px 12px; font-size:11px;"><i class="fas fa-edit"></i> ویرایش</a>
+                    <form method="POST" action="{% url 'dashboard:home_card_delete' card.pk %}" data-confirm="این کارت حذف شود؟" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary" style="padding:5px 10px; font-size:11px; color:#FF3B30;"><i class="fas fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center; padding:32px; color:#86868B;">
+                کارتی ثبت نشده — صفحه اصلی از کارت‌های گرافیکی پیش‌فرض استفاده می‌کند
+            </td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

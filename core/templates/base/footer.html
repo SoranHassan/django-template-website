@@ -1,6 +1,6 @@
 {% load static %}
 <!-- Footer -->
-<footer style="background: #0d0d0d;" class="pt-5 pb-3">
+<footer style="background: #0d0d0d;" class="pt-5 pb-3 os-footer">
     <div class="container">
         <div class="row g-4">
 
@@ -49,6 +49,19 @@
                     <li class="mb-2"><i class="lni lni-alarm-clock me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_hours|default:"شنبه تا پنجشنبه، ۹ تا ۱۸" }}</li>
                     {% if site_settings.footer_address %}<li class="mb-2"><i class="lni lni-map-marker me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_address }}</li>{% endif %}
                 </ul>
+                <!-- عضویت در خبرنامه — جمع‌وجور -->
+                <div class="footer-newsletter mt-3">
+                    <h6 class="text-white ft-medium mb-2" style="font-size:13px;">
+                        <i class="lni lni-envelope" style="color:#00E6FF;"></i> عضویت در خبرنامه
+                    </h6>
+                    <form id="footerNewsletterForm" class="footer-newsletter-form">
+                        {% csrf_token %}
+                        <input type="text" name="email" placeholder="ایمیل یا شماره موبایل" aria-label="ایمیل یا موبایل" required>
+                        <button type="submit">عضویت</button>
+                    </form>
+                    <div id="footerNewsletterMsg" style="display:none; font-size:11.5px; margin-top:6px;"></div>
+                </div>
+
                 <!-- جای نماد اعتماد الکترونیکی -->
                 <div class="d-flex gap-2 mt-3">
                     <div class="bg-white rounded d-flex align-items-center justify-content-center"
@@ -73,3 +86,31 @@
         </div>
     </div>
 </footer>
+<script>
+(function () {
+    var form = document.getElementById('footerNewsletterForm');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = form.querySelector('[name="email"]').value.trim();
+        var token = form.querySelector('[name="csrfmiddlewaretoken"]').value;
+        var msg = document.getElementById('footerNewsletterMsg');
+        fetch('{% url "newsletter_subscribe" %}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': token},
+            body: new URLSearchParams({email: email})
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            msg.style.display = 'block';
+            msg.style.color = data.status === 'ok' ? '#00E6FF' : '#ffb4b4';
+            msg.textContent = data.message;
+            if (data.status === 'ok') form.reset();
+        })
+        .catch(function () {
+            msg.style.display = 'block'; msg.style.color = '#ffb4b4';
+            msg.textContent = 'خطا در ارتباط. دوباره تلاش کنید.';
+        });
+    });
+})();
+</script>

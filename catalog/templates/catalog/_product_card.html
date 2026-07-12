@@ -40,9 +40,14 @@
                     {{ product.name|truncatechars:34 }}
                 </a>
             </h5>
-            {% if product.brand %}
-            <span class="os-card-brand">{{ product.brand.name }}</span>
-            {% endif %}
+            <div class="os-card-sub">
+                {% if product.brand %}
+                <span class="os-card-brand">{{ product.brand.name }}</span>
+                {% else %}<span></span>{% endif %}
+                {% if product.avg_rating %}
+                <span class="os-card-rating"><i class="lni lni-star-filled"></i>{{ product.avg_rating|floatformat:1 }}</span>
+                {% endif %}
+            </div>
             <div class="os-card-prices">
                 {% if product.original_price %}
                 <span class="os-old-price">{{ product.original_price|intcomma }} تومان</span>

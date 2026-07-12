@@ -915,6 +915,62 @@ class DashboardHeroDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:hero_list')
 
 
+class DashboardHomeCardsListView(StaffRequiredMixin, View):
+    """۴ کارت دسته‌بندی زیر بنر اصلی صفحه اول"""
+
+    def get(self, request):
+        from core.models import HomeCategoryCard
+        return render(request, 'dashboard/home-cards-list.html',
+                      {'cards': HomeCategoryCard.objects.all(), 'active_nav': 'home_cards'})
+
+
+class DashboardHomeCardSaveView(StaffRequiredMixin, View):
+    def get(self, request, pk=None):
+        from core.models import HomeCategoryCard
+        c = get_object_or_404(HomeCategoryCard, pk=pk) if pk else None
+        fields = [
+            {'name': 'title', 'label': 'عنوان', 'type': 'text', 'required': True, 'value': c.title if c else ''},
+            {'name': 'subtitle', 'label': 'زیرعنوان', 'type': 'text', 'value': c.subtitle if c else ''},
+            {'name': 'link', 'label': 'لینک', 'type': 'text', 'value': c.link if c else '/shop/',
+             'help': 'مثال: ‎/shop/?category=tshirt'},
+            {'name': 'image', 'label': 'تصویر کارت', 'type': 'image', 'value': c.image.url if c and c.image else '',
+             'help': 'مربعی (مثلاً ۶۰۰×۶۰۰) — اگر خالی باشد آیکون نمایش داده می‌شود'},
+            {'name': 'icon_class', 'label': 'کلاس آیکون (بدون تصویر)', 'type': 'text',
+             'value': c.icon_class if c else 'lni lni-tshirt'},
+            {'name': 'color', 'label': 'رنگ آیکون', 'type': 'color', 'value': c.color if c else '#00B8CC'},
+            {'name': 'order', 'label': 'ترتیب نمایش', 'type': 'number', 'value': c.order if c else 0},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': c.is_active if c else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش کارت دسته‌بندی' if pk else 'کارت دسته‌بندی جدید',
+            page_subtitle='کارت‌های زیر بنر اصلی صفحه اول (۴ عدد پیشنهاد می‌شود)',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:home_cards_list'))
+
+    def post(self, request, pk=None):
+        from core.models import HomeCategoryCard
+        card = get_object_or_404(HomeCategoryCard, pk=pk) if pk else HomeCategoryCard()
+        card.title = request.POST.get('title', card.title or '').strip()
+        card.subtitle = request.POST.get('subtitle', '')
+        card.link = request.POST.get('link', '/shop/') or '/shop/'
+        card.icon_class = request.POST.get('icon_class', 'lni lni-tshirt')
+        card.color = request.POST.get('color', '#00B8CC') or '#00B8CC'
+        card.order = request.POST.get('order') or 0
+        card.is_active = 'is_active' in request.POST
+        if request.FILES.get('image'):
+            card.image = request.FILES['image']
+        if card.title:
+            card.save()
+            return redirect(f"{reverse('dashboard:home_card_edit', args=[card.pk])}?saved=1")
+        return redirect('dashboard:home_cards_list')
+
+
+class DashboardHomeCardDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from core.models import HomeCategoryCard
+        get_object_or_404(HomeCategoryCard, pk=pk).delete()
+        return redirect('dashboard:home_cards_list')
+
+
 class DashboardBlogListView(StaffRequiredMixin, View):
     def get(self, request):
         from blog.models import Post

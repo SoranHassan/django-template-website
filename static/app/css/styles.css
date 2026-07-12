@@ -6008,38 +6008,37 @@ a:hover { color: var(--os-cyan-dark); }
 .btn > i.me-1, .btn > i.me-2, .btn > i.ms-1, .btn > i.ms-2 { margin-right: 0 !important; margin-left: 0 !important; }
 .wishlist-btn, .add-to-cart, .btn-os { display: inline-flex; align-items: center; gap: 8px; }
 
-/* ============ استپر تعداد — کوچک، ظریف و لوکس ============ */
+/* ============ استپر تعداد — خیلی جمع‌وجور (سبک دیجی‌کالا) ============ */
 .quantity-stepper {
   display: inline-flex !important;
-  align-items: stretch;
+  align-items: center;
   width: auto !important;
-  border: 1px solid #ebebeb;
-  border-radius: 999px;
+  border: 1px solid #e9e9e9;
+  border-radius: 8px;
   overflow: hidden;
   background: #fff;
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,.04);
+  height: 24px;
 }
 .quantity-stepper .qty-btn {
   border: 0 !important;
   border-radius: 0 !important;
   background: #fff;
-  width: 26px; min-width: 26px; height: 28px;
+  width: 21px; min-width: 21px; height: 24px;
   display: inline-flex; align-items: center; justify-content: center;
   font-weight: 600; line-height: 1; color: #e63946;
-  transition: background .18s ease, color .18s ease;
+  transition: background .15s ease, color .15s ease;
   cursor: pointer; padding: 0;
 }
-.quantity-stepper .qty-btn i { font-size: 9px; margin-inline-end: 0 !important; }
-.quantity-stepper .qty-btn:hover { background: #fdeef0; color: #e63946; }
+.quantity-stepper .qty-btn i { font-size: 8px; margin-inline-end: 0 !important; }
+.quantity-stepper .qty-btn:hover { background: #fff3f4; color: #e63946; }
 .quantity-stepper .qty-btn:active { background: #e63946; color: #fff; }
 .quantity-stepper .qty-value {
   border: 0 !important;
-  border-left: 1px solid #f1f1f1 !important;
-  border-right: 1px solid #f1f1f1 !important;
   border-radius: 0 !important;
   background: #fff !important;
-  width: 32px; min-width: 32px; height: 28px;
-  text-align: center; font-weight: 700; font-size: 12.5px; color: #1a1a1a;
+  width: 26px; min-width: 26px; height: 24px;
+  text-align: center; font-weight: 700; font-size: 11.5px; color: #1a1a1a;
   box-shadow: none !important; padding: 0;
 }
 .quantity-stepper .qty-value:focus { outline: none; box-shadow: none !important; }
@@ -6155,6 +6154,27 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   .home-band-inner { padding: 18px 12px; border-radius: 16px; }
 }
 
+/* ============ فوتر — متن کمی بزرگ‌تر + خبرنامهٔ جمع‌وجور ============ */
+.os-footer .small, .os-footer p, .os-footer li, .os-footer a { font-size: 15px; }
+.os-footer h6 { font-size: 16px; }
+.footer-newsletter { max-width: 300px; }
+.footer-newsletter-form {
+  display: flex; border-radius: 10px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
+}
+.footer-newsletter-form input {
+  flex: 1; min-width: 0; border: none; background: transparent; color: #fff;
+  padding: 8px 12px; font-family: inherit; font-size: 12.5px;
+}
+.footer-newsletter-form input::placeholder { color: rgba(255,255,255,.45); }
+.footer-newsletter-form input:focus { outline: none; }
+.footer-newsletter-form button {
+  border: none; background: var(--os-cyan-dark); color: #fff;
+  padding: 8px 16px; font-family: inherit; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; transition: background .15s ease;
+}
+.footer-newsletter-form button:hover { background: #00a5b8; }
+
 /* ============ لینک سازندهٔ سایت در فوتر ============ */
 .footer-credit {
   display: inline-flex; align-items: center; gap: 7px;
@@ -6246,20 +6266,21 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   background: var(--os-cyan-dark) !important; color: #fff !important;
 }
 
-/* ============ نوار آمار برند ============ */
+/* ============ نوار آمار برند — روشن و واقعی ============ */
 .os-stats-band {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-  background: linear-gradient(120deg, #15181c 0%, #0f2630 100%);
-  border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.10);
+  background: linear-gradient(120deg, #f4fbfd 0%, #eaf6f9 100%);
+  border: 1px solid #e2eef2;
+  border-radius: 20px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.05);
 }
 .os-stat {
-  padding: 26px 14px; text-align: center; color: #fff;
-  border-inline-end: 1px solid rgba(255,255,255,.06);
+  padding: 24px 14px; text-align: center; color: #1a1a1a;
+  border-inline-end: 1px solid rgba(0,0,0,.05);
 }
 .os-stat:last-child { border-inline-end: none; }
-.os-stat > .lni { font-size: 26px; color: var(--os-cyan); margin-bottom: 8px; display: inline-block; }
-.os-stat-num { font-size: 26px; font-weight: 800; letter-spacing: .5px; }
-.os-stat-label { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 3px; }
+.os-stat > .lni { font-size: 26px; color: var(--os-cyan-dark); margin-bottom: 8px; display: inline-block; }
+.os-stat-num { font-size: 25px; font-weight: 800; letter-spacing: .5px; color: #10353c; }
+.os-stat-label { font-size: 12px; color: #6d8288; margin-top: 3px; }
 @media (max-width: 767px) {
   .os-stats-band { grid-template-columns: repeat(2, 1fr); }
   .os-stat { padding: 18px 10px; }
@@ -6269,9 +6290,18 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 /* ============ بنرهای تبلیغاتی دوتایی صفحه اصلی ============ */
 .promo-banner {
   display: block; position: relative; overflow: hidden;
-  border-radius: 20px; min-height: 190px; text-decoration: none;
+  border-radius: 20px; min-height: 200px; text-decoration: none;
   box-shadow: 0 10px 30px rgba(0,0,0,.08);
 }
+/* وکتور اختصاصی هر کالکشن — سمت چپ بنر */
+.promo-vector {
+  position: absolute; left: 26px; bottom: 0; height: 94%; width: auto;
+  z-index: 1; opacity: .95; pointer-events: none;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,.35));
+  transition: transform .3s ease;
+}
+.promo-banner:hover .promo-vector { transform: translateY(-4px) scale(1.03); }
+@media (max-width: 575px) { .promo-vector { left: 8px; height: 80%; opacity: .55; } }
 .promo-banner::after {
   content: ""; position: absolute; inset: 0; transition: background .3s ease;
 }
@@ -6291,6 +6321,9 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .promo-banner:hover .promo-cta { color: var(--os-cyan); }
 
 /* ============ کارت نظرات مشتریان ============ */
+/* فاصلهٔ کافی از بلاک بالایی تا تیتر «نظر مشتریان» نچسبد */
+.testimonials-sec { margin-top: 34px; padding-top: 20px; }
+
 .testimonial-card {
   background: #fff; border: 1px solid #f0f0f0; border-radius: 16px;
   padding: 22px; height: 100%; display: flex; flex-direction: column; gap: 12px;
@@ -6370,7 +6403,17 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .os-card-title { font-size: 14px; line-height: 1.6; margin-bottom: 2px !important; }
 .os-card-title a { color: #1a1a1a; }
 .os-card-title a:hover { color: var(--os-cyan-dark); }
-.os-card-brand { display: block; font-size: 11px; color: #a6a6a6; margin-bottom: 8px; }
+.os-card-sub {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 8px;
+}
+.os-card-brand { display: block; font-size: 11px; color: #a6a6a6; }
+.os-card-rating {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 11px; font-weight: 700; color: #1a1a1a;
+  background: #fff8e6; border: 1px solid #f5e2b0; border-radius: 7px; padding: 1px 7px;
+}
+.os-card-rating .lni { color: #f5b301; font-size: 10px; margin-inline-end: 0; }
 /* قیمت‌ها — با فاصله مشخص */
 .os-card-prices { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
 .os-old-price { font-size: 12px; color: #b0b0b0; text-decoration: line-through; }

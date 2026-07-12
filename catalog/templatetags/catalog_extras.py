@@ -1,14 +1,25 @@
 from django import template
-from django.db.models import F, Sum
+from django.db.models import Avg, F, OuterRef, Subquery, Sum
 
 from catalog.models import Product
 
 register = template.Library()
 
 
+def rating_subquery():
+    """میانگین امتیاز تأییدشده به‌صورت Subquery — تا با Sum فروش تداخل join نداشته باشد"""
+    from reviews.models import Review
+    return Subquery(
+        Review.objects.filter(product=OuterRef('pk'), is_approved=True)
+        .values('product').annotate(a=Avg('rating')).values('a')
+    )
+
+
 def collection_queryset(kind):
     """کوئری مجموعه‌ها: new | discount | bestseller"""
-    qs = Product.objects.filter(is_active=True).prefetch_related('images', 'variants__size', 'variants__color')
+    qs = Product.objects.filter(is_active=True).prefetch_related(
+        'images', 'variants__size', 'variants__color'
+    ).annotate(avg_rating=rating_subquery())
     if kind == 'discount':
         return qs.filter(original_price__isnull=False,
                          original_price__gt=F('price')).order_by('-created_at')
