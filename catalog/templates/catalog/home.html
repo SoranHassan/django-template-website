@@ -67,49 +67,35 @@
             </div>
 
             {% empty %}
-            <!-- پیش‌فرض تا زمانی که کارتی در پنل تعریف نشده -->
+            <!-- پیش‌فرض: دسته‌بندی‌های اصلی پوشاک با گرافیک برند -->
+            {% for c in default_cats %}
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="text-decoration-none">
-                    <div class="category-card home-cat-card text-center p-4 rounded-3">
-                        <div class="home-cat-icon mx-auto mb-3" style="color: #c2185b;"><i class="lni lni-crown"></i></div>
-                        <h5 class="ft-bold mb-1">زنانه</h5>
-                        <span class="home-cat-sub">کالکشن جدید</span>
+                <a href="{{ c.link }}" class="text-decoration-none">
+                    <div class="category-card home-cat-graphic rounded-3">
+                        <img src="{% static c.img %}" alt="{{ c.title }}" loading="lazy">
+                        <div class="home-cat-graphic-cap">
+                            <h5 class="ft-bold mb-0">{{ c.title }}</h5>
+                            <span class="home-cat-sub">{{ c.sub }}</span>
+                        </div>
                     </div>
                 </a>
             </div>
-            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="text-decoration-none">
-                    <div class="category-card home-cat-card text-center p-4 rounded-3">
-                        <div class="home-cat-icon mx-auto mb-3" style="color: #1565c0;"><i class="lni lni-tshirt"></i></div>
-                        <h5 class="ft-bold mb-1">مردانه</h5>
-                        <span class="home-cat-sub">استایل روز</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=kids" class="text-decoration-none">
-                    <div class="category-card home-cat-card text-center p-4 rounded-3">
-                        <div class="home-cat-icon mx-auto mb-3" style="color: #f57f17;"><i class="lni lni-star"></i></div>
-                        <h5 class="ft-bold mb-1">بچگانه</h5>
-                        <span class="home-cat-sub">شاد و رنگارنگ</span>
-                    </div>
-                </a>
-            </div>
-            <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
-                <a href="{% url 'catalog:shop_style_1' %}?category=accessories" class="text-decoration-none">
-                    <div class="category-card home-cat-card text-center p-4 rounded-3">
-                        <div class="home-cat-icon mx-auto mb-3" style="color: #2e7d32;"><i class="lni lni-diamond"></i></div>
-                        <h5 class="ft-bold mb-1">اکسسوری</h5>
-                        <span class="home-cat-sub">تکمیل استایل</span>
-                    </div>
-                </a>
-            </div>
+            {% endfor %}
             {% endfor %}
 
         </div>
     </div>
 </section>
 <!-- دسته‌بندی‌ها End -->
+
+<!-- ویژگی‌های فروشگاه (بالای صفحه) -->
+<section class="py-3">
+    <div class="container">
+        <div class="os-features-band">
+            {% include 'catalog/features.html' %}
+        </div>
+    </div>
+</section>
 
 <!-- بنرهای تبلیغاتی دوتایی -->
 <section class="pt-2 pb-2">
@@ -132,34 +118,6 @@
                         <span class="promo-cta">خرید کنید <i class="lni lni-arrow-left"></i></span>
                     </div>
                 </a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- نوار آمار برند -->
-<section class="pt-2 pb-3">
-    <div class="container">
-        <div class="os-stats-band">
-            <div class="os-stat">
-                <i class="lni lni-package"></i>
-                <div class="os-stat-num">+{{ stats.products }}</div>
-                <div class="os-stat-label">محصول متنوع</div>
-            </div>
-            <div class="os-stat">
-                <i class="lni lni-crown"></i>
-                <div class="os-stat-num">{{ stats.brands }}</div>
-                <div class="os-stat-label">برند معتبر</div>
-            </div>
-            <div class="os-stat">
-                <i class="lni lni-users"></i>
-                <div class="os-stat-num">+{{ stats.customers }}</div>
-                <div class="os-stat-label">مشتری راضی</div>
-            </div>
-            <div class="os-stat">
-                <i class="lni lni-star-filled"></i>
-                <div class="os-stat-num">{{ stats.rating }}</div>
-                <div class="os-stat-label">میانگین رضایت</div>
             </div>
         </div>
     </div>
@@ -225,6 +183,9 @@
 </section>
 <!-- محصولات End -->
 
+<!-- نوار جداکننده -->
+<div class="container"><div class="os-strip"><i class="lni lni-delivery"></i> ارسال رایگان برای خرید بالای ۱٬۰۰۰٬۰۰۰ تومان به سراسر ایران</div></div>
+
 <!-- ردیف‌های داینامیک: جدیدترین / مردانه / زنانه -->
 {% if new_products %}
 <section class="middle home-band home-band-new">
@@ -246,6 +207,9 @@
 </section>
 {% endif %}
 
+<!-- نوار جداکننده -->
+<div class="container"><div class="os-strip alt"><i class="lni lni-package"></i> ضمانت اصالت کالا و تحویل سریع در سراسر کشور</div></div>
+
 {% if men_products %}
 <section class="middle home-band home-band-men">
     <div class="container">
@@ -265,6 +229,9 @@
     </div>
 </section>
 {% endif %}
+
+<!-- نوار جداکننده -->
+<div class="container"><div class="os-strip alt"><i class="lni lni-shield"></i> ۷ روز ضمانت بازگشت کالا + پرداخت امن با درگاه بانکی معتبر</div></div>
 
 {% if women_products %}
 <section class="middle home-band home-band-women">
@@ -332,15 +299,6 @@
 </section>
 <!-- بنر میانی End -->
 
-<!-- ویژگی‌های فروشگاه -->
-<section class="px-0 py-3 br-top bg-white">
-    <div class="container">
-        <div class="row">
-            {% include 'catalog/features.html' %}
-        </div>
-    </div>
-</section>
-
 {% if recent_reviews %}
 <!-- نظرات مشتریان -->
 <section class="middle pt-2">
@@ -374,7 +332,35 @@
 </section>
 {% endif %}
 
-<!-- نوار خبرنامه / عضویت — برای پرتر شدن صفحه اصلی -->
+<!-- نوار آمار برند (پایین صفحه) -->
+<section class="pt-3 pb-2">
+    <div class="container">
+        <div class="os-stats-band">
+            <div class="os-stat">
+                <i class="lni lni-package"></i>
+                <div class="os-stat-num">+{{ stats.products }}</div>
+                <div class="os-stat-label">محصول متنوع</div>
+            </div>
+            <div class="os-stat">
+                <i class="lni lni-crown"></i>
+                <div class="os-stat-num">{{ stats.brands }}</div>
+                <div class="os-stat-label">برند معتبر</div>
+            </div>
+            <div class="os-stat">
+                <i class="lni lni-users"></i>
+                <div class="os-stat-num">+{{ stats.customers }}</div>
+                <div class="os-stat-label">مشتری راضی</div>
+            </div>
+            <div class="os-stat">
+                <i class="lni lni-star-filled"></i>
+                <div class="os-stat-num">{{ stats.rating }}</div>
+                <div class="os-stat-label">میانگین رضایت</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- نوار خبرنامه / عضویت -->
 <section class="os-newsletter">
     <div class="container">
         <div class="os-newsletter-box">

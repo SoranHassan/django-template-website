@@ -213,15 +213,24 @@ class Command(BaseCommand):
         # ---------- تنظیمات سایت و کارت‌های دسته‌بندی ----------
         from core.models import SiteSetting, HomeCategoryCard
         SiteSetting.get()  # ساخت ردیف پیش‌فرض تنظیمات
-        home_cards = [
-            ('زنانه', 'کالکشن جدید', '/shop/?gender=women', 'lni lni-crown', '#e63976'),
-            ('مردانه', 'استایل روز', '/shop/?gender=men', 'lni lni-tshirt', '#1565c0'),
-            ('بچگانه', 'شاد و رنگارنگ', '/shop/?gender=kids', 'lni lni-star', '#f57f17'),
-            ('اکسسوری', 'تکمیل استایل', '/shop/?category=accessories', 'lni lni-diamond', '#2e7d32'),
+        # کارت‌های دسته‌بندی اصلی پوشاک با گرافیک برند
+        card_specs = [
+            ('تیشرت', 'خنک و راحت', 'categories/tshirt.svg', 'تیشرت'),
+            ('هودی و سویشرت', 'گرم و اسپرت', 'categories/hoodie.svg', 'هودی و سویشرت'),
+            ('شلوار', 'جین و کتان', 'categories/pants.svg', 'شلوار'),
+            ('کفش', 'اسپرت و رسمی', 'categories/shoes.svg', 'کفش'),
         ]
-        for i, (title, sub, link, icon, color) in enumerate(home_cards):
-            HomeCategoryCard.objects.get_or_create(title=title, defaults=dict(
-                subtitle=sub, link=link, icon_class=icon, color=color, order=i))
+        brands_dir_img = os.path.join(dj_settings.BASE_DIR, 'static', 'app', 'img')
+        for i, (title, sub, svg_rel, cat_name) in enumerate(card_specs):
+            cat = Category.objects.filter(name=cat_name).first()
+            link = f'/shop/?category={cat.slug}' if cat else '/shop/'
+            card, created = HomeCategoryCard.objects.get_or_create(
+                title=title, defaults=dict(subtitle=sub, link=link, order=i))
+            if created or not card.image:
+                svg_path = os.path.join(brands_dir_img, svg_rel)
+                if os.path.exists(svg_path):
+                    with open(svg_path, 'rb') as f:
+                        card.image.save(os.path.basename(svg_rel), ContentFile(f.read()), save=True)
         self.stdout.write('✓ تنظیمات سایت و کارت‌های دسته‌بندی')
 
         self.stdout.write(self.style.SUCCESS('داده نمونه کامل شد ✅'))

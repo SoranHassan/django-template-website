@@ -6196,6 +6196,47 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 /* آیکون‌های خطی کمی نازک‌تر و مینیمال‌تر برای حس لوکس */
 .lni { font-weight: 400; }
 
+/* ============ فلش‌های اسلایدر محصولات — تمیز و برندمحور ============ */
+.products-row-slider { position: relative; }
+.products-row-slider .slick-arrow {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; border: 1px solid #ececec;
+  box-shadow: 0 6px 18px rgba(0,0,0,.14);
+  z-index: 6; top: 40%; transition: background .2s ease, transform .15s ease;
+}
+.products-row-slider .slick-arrow:hover { background: var(--os-charcoal); transform: scale(1.08); }
+.products-row-slider .slick-prev { left: -10px; right: auto; }
+.products-row-slider .slick-next { right: -10px; left: auto; }
+.products-row-slider .slick-arrow::before {
+  content: ""; display: inline-block; width: 10px; height: 10px;
+  border-top: 2.6px solid #1a1a1a; border-right: 2.6px solid #1a1a1a; opacity: 1;
+  transition: border-color .2s ease;
+}
+.products-row-slider .slick-prev::before { transform: rotate(-135deg); margin-left: 4px; }
+.products-row-slider .slick-next::before { transform: rotate(45deg); margin-right: 4px; }
+.products-row-slider .slick-arrow:hover::before { border-color: var(--os-cyan); }
+.products-row-slider .slick-disabled { opacity: .35; cursor: default; box-shadow: none; }
+@media (max-width: 767px) {
+  .products-row-slider .slick-prev { left: 2px; }
+  .products-row-slider .slick-next { right: 2px; }
+}
+
+/* ============ نوار ویژگی‌ها (بالای صفحه، داخل کارت) ============ */
+.os-features-band {
+  background: #fff; border: 1px solid #f0f0f0; border-radius: 18px;
+  padding: 22px 10px; box-shadow: 0 8px 24px rgba(0,0,0,.05);
+}
+
+/* ============ نوار جداکننده بین بخش‌های محصول ============ */
+.os-strip {
+  border-radius: 16px; padding: 16px 22px; margin: 6px 0 18px;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  color: #fff; font-weight: 600; font-size: 14px; text-align: center;
+  background: linear-gradient(120deg, #1a1a1a 0%, #007a8a 100%);
+}
+.os-strip .lni { color: var(--os-cyan); font-size: 22px; }
+.os-strip.alt { background: linear-gradient(120deg, #0f2630 0%, #0b7a5a 100%); }
+
 /* ============ نوار آمار برند ============ */
 .os-stats-band {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
@@ -6365,6 +6406,22 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   .blog-card-excerpt { display: none; }
   .blog-card-thumb, .blog-card-thumb img, .blog-card-ph { height: 110px; }
 }
+
+/* کارت دسته‌بندی گرافیکی صفحه اصلی */
+.home-cat-graphic {
+  position: relative; overflow: hidden; border-radius: 16px;
+  aspect-ratio: 1 / 1; display: block; box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.home-cat-graphic:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,.14); }
+.home-cat-graphic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.home-cat-graphic:hover img { transform: scale(1.06); }
+.home-cat-graphic-cap {
+  position: absolute; inset-inline: 0; bottom: 0; padding: 16px 14px 14px; text-align: center;
+  background: linear-gradient(transparent, rgba(0,0,0,.78));
+}
+.home-cat-graphic-cap h5 { color: #fff; font-size: 16px; }
+.home-cat-graphic-cap .home-cat-sub { color: rgba(255,255,255,.8); font-size: 12px; }
 
 /* کارت دسته‌بندی صفحه اصلی */
 .home-cat-card { transition: transform .3s, box-shadow .3s; background: #fafafa; }

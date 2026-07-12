@@ -50,6 +50,19 @@ class HomeView(View):
             'rating': round(Review.objects.filter(is_approved=True).aggregate(a=Avg('rating'))['a'] or 5, 1),
         }
 
+        # دسته‌بندی‌های پیش‌فرض صفحه اصلی (اگر از پنل کارتی تعریف نشده) — با لینک به دستهٔ واقعی
+        cat_specs = [
+            ('تیشرت', 'خنک و راحت', 'app/img/categories/tshirt.svg', ['تیشرت', 'تی‌شرت', 'تی شرت']),
+            ('هودی و سویشرت', 'گرم و اسپرت', 'app/img/categories/hoodie.svg', ['هودی و سویشرت', 'هودی', 'سویشرت']),
+            ('شلوار', 'جین و کتان', 'app/img/categories/pants.svg', ['شلوار']),
+            ('کفش', 'اسپرت و رسمی', 'app/img/categories/shoes.svg', ['کفش']),
+        ]
+        default_cats = []
+        for title, sub, img, names in cat_specs:
+            cat = Category.objects.filter(name__in=names, is_active=True).first()
+            link = f'/shop/?category={cat.slug}' if cat else '/shop/'
+            default_cats.append({'title': title, 'sub': sub, 'img': img, 'link': link})
+
         return render(request, 'catalog/home.html', {
             'hero_slides': HeroSlide.objects.filter(is_active=True),
             'products': collection_queryset('bestseller')[:8],
@@ -60,6 +73,7 @@ class HomeView(View):
             'home_cards': HomeCategoryCard.objects.filter(is_active=True),
             'recent_reviews': recent_reviews,
             'stats': stats,
+            'default_cats': default_cats,
         })
 
 
