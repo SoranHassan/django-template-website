@@ -2,13 +2,13 @@
 <div class="header-actions">
     <div class="header-bell" title="اعلان‌ها">
         <i class="fas fa-bell"></i>
-        {% with n=pending_orders_count|add:new_users_count %}
+        {% with n=new_orders_count|add:new_users_count|add:new_reviews_count %}
         {% if n %}<span class="header-bell-count">{{ n }}</span>{% endif %}
         {% endwith %}
         <div class="header-bell-menu">
-            <a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i> سفارش‌های در انتظار: <b>{{ pending_orders_count|default:0 }}</b></a>
-            <a href="{% url 'dashboard:users_list' %}"><i class="fas fa-user-plus"></i> کاربران جدید (۷ روز): <b>{{ new_users_count|default:0 }}</b></a>
-            <a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i> نظرات در انتظار: <b>{{ pending_reviews_count|default:0 }}</b></a>
+            <a href="{% url 'dashboard:orders_list' %}"><i class="fas fa-shopping-cart"></i> سفارش‌های جدید: <b>{{ new_orders_count|default:0 }}</b></a>
+            <a href="{% url 'dashboard:users_list' %}"><i class="fas fa-user-plus"></i> کاربران جدید: <b>{{ new_users_count|default:0 }}</b></a>
+            <a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i> نظرات جدید: <b>{{ new_reviews_count|default:0 }}</b></a>
         </div>
     </div>
     <a href="{% url 'catalog:index' %}" target="_blank" class="header-action-btn" title="مشاهده سایت">

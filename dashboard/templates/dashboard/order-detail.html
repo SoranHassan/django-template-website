@@ -220,6 +220,29 @@
                     </form>
                 </div>
 
+                <!-- فاکتور سفارش (برای ادمین) -->
+                <div class="glass-card">
+                    <div class="card-header"><h2>فاکتور سفارش</h2></div>
+                    {% if order.status in 'paid,processing,shipped,delivered' %}
+                    {% if confirmed %}
+                    <div style="background:rgba(52,199,89,0.12); border:1px solid rgba(52,199,89,0.35); color:#1e8e4e;
+                                border-radius:10px; padding:10px 12px; margin-bottom:12px; font-size:13px;">
+                        <i class="fas fa-check-circle"></i> سفارش تأیید شد. فاکتور آمادهٔ دانلود است.
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'orders:invoice' order.pk %}" target="_blank"
+                       style="width:100%; padding:12px; background:#1a1a1a; color:#00E6FF; border-radius:12px;
+                              display:inline-flex; align-items:center; justify-content:center; gap:8px;
+                              font-weight:700; text-decoration:none;">
+                        <i class="fas fa-file-invoice"></i> دانلود فاکتور رسمی
+                    </a>
+                    {% else %}
+                    <p style="font-size:13px; color:var(--text-secondary); margin:0;">
+                        پس از تأیید پرداخت/سفارش، فاکتور رسمی اینجا قابل دانلود خواهد بود.
+                    </p>
+                    {% endif %}
+                </div>
+
                 <!-- خلاصه مالی -->
                 <div class="glass-card">
                     <div class="card-header"><h2>خلاصه مالی</h2></div>

@@ -9,17 +9,39 @@ def error_404(request, exception=None):
     return render(request, '404.html', status=404)
 
 
+def _normalize_mobile(value):
+    """اعداد فارسی/عربی را به انگلیسی تبدیل و موبایل ایرانی را نرمال می‌کند."""
+    trans = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')
+    v = (value or '').translate(trans).strip().replace(' ', '').replace('-', '')
+    if v.startswith('+98'):
+        v = '0' + v[3:]
+    elif v.startswith('98') and len(v) == 12:
+        v = '0' + v[2:]
+    return v
+
+
 class NewsletterSubscribeView(View):
-    """ثبت ایمیل در خبرنامه (از فرم فوتر/صفحه اصلی، با AJAX)"""
+    """ثبت ایمیل یا شماره موبایل در خبرنامه (فرم فوتر/صفحه اصلی، با AJAX)"""
 
     def post(self, request):
+        import re
         from .models import NewsletterSubscriber
-        email = (request.POST.get('email') or '').strip().lower()
-        try:
-            validate_email(email)
-        except ValidationError:
-            return JsonResponse({'status': 'error', 'message': 'ایمیل معتبر وارد کنید.'}, status=400)
-        obj, created = NewsletterSubscriber.objects.get_or_create(email=email)
+        raw = (request.POST.get('email') or request.POST.get('contact') or '').strip()
+
+        # تشخیص ایمیل یا موبایل
+        if '@' in raw:
+            email = raw.lower()
+            try:
+                validate_email(email)
+            except ValidationError:
+                return JsonResponse({'status': 'error', 'message': 'ایمیل معتبر وارد کنید.'}, status=400)
+            obj, created = NewsletterSubscriber.objects.get_or_create(email=email)
+        else:
+            mobile = _normalize_mobile(raw)
+            if not re.fullmatch(r'09\d{9}', mobile):
+                return JsonResponse({'status': 'error', 'message': 'ایمیل یا شماره موبایل معتبر وارد کنید.'}, status=400)
+            obj, created = NewsletterSubscriber.objects.get_or_create(mobile=mobile)
+
         if not created and obj.is_active:
             return JsonResponse({'status': 'ok', 'message': 'شما قبلاً عضو شده‌اید.'})
         obj.is_active = True

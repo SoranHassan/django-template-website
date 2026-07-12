@@ -75,8 +75,14 @@ class DashboardIndexView(StaffRequiredMixin, View):
             'pending_orders_count': pending_orders_count,
         })
 
+def _mark_seen(request, key):
+    """ثبت زمان مشاهده تا بج اعلان آن بخش صفر شود"""
+    request.session[key] = timezone.now().isoformat()
+
+
 class DashboardUsersListView(StaffRequiredMixin, View):
     def get(self, request):
+        _mark_seen(request, 'seen_users_at')
         users = CustomUser.objects.all().order_by('-date_joined')
         staff_count = users.filter(is_staff=True).count()
         return render(request, 'dashboard/users-list.html', {'users': users, 'staff_count': staff_count, 'active_nav': 'users'})
@@ -189,6 +195,7 @@ class DashboardCategoriesListView(StaffRequiredMixin, View):
 
 class DashboardOrdersListView(StaffRequiredMixin, View):
     def get(self, request):
+        _mark_seen(request, 'seen_orders_at')
         orders = Order.objects.select_related('user', 'address', 'coupon').prefetch_related('items').order_by('-created_at')
         status = request.GET.get('status')
         if status:
@@ -208,12 +215,15 @@ class DashboardOrderDetailView(StaffRequiredMixin, View):
     def get(self, request, pk):
         order = get_object_or_404(
             Order.objects.select_related('user', 'address').prefetch_related('items__variant__product'),pk=pk)
-        return render(request, 'dashboard/order-detail.html', {'order': order, 'status_choices': Order.STATUS_CHOICES, 'active_nav': 'orders'})
+        return render(request, 'dashboard/order-detail.html', {
+            'order': order, 'status_choices': Order.STATUS_CHOICES, 'active_nav': 'orders',
+            'confirmed': request.GET.get('confirmed') == '1'})
 
     def post(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
         new_status = request.POST.get('status')
         tracking_code = request.POST.get('tracking_code', '')
+        confirmed = False
 
         if new_status in dict(Order.STATUS_CHOICES):
             old_status = order.status
@@ -225,11 +235,17 @@ class DashboardOrderDetailView(StaffRequiredMixin, View):
             # اطلاع‌رسانی پیامکی تغییر وضعیت به مشتری (مثلاً تأیید سفارش)
             if new_status != old_status:
                 send_order_status_sms.delay(order.user.mobile, order.pk, new_status)
+                # اگر سفارش به وضعیت تأییدشده رفت، فاکتور برای ادمین آماده شود
+                if new_status in ('paid', 'processing', 'shipped', 'delivered'):
+                    confirmed = True
 
+        if confirmed:
+            return redirect(f"{reverse('dashboard:order_detail', args=[pk])}?confirmed=1")
         return redirect('dashboard:order_detail', pk=pk)
 
 class DashboardReviewsListView(StaffRequiredMixin, View):
     def get(self, request):
+        _mark_seen(request, 'seen_reviews_at')
         reviews = Review.objects.select_related('user', 'product').order_by('-created_at')
         approved = request.GET.get('approved')
 
@@ -938,22 +954,33 @@ class DashboardNewsletterView(StaffRequiredMixin, View):
         if not (subject and body):
             return redirect('dashboard:newsletter')
 
-        recipients = list(NewsletterSubscriber.objects.filter(is_active=True)
-                          .values_list('email', flat=True))
+        active = NewsletterSubscriber.objects.filter(is_active=True)
+        emails = list(active.exclude(email__isnull=True).exclude(email='').values_list('email', flat=True))
+        mobiles = list(active.exclude(mobile__isnull=True).exclude(mobile='').values_list('mobile', flat=True))
         from_email = getattr(dj_settings, 'DEFAULT_FROM_EMAIL', None) or 'no-reply@oramshop.com'
         sent = 0
-        if recipients:
+
+        # ایمیل
+        if emails:
             try:
                 connection = get_connection(fail_silently=True)
                 messages = [
-                    EmailMultiAlternatives(subject, body, from_email, [email], connection=connection)
-                    for email in recipients
+                    EmailMultiAlternatives(subject, body, from_email, [e], connection=connection)
+                    for e in emails
                 ]
                 connection.send_messages(messages)
-                # تعداد گیرندگان = همهٔ مشترکین فعال که پیام برایشان ارسال شد
-                sent = len(recipients)
+                sent += len(emails)
             except Exception:
-                sent = 0
+                pass
+
+        # پیامک (به شماره‌های موبایل)
+        if mobiles:
+            try:
+                from accounts.tasks import send_newsletter_sms
+                send_newsletter_sms.delay(mobiles, f'{subject}\n{body}')
+                sent += len(mobiles)
+            except Exception:
+                pass
 
         NewsletterCampaign.objects.create(subject=subject, body=body, recipients_count=sent)
         return redirect(f"{reverse('dashboard:newsletter')}?sent=1&count={sent}")

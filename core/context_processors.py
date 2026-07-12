@@ -63,22 +63,39 @@ def wishlist_context(request):
     }
 
 
+def _unseen_count(request, session_key, queryset, date_field):
+    """تعداد آیتم‌های جدید از آخرین باری که ادمین آن بخش را دیده است.
+    اگر تاکنون دیده نشده، همین حالا را مبنا می‌گیرد (بدون آلارم کاذب)."""
+    from django.utils import timezone
+    from django.utils.dateparse import parse_datetime
+    raw = request.session.get(session_key)
+    if not raw:
+        request.session[session_key] = timezone.now().isoformat()
+        return 0
+    since = parse_datetime(raw)
+    if not since:
+        return 0
+    return queryset.filter(**{f'{date_field}__gt': since}).count()
+
+
 def dashboard_context(request):
-    """آمار داشبورد برای نمایش در navbar/سایدبار (بج‌های اعلان)"""
+    """بج‌های اعلان داشبورد — بعد از مشاهدهٔ هر بخش، عددش پاک می‌شود"""
     if not request.user.is_authenticated or not request.user.is_staff:
         return {}
 
-    from django.utils import timezone
-    from datetime import timedelta
     from accounts.models import CustomUser
 
-    week_ago = timezone.now() - timedelta(days=7)
-    pending_orders_count = Order.objects.filter(status='pending').count()
-    pending_reviews_count = Review.objects.filter(is_approved=False).count()
-    new_users_count = CustomUser.objects.filter(date_joined__gte=week_ago).count()
+    # شمارش آیتم‌های «خوانده‌نشده» (بعد از آخرین مشاهده)
+    new_orders_count = _unseen_count(request, 'seen_orders_at', Order.objects.all(), 'created_at')
+    new_users_count = _unseen_count(request, 'seen_users_at', CustomUser.objects.all(), 'date_joined')
+    new_reviews_count = _unseen_count(request, 'seen_reviews_at', Review.objects.filter(is_approved=False), 'created_at')
 
     return {
-        'pending_orders_count': pending_orders_count,
-        'pending_reviews_count': pending_reviews_count,
+        # بج‌های اعلان (پاک‌شونده)
+        'new_orders_count': new_orders_count,
         'new_users_count': new_users_count,
+        'new_reviews_count': new_reviews_count,
+        # شمارش‌های اقدام‌پذیر برای صفحهٔ داشبورد (پاک نمی‌شوند)
+        'pending_orders_count': Order.objects.filter(status='pending').count(),
+        'pending_reviews_count': Review.objects.filter(is_approved=False).count(),
     }

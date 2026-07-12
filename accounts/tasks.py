@@ -48,6 +48,28 @@ def cleanup_expired_otps():
 
 
 @shared_task
+def send_newsletter_sms(mobiles, text):
+    """ارسال پیامک خبرنامه به فهرست شماره‌ها (bulk)"""
+    if not mobiles:
+        return {'status': 'ok', 'count': 0}
+    url = 'https://api.sms.ir/v1/send/bulk'
+    headers = {'Content-Type': 'application/json', 'x-api-key': settings.SMS_IR_API_KEY}
+    data = {
+        'lineNumber': settings.SMS_IR_LINE_NUMBER,
+        'MessageTexts': [text] * len(mobiles),
+        'Mobiles': list(mobiles),
+    }
+    try:
+        response = requests.post(url, json=data, headers=headers, timeout=15)
+        response.raise_for_status()
+        logger.info('newsletter SMS sent to %d mobiles', len(mobiles))
+        return {'status': 'ok', 'count': len(mobiles)}
+    except requests.exceptions.RequestException as e:
+        logger.error('newsletter SMS failed: %s', e)
+        return {'status': 'error', 'message': str(e)}
+
+
+@shared_task
 def send_order_status_sms(mobile, order_id, status):
     """اطلاع‌رسانی وضعیت سفارش با پیامک"""
     status_messages = {

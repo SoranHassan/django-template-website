@@ -101,9 +101,10 @@ class SiteSetting(models.Model):
 
 
 class NewsletterSubscriber(models.Model):
-    """مشترکین خبرنامه — از فرم عضویت فوتر/صفحه اصلی ثبت می‌شوند"""
+    """مشترکین خبرنامه — با ایمیل یا شماره موبایل ثبت می‌شوند"""
 
-    email = models.EmailField(unique=True, verbose_name='ایمیل')
+    email = models.EmailField(unique=True, null=True, blank=True, verbose_name='ایمیل')
+    mobile = models.CharField(max_length=15, unique=True, null=True, blank=True, verbose_name='موبایل')
     is_active = models.BooleanField(default=True, verbose_name='فعال')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ عضویت')
 
@@ -113,7 +114,11 @@ class NewsletterSubscriber(models.Model):
         ordering = ('-created_at',)
 
     def __str__(self):
-        return self.email
+        return self.email or self.mobile or f'#{self.pk}'
+
+    @property
+    def contact(self):
+        return self.email or self.mobile or ''
 
 
 class NewsletterCampaign(models.Model):

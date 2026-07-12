@@ -37,9 +37,18 @@ class HomeView(View):
         from .templatetags.catalog_extras import collection_queryset
         from core.models import HomeCategoryCard
         from reviews.models import Review
+        from accounts.models import CustomUser
+        from django.db.models import Avg
 
         recent_reviews = Review.objects.filter(is_approved=True).select_related(
             'user', 'product').order_by('-created_at')[:6]
+
+        stats = {
+            'products': Product.objects.filter(is_active=True).count(),
+            'brands': Brand.objects.filter(is_active=True).count(),
+            'customers': CustomUser.objects.filter(is_active=True).count(),
+            'rating': round(Review.objects.filter(is_approved=True).aggregate(a=Avg('rating'))['a'] or 5, 1),
+        }
 
         return render(request, 'catalog/home.html', {
             'hero_slides': HeroSlide.objects.filter(is_active=True),
@@ -50,6 +59,7 @@ class HomeView(View):
             'brands': Brand.objects.filter(is_active=True),
             'home_cards': HomeCategoryCard.objects.filter(is_active=True),
             'recent_reviews': recent_reviews,
+            'stats': stats,
         })
 
 

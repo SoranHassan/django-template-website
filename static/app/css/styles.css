@@ -6196,6 +6196,26 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 /* آیکون‌های خطی کمی نازک‌تر و مینیمال‌تر برای حس لوکس */
 .lni { font-weight: 400; }
 
+/* ============ نوار آمار برند ============ */
+.os-stats-band {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+  background: linear-gradient(120deg, #15181c 0%, #0f2630 100%);
+  border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.10);
+}
+.os-stat {
+  padding: 26px 14px; text-align: center; color: #fff;
+  border-inline-end: 1px solid rgba(255,255,255,.06);
+}
+.os-stat:last-child { border-inline-end: none; }
+.os-stat > .lni { font-size: 26px; color: var(--os-cyan); margin-bottom: 8px; display: inline-block; }
+.os-stat-num { font-size: 26px; font-weight: 800; letter-spacing: .5px; }
+.os-stat-label { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 3px; }
+@media (max-width: 767px) {
+  .os-stats-band { grid-template-columns: repeat(2, 1fr); }
+  .os-stat { padding: 18px 10px; }
+  .os-stat-num { font-size: 21px; }
+}
+
 /* ============ بنرهای تبلیغاتی دوتایی صفحه اصلی ============ */
 .promo-banner {
   display: block; position: relative; overflow: hidden;

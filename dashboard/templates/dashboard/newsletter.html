@@ -48,12 +48,16 @@
         <div class="card-header"><h2>مشترکین ({{ subscribers_count }})</h2></div>
         <div class="table-container" style="max-height:360px; overflow:auto;">
             <table class="data-table">
-                <thead><tr><th>ایمیل</th><th>تاریخ عضویت</th></tr></thead>
+                <thead><tr><th>ایمیل / موبایل</th><th>نوع</th><th>تاریخ عضویت</th></tr></thead>
                 <tbody>
                 {% for s in subscribers %}
-                <tr><td style="direction:ltr; text-align:right;">{{ s.email }}</td><td>{{ s.created_at|jalali }}</td></tr>
+                <tr>
+                    <td style="direction:ltr; text-align:right;">{{ s.contact }}</td>
+                    <td>{% if s.email %}<i class="fas fa-envelope" title="ایمیل"></i>{% else %}<i class="fas fa-mobile-alt" title="موبایل"></i>{% endif %}</td>
+                    <td>{{ s.created_at|jalali }}</td>
+                </tr>
                 {% empty %}
-                <tr><td colspan="2" style="text-align:center; padding:24px; color:#888;">هنوز مشترکی ثبت نشده است</td></tr>
+                <tr><td colspan="3" style="text-align:center; padding:24px; color:#888;">هنوز مشترکی ثبت نشده است</td></tr>
                 {% endfor %}
                 </tbody>
             </table>

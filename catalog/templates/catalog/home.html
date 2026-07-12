@@ -137,6 +137,34 @@
     </div>
 </section>
 
+<!-- نوار آمار برند -->
+<section class="pt-2 pb-3">
+    <div class="container">
+        <div class="os-stats-band">
+            <div class="os-stat">
+                <i class="lni lni-package"></i>
+                <div class="os-stat-num">+{{ stats.products }}</div>
+                <div class="os-stat-label">محصول متنوع</div>
+            </div>
+            <div class="os-stat">
+                <i class="lni lni-crown"></i>
+                <div class="os-stat-num">{{ stats.brands }}</div>
+                <div class="os-stat-label">برند معتبر</div>
+            </div>
+            <div class="os-stat">
+                <i class="lni lni-users"></i>
+                <div class="os-stat-num">+{{ stats.customers }}</div>
+                <div class="os-stat-label">مشتری راضی</div>
+            </div>
+            <div class="os-stat">
+                <i class="lni lni-star-filled"></i>
+                <div class="os-stat-num">{{ stats.rating }}</div>
+                <div class="os-stat-label">میانگین رضایت</div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- محصولات پرفروش -->
 <section class="middle home-band home-band-best">
     <div class="container">
@@ -356,7 +384,7 @@
             </div>
             <form class="os-newsletter-form" id="newsletterForm">
                 {% csrf_token %}
-                <input type="email" name="email" placeholder="ایمیل خود را وارد کنید" aria-label="ایمیل" required>
+                <input type="text" name="email" placeholder="ایمیل یا شماره موبایل" aria-label="ایمیل یا موبایل" required>
                 <button type="submit"><i class="lni lni-envelope me-1"></i> عضویت</button>
             </form>
         </div>
