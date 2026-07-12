@@ -100,6 +100,39 @@ class SiteSetting(models.Model):
         return obj
 
 
+class NewsletterSubscriber(models.Model):
+    """مشترکین خبرنامه — از فرم عضویت فوتر/صفحه اصلی ثبت می‌شوند"""
+
+    email = models.EmailField(unique=True, verbose_name='ایمیل')
+    is_active = models.BooleanField(default=True, verbose_name='فعال')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ عضویت')
+
+    class Meta:
+        verbose_name = 'مشترک خبرنامه'
+        verbose_name_plural = 'مشترکین خبرنامه'
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return self.email
+
+
+class NewsletterCampaign(models.Model):
+    """کمپین‌های ارسال‌شدهٔ خبرنامه (تاریخچه)"""
+
+    subject = models.CharField(max_length=200, verbose_name='موضوع')
+    body = models.TextField(verbose_name='متن')
+    sent_at = models.DateTimeField(auto_now_add=True, verbose_name='زمان ارسال')
+    recipients_count = models.PositiveIntegerField(default=0, verbose_name='تعداد گیرندگان')
+
+    class Meta:
+        verbose_name = 'کمپین خبرنامه'
+        verbose_name_plural = 'کمپین‌های خبرنامه'
+        ordering = ('-sent_at',)
+
+    def __str__(self):
+        return self.subject
+
+
 class HomeCategoryCard(models.Model):
     """۴ کارت دسته‌بندی زیر بنر اصلی — تصویر/آیکون از پنل قابل تغییر"""
 

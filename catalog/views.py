@@ -36,6 +36,10 @@ class HomeView(View):
 
         from .templatetags.catalog_extras import collection_queryset
         from core.models import HomeCategoryCard
+        from reviews.models import Review
+
+        recent_reviews = Review.objects.filter(is_approved=True).select_related(
+            'user', 'product').order_by('-created_at')[:6]
 
         return render(request, 'catalog/home.html', {
             'hero_slides': HeroSlide.objects.filter(is_active=True),
@@ -45,6 +49,7 @@ class HomeView(View):
             'women_products': base_qs.filter(gender__in=['women', 'unisex']).order_by('-created_at')[:10],
             'brands': Brand.objects.filter(is_active=True),
             'home_cards': HomeCategoryCard.objects.filter(is_active=True),
+            'recent_reviews': recent_reviews,
         })
 
 

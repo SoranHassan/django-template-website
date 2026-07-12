@@ -1,0 +1,79 @@
+{% extends 'dashboard/_layout.html' %}
+{% load jalali %}
+
+{% block title %}خبرنامه{% endblock %}
+{% block search_placeholder %}جستجو در مشترکین...{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>خبرنامه</h1>
+    <p>ارسال خبر و تخفیف به همهٔ مشترکین با یک کلیک</p>
+</div>
+
+{% if sent %}
+<div class="alert-success" style="background:#e6faf4; color:#0a7c56; border:1px solid #29c397; padding:12px 16px; border-radius:12px; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+    <i class="fas fa-check-circle"></i> خبرنامه برای {{ sent_count }} مشترک ارسال شد.
+</div>
+{% endif %}
+
+<div style="display:grid; grid-template-columns:1.4fr 1fr; gap:16px; align-items:start;">
+    <!-- فرم ارسال -->
+    <div class="glass-card">
+        <div class="card-header"><h2>ارسال خبرنامهٔ جدید</h2></div>
+        <form method="POST" action="{% url 'dashboard:newsletter' %}" style="display:flex; flex-direction:column; gap:14px;">
+            {% csrf_token %}
+            <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">موضوع *</label>
+                <input type="text" name="subject" required
+                       style="width:100%; padding:11px 14px; border:1px solid #dcdcdc; border-radius:10px; font-family:inherit;">
+            </div>
+            <div>
+                <label style="font-size:13px; font-weight:600; display:block; margin-bottom:6px;">متن پیام *</label>
+                <textarea name="body" rows="8" required
+                          style="width:100%; padding:11px 14px; border:1px solid #dcdcdc; border-radius:10px; font-family:inherit; resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <span style="font-size:13px; color:#666;">
+                    <i class="fas fa-users"></i> {{ subscribers_count }} مشترک فعال
+                </span>
+                <button type="submit" class="dash-add-btn" data-confirm="خبرنامه برای همهٔ مشترکین ارسال شود؟">
+                    <i class="fas fa-paper-plane"></i> ارسال به همه
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- مشترکین -->
+    <div class="glass-card">
+        <div class="card-header"><h2>مشترکین ({{ subscribers_count }})</h2></div>
+        <div class="table-container" style="max-height:360px; overflow:auto;">
+            <table class="data-table">
+                <thead><tr><th>ایمیل</th><th>تاریخ عضویت</th></tr></thead>
+                <tbody>
+                {% for s in subscribers %}
+                <tr><td style="direction:ltr; text-align:right;">{{ s.email }}</td><td>{{ s.created_at|jalali }}</td></tr>
+                {% empty %}
+                <tr><td colspan="2" style="text-align:center; padding:24px; color:#888;">هنوز مشترکی ثبت نشده است</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if campaigns %}
+<div class="glass-card" style="margin-top:16px;">
+    <div class="card-header"><h2>تاریخچهٔ ارسال</h2></div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>موضوع</th><th>گیرندگان</th><th>زمان ارسال</th></tr></thead>
+            <tbody>
+            {% for c in campaigns %}
+            <tr><td style="font-weight:600;">{{ c.subject }}</td><td>{{ c.recipients_count }}</td><td>{{ c.sent_at|jalali }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

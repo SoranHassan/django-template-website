@@ -135,11 +135,11 @@
                         </td>
                         <td>
                                     <span class="status
-                                        {% if order.status == 'delivered' %}success
-                                        {% elif order.status == 'cancelled' %}cancelled
-                                        {% elif order.status == 'shipped' %}
+                                        {% if order.status == 'paid' or order.status == 'delivered' %}success
+                                        {% elif order.status == 'cancelled' or order.status == 'returned' %}cancelled
+                                        {% elif order.status == 'shipped' or order.status == 'processing' %}
                                         {% else %}pending{% endif %}"
-                                          {% if order.status == 'shipped' %}
+                                          {% if order.status == 'shipped' or order.status == 'processing' %}
                             style="background: rgba(88,86,214,0.2); color: #5856D6;
                             border: 0.5px solid #5856D6;"
                             {% endif %}>

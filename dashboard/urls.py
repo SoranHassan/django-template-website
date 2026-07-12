@@ -74,6 +74,9 @@ urlpatterns = [
     # SEO report
     path('seo/', views.DashboardSeoView.as_view(), name='seo'),
 
+    # Newsletter
+    path('newsletter/', views.DashboardNewsletterView.as_view(), name='newsletter'),
+
     # Analytics
     path('analytics/', views.DashboardAnalyticsView.as_view(), name='analytics'),
 ]

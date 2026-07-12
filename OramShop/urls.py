@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
 
-from core.views import robots_txt
+from core.views import robots_txt, NewsletterSubscribeView
 from .sitemaps import SITEMAPS
 
 urlpatterns = [
@@ -21,6 +21,7 @@ urlpatterns = [
     # SEO
     path('sitemap.xml', sitemap, {'sitemaps': SITEMAPS}, name='sitemap'),
     path('robots.txt', robots_txt, name='robots_txt'),
+    path('newsletter/subscribe/', NewsletterSubscribeView.as_view(), name='newsletter_subscribe'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

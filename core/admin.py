@@ -37,3 +37,20 @@ class HomeCategoryCardAdmin(admin.ModelAdmin):
     list_display = ('title', 'link', 'order', 'is_active')
     list_editable = ('order', 'is_active')
     search_fields = ('title',)
+
+
+from .models import NewsletterSubscriber, NewsletterCampaign
+
+
+@admin.register(NewsletterSubscriber)
+class NewsletterSubscriberAdmin(admin.ModelAdmin):
+    list_display = ('email', 'is_active', 'created_at')
+    list_editable = ('is_active',)
+    search_fields = ('email',)
+
+
+@admin.register(NewsletterCampaign)
+class NewsletterCampaignAdmin(admin.ModelAdmin):
+    list_display = ('subject', 'recipients_count', 'sent_at')
+    search_fields = ('subject',)
+    readonly_fields = ('sent_at', 'recipients_count')

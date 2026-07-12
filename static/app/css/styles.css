@@ -6196,6 +6196,49 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 /* آیکون‌های خطی کمی نازک‌تر و مینیمال‌تر برای حس لوکس */
 .lni { font-weight: 400; }
 
+/* ============ بنرهای تبلیغاتی دوتایی صفحه اصلی ============ */
+.promo-banner {
+  display: block; position: relative; overflow: hidden;
+  border-radius: 20px; min-height: 190px; text-decoration: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+.promo-banner::after {
+  content: ""; position: absolute; inset: 0; transition: background .3s ease;
+}
+.promo-men   { background: linear-gradient(120deg, #1a222e 0%, #2c5364 100%); }
+.promo-women { background: linear-gradient(120deg, #241b26 0%, #7a4a63 100%); }
+.promo-banner:hover::after { background: rgba(0,0,0,.12); }
+.promo-content {
+  position: relative; z-index: 2; padding: 34px 32px;
+  display: flex; flex-direction: column; gap: 8px; height: 100%; justify-content: center;
+}
+.promo-sub { color: var(--os-cyan); font-size: 13px; font-weight: 600; }
+.promo-title { color: #fff; font-size: 24px; font-weight: 800; margin: 0; }
+.promo-cta {
+  color: #fff; font-size: 14px; font-weight: 600; margin-top: 8px;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.promo-banner:hover .promo-cta { color: var(--os-cyan); }
+
+/* ============ کارت نظرات مشتریان ============ */
+.testimonial-card {
+  background: #fff; border: 1px solid #f0f0f0; border-radius: 16px;
+  padding: 22px; height: 100%; display: flex; flex-direction: column; gap: 12px;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.testimonial-card:hover { box-shadow: 0 12px 30px rgba(0,0,0,.08); transform: translateY(-3px); }
+.testimonial-stars .lni { color: #dcdcdc; font-size: 14px; }
+.testimonial-stars .lni.on { color: #f5b301; }
+.testimonial-body { color: #555; font-size: 13px; line-height: 2; margin: 0; flex: 1; }
+.testimonial-user { display: flex; align-items: center; gap: 10px; }
+.testimonial-avatar {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #1A1A1A, #00B8CC); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-weight: 700;
+}
+.testimonial-name { font-weight: 700; font-size: 13px; color: #1a1a1a; }
+.testimonial-product { font-size: 11px; color: #999; }
+
 /* ============ نوار خبرنامه صفحه اصلی ============ */
 .os-newsletter { padding: 40px 0; background: #f5f6f8; }
 .os-newsletter-box {

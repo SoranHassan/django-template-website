@@ -36,52 +36,31 @@
             padding: 40px;
         }
 
-        /* هدر */
+        /* هدر — لوگو راست، عنوان وسط، تاریخ چپ */
         .invoice-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 18px;
             border-bottom: 2px solid #1a1a1a;
         }
-
-        .company-info h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 8px;
+        .inv-logo { text-align: right; min-width: 150px; }
+        .inv-logo .os-mono {
+            display: inline-block; width: 54px; height: 54px; border-radius: 12px;
+            background: #0d0d0d; color: #00E6FF; font-weight: 700; font-size: 26px;
+            text-align: center; line-height: 54px; letter-spacing: 1px;
         }
-
-        .company-info p {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .invoice-meta {
-            text-align: left;
-        }
-
-        .invoice-meta h2 {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 10px;
-        }
-
-        .invoice-meta table {
-            font-size: 12px;
-            color: #444;
-        }
-
-        .invoice-meta td {
-            padding: 3px 10px 3px 0;
-        }
-
-        .invoice-meta td:first-child {
-            font-weight: 600;
-            color: #1a1a1a;
+        .inv-logo .os-name { font-size: 15px; font-weight: 700; letter-spacing: 3px; margin-top: 6px; color: #1a1a1a; }
+        .inv-title { text-align: center; flex: 1; }
+        .inv-title h2 { font-size: 24px; font-weight: 700; color: #1a1a1a; }
+        .inv-title p { font-size: 12px; color: #666; margin-top: 4px; }
+        .inv-date { text-align: left; min-width: 170px; font-size: 12px; color: #444; }
+        .inv-date p { margin-bottom: 6px; }
+        .inv-date b { color: #1a1a1a; }
+        .company-contact {
+            text-align: center; font-size: 11px; color: #777;
+            margin-bottom: 26px; padding-bottom: 14px; border-bottom: 1px dashed #ddd;
         }
 
         /* اطلاعات مشتری و آدرس */
@@ -255,41 +234,33 @@
 <body>
 <div class="invoice-wrapper">
 
-    <!-- هدر -->
+    <!-- هدر: لوگو راست | فاکتور رسمی وسط | تاریخ چپ -->
     <div class="invoice-header">
-        <div class="company-info">
-            <h1>OramShop</h1>
-            <p>فروشگاه اینترنتی پوشاک و اکسسوری</p>
-            <p>تهران، خیابان ولیعصر</p>
-            <p>info@oramshop.ir | ۰۲۱-۱۲۳۴۵۶۷۸</p>
+        <div class="inv-logo">
+            <div class="os-mono">OS</div>
+            <div class="os-name">ORAM SHOP</div>
         </div>
-        <div class="invoice-meta">
+        <div class="inv-title">
             <h2>فاکتور رسمی</h2>
-            <table>
-                <tr>
-                    <td>شماره فاکتور:</td>
-                    <td>#{{ order.pk }}</td>
-                </tr>
-                <tr>
-                    <td>تاریخ صدور:</td>
-                    <td>{{ order.created_at|jalali }}</td>
-                </tr>
-                <tr>
-                    <td>وضعیت:</td>
-                    <td>
-                        <span class="payment-status {% if order.status == 'paid' or order.status == 'delivered' %}paid{% else %}pending{% endif %}">
-                            {{ order.get_status_display }}
-                        </span>
-                    </td>
-                </tr>
-                {% if order.zarinpal_ref_id %}
-                <tr>
-                    <td>کد مرجع:</td>
-                    <td>{{ order.zarinpal_ref_id }}</td>
-                </tr>
-                {% endif %}
-            </table>
+            <p>شماره فاکتور: #{{ order.pk }}</p>
         </div>
+        <div class="inv-date">
+            <p><b>تاریخ صدور:</b><br>{{ order.created_at|jalali_dt }}</p>
+            <p>
+                <span class="payment-status {% if order.status == 'paid' or order.status == 'delivered' %}paid{% else %}pending{% endif %}">
+                    {{ order.get_status_display }}
+                </span>
+            </p>
+            {% if order.zarinpal_ref_id %}<p><b>کد مرجع:</b> {{ order.zarinpal_ref_id }}</p>{% endif %}
+        </div>
+    </div>
+
+    <!-- اطلاعات تماس فروشگاه (از دیتابیس، همیشه به‌روز) -->
+    <div class="company-contact">
+        فروشگاه اینترنتی اُرام‌شاپ
+        {% if site_settings.footer_phone %} | تلفن: {{ site_settings.footer_phone }}{% endif %}
+        {% if site_settings.footer_email %} | {{ site_settings.footer_email }}{% endif %}
+        {% if site_settings.footer_address %} | {{ site_settings.footer_address }}{% endif %}
     </div>
 
     <!-- اطلاعات مشتری و آدرس -->
@@ -367,10 +338,12 @@
                 <td>- {{ order.discount_amount|intcomma }} تومان</td>
             </tr>
             {% endif %}
+            {% if order.tax %}
             <tr>
-                <td>مالیات (۹٪):</td>
+                <td>مالیات:</td>
                 <td>{{ order.tax|intcomma }} تومان</td>
             </tr>
+            {% endif %}
             {% if order.shipping_cost %}
             <tr>
                 <td>هزینه ارسال:</td>
@@ -394,9 +367,9 @@
 
     <!-- فوتر -->
     <div class="invoice-footer">
-        <p>با تشکر از خرید شما از OramShop</p>
-        <p>این فاکتور به صورت سیستماتیک صادر شده و نیاز به مهر و امضا ندارد</p>
-        <p>در صورت هرگونه سوال با ما تماس بگیرید: info@oramshop.ir</p>
+        <p>با تشکر از خرید شما از اُرام‌شاپ</p>
+        <p>این فاکتور به‌صورت سیستمی صادر شده و نیاز به مهر و امضا ندارد.</p>
+        {% if site_settings.footer_email %}<p>در صورت هرگونه سؤال با ما تماس بگیرید: {{ site_settings.footer_email }}</p>{% endif %}
     </div>
 
 </div>

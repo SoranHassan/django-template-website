@@ -914,6 +914,51 @@ class DashboardBlogDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:blog_list')
 
 
+class DashboardNewsletterView(StaffRequiredMixin, View):
+    """نوشتن و ارسال خبرنامه به همهٔ مشترکین با یک کلیک"""
+
+    def get(self, request):
+        from core.models import NewsletterSubscriber, NewsletterCampaign
+        return render(request, 'dashboard/newsletter.html', {
+            'active_nav': 'newsletter',
+            'subscribers': NewsletterSubscriber.objects.filter(is_active=True),
+            'subscribers_count': NewsletterSubscriber.objects.filter(is_active=True).count(),
+            'campaigns': NewsletterCampaign.objects.all()[:10],
+            'sent': request.GET.get('sent'),
+            'sent_count': request.GET.get('count'),
+        })
+
+    def post(self, request):
+        from django.conf import settings as dj_settings
+        from django.core.mail import get_connection, EmailMultiAlternatives
+        from core.models import NewsletterSubscriber, NewsletterCampaign
+
+        subject = (request.POST.get('subject') or '').strip()
+        body = (request.POST.get('body') or '').strip()
+        if not (subject and body):
+            return redirect('dashboard:newsletter')
+
+        recipients = list(NewsletterSubscriber.objects.filter(is_active=True)
+                          .values_list('email', flat=True))
+        from_email = getattr(dj_settings, 'DEFAULT_FROM_EMAIL', None) or 'no-reply@oramshop.com'
+        sent = 0
+        if recipients:
+            try:
+                connection = get_connection(fail_silently=True)
+                messages = [
+                    EmailMultiAlternatives(subject, body, from_email, [email], connection=connection)
+                    for email in recipients
+                ]
+                connection.send_messages(messages)
+                # تعداد گیرندگان = همهٔ مشترکین فعال که پیام برایشان ارسال شد
+                sent = len(recipients)
+            except Exception:
+                sent = 0
+
+        NewsletterCampaign.objects.create(subject=subject, body=body, recipients_count=sent)
+        return redirect(f"{reverse('dashboard:newsletter')}?sent=1&count={sent}")
+
+
 class DashboardSeoView(StaffRequiredMixin, View):
     """گزارش سئوی واقعی — بر اساس وضعیت واقعی محصولات/محتوای سایت محاسبه می‌شود"""
 

@@ -38,8 +38,8 @@
                     </p>
                 </div>
                 <span class="status
-                        {% if order.status == 'delivered' %}success
-                        {% elif order.status == 'cancelled' %}cancelled
+                        {% if order.status == 'paid' or order.status == 'delivered' %}success
+                        {% elif order.status == 'cancelled' or order.status == 'returned' %}cancelled
                         {% else %}pending{% endif %}"
                       style="font-size: 14px; padding: 8px 16px;">
                         {{ order.get_status_display }}

@@ -111,6 +111,32 @@
 </section>
 <!-- دسته‌بندی‌ها End -->
 
+<!-- بنرهای تبلیغاتی دوتایی -->
+<section class="pt-2 pb-2">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="promo-banner promo-men">
+                    <div class="promo-content">
+                        <span class="promo-sub">کالکشن مردانه</span>
+                        <h3 class="promo-title">استایل روز آقایان</h3>
+                        <span class="promo-cta">خرید کنید <i class="lni lni-arrow-left"></i></span>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="promo-banner promo-women">
+                    <div class="promo-content">
+                        <span class="promo-sub">کالکشن زنانه</span>
+                        <h3 class="promo-title">جدیدترین مدل‌های بانوان</h3>
+                        <span class="promo-cta">خرید کنید <i class="lni lni-arrow-left"></i></span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- محصولات پرفروش -->
 <section class="middle home-band home-band-best">
     <div class="container">
@@ -287,6 +313,39 @@
     </div>
 </section>
 
+{% if recent_reviews %}
+<!-- نظرات مشتریان -->
+<section class="middle pt-2">
+    <div class="container">
+        <div class="row justify-content-center mb-4">
+            <div class="col-xl-12 text-center">
+                <h3 class="ft-bold">نظر مشتریان ما</h3>
+                <p class="text-muted mb-0">تجربهٔ خرید واقعی مشتریان اُرام‌شاپ</p>
+            </div>
+        </div>
+        <div class="row g-3">
+            {% for review in recent_reviews %}
+            <div class="col-md-6 col-lg-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        {% for i in "12345" %}<i class="lni lni-star-filled {% if forloop.counter <= review.rating %}on{% endif %}"></i>{% endfor %}
+                    </div>
+                    <p class="testimonial-body">«{{ review.body|truncatechars:120 }}»</p>
+                    <div class="testimonial-user">
+                        <div class="testimonial-avatar">{{ review.user.first_name|first|default:review.user.mobile|first|upper }}</div>
+                        <div>
+                            <div class="testimonial-name">{{ review.user.get_full_name|default:"مشتری اُرام‌شاپ" }}</div>
+                            <div class="testimonial-product">{{ review.product.name|truncatechars:26 }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
 <!-- نوار خبرنامه / عضویت — برای پرتر شدن صفحه اصلی -->
 <section class="os-newsletter">
     <div class="container">
@@ -295,13 +354,44 @@
                 <h3 class="ft-bold mb-1">از تخفیف‌ها و کالکشن‌های جدید باخبر شو</h3>
                 <p class="mb-0">ایمیل یا شماره‌ات را وارد کن تا جدیدترین‌ها و کدهای تخفیف را دریافت کنی.</p>
             </div>
-            <form class="os-newsletter-form" onsubmit="return false;">
-                <input type="text" placeholder="ایمیل یا شماره موبایل" aria-label="ایمیل یا شماره موبایل">
+            <form class="os-newsletter-form" id="newsletterForm">
+                {% csrf_token %}
+                <input type="email" name="email" placeholder="ایمیل خود را وارد کنید" aria-label="ایمیل" required>
                 <button type="submit"><i class="lni lni-envelope me-1"></i> عضویت</button>
             </form>
         </div>
+        <div id="newsletterMsg" class="text-center mt-2" style="display:none; font-size:13px;"></div>
     </div>
 </section>
+
+<script>
+(function () {
+    var form = document.getElementById('newsletterForm');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var email = form.querySelector('[name="email"]').value.trim();
+        var token = form.querySelector('[name="csrfmiddlewaretoken"]').value;
+        var msg = document.getElementById('newsletterMsg');
+        fetch('{% url "newsletter_subscribe" %}', {
+            method: 'POST',
+            headers: {'X-CSRFToken': token},
+            body: new URLSearchParams({email: email})
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            msg.style.display = 'block';
+            msg.style.color = data.status === 'ok' ? '#00E6FF' : '#ffb4b4';
+            msg.textContent = data.message;
+            if (data.status === 'ok') form.reset();
+        })
+        .catch(function () {
+            msg.style.display = 'block'; msg.style.color = '#ffb4b4';
+            msg.textContent = 'خطا در ارتباط. دوباره تلاش کنید.';
+        });
+    });
+})();
+</script>
 
 {% include 'catalog/_quickview.html' %}
 {% include 'catalog/_search_drawer.html' %}

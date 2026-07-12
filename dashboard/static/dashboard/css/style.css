@@ -1228,3 +1228,31 @@ button:not([class]) {
     background: #1a1a1a; color: #fff; font-family: inherit; font-weight: 600;
     font-size: 13px; cursor: pointer;
 }
+
+/* ---------- نوبار داشبورد: زنگ اعلان + جمع‌وجورتر ---------- */
+.top-header { gap: 14px; }
+.search-box input:focus { border-color: #00B8CC; box-shadow: 0 0 0 3px rgba(0,184,204,.15); }
+.header-bell {
+    position: relative; width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: #f4f5f7; color: #333; cursor: pointer; transition: background .15s;
+}
+.header-bell:hover { background: #eaecef; }
+.header-bell > i { font-size: 17px; }
+.header-bell-count {
+    position: absolute; top: 4px; left: 4px; min-width: 18px; height: 18px;
+    background: #FF3B30; color: #fff; border-radius: 10px; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+}
+.header-bell-menu {
+    position: absolute; top: 52px; left: 0; width: 260px; background: #fff;
+    border: 1px solid #eee; border-radius: 14px; box-shadow: 0 16px 40px rgba(0,0,0,.12);
+    padding: 8px; display: none; z-index: 200;
+}
+.header-bell:hover .header-bell-menu { display: block; }
+.header-bell-menu a {
+    display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 9px;
+    color: #333; text-decoration: none; font-size: 13px; transition: background .15s;
+}
+.header-bell-menu a:hover { background: #f3f5f7; color: #00B8CC; }
+.header-bell-menu a b { margin-inline-start: auto; color: #00B8CC; }
