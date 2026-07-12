@@ -8,7 +8,7 @@ register = template.Library()
 
 def collection_queryset(kind):
     """کوئری مجموعه‌ها: new | discount | bestseller"""
-    qs = Product.objects.filter(is_active=True).prefetch_related('images')
+    qs = Product.objects.filter(is_active=True).prefetch_related('images', 'variants__size', 'variants__color')
     if kind == 'discount':
         return qs.filter(original_price__isnull=False,
                          original_price__gt=F('price')).order_by('-created_at')

@@ -475,4 +475,90 @@ document.addEventListener('click', function (e) {
         })
         .catch(() => { btn.disabled = false; });
 }, true);
+
+// ============ افزودن سریع به سبد از روی کارت محصول ============
+document.addEventListener('click', function (e) {
+    // باز/بستن پنل انتخاب
+    const addBtn = e.target.closest('.os-card-addbtn');
+    if (addBtn) {
+        e.preventDefault();
+        const panel = addBtn.closest('.os-card-foot').querySelector('.os-quickadd');
+        if (panel) {
+            const willOpen = panel.hasAttribute('hidden');
+            document.querySelectorAll('.os-quickadd').forEach(p => p.setAttribute('hidden', ''));
+            if (willOpen) panel.removeAttribute('hidden');
+        }
+        return;
+    }
+    // انتخاب سایز
+    const sizeBtn = e.target.closest('.qa-size');
+    if (sizeBtn) {
+        sizeBtn.parentElement.querySelectorAll('.qa-size').forEach(b => b.classList.remove('sel'));
+        sizeBtn.classList.add('sel');
+        return;
+    }
+    // انتخاب رنگ
+    const colorBtn = e.target.closest('.qa-color');
+    if (colorBtn) {
+        colorBtn.parentElement.querySelectorAll('.qa-color').forEach(b => b.classList.remove('sel'));
+        colorBtn.classList.add('sel');
+        return;
+    }
+    // استپر تعداد
+    const qMinus = e.target.closest('.qa-minus');
+    const qPlus = e.target.closest('.qa-plus');
+    if (qMinus || qPlus) {
+        const wrap = (qMinus || qPlus).closest('.qa-stepper');
+        const input = wrap.querySelector('.qa-qty');
+        let v = parseInt(input.value) || 1;
+        v = qPlus ? Math.min(v + 1, 20) : Math.max(v - 1, 1);
+        input.value = v;
+        return;
+    }
+    // تأیید و افزودن
+    const confirmBtn = e.target.closest('.qa-confirm');
+    if (confirmBtn) {
+        const card = confirmBtn.closest('.os-product-card');
+        const panel = confirmBtn.closest('.os-quickadd');
+        const msg = panel.querySelector('.qa-msg');
+        const selSize = panel.querySelector('.qa-size.sel');
+        const selColor = panel.querySelector('.qa-color.sel');
+        const hasSizes = panel.querySelector('.qa-size');
+        const hasColors = panel.querySelector('.qa-color');
+        if (hasSizes && !selSize) { msg.className = 'qa-msg err'; msg.textContent = 'سایز را انتخاب کنید'; return; }
+        if (hasColors && !selColor) { msg.className = 'qa-msg err'; msg.textContent = 'رنگ را انتخاب کنید'; return; }
+        const wantSize = selSize ? selSize.dataset.size : '';
+        const wantColor = selColor ? selColor.dataset.color : '';
+        let variantId = null, stock = 0;
+        panel.querySelectorAll('.qa-variants span').forEach(sp => {
+            if (sp.dataset.size === wantSize && sp.dataset.color === wantColor) {
+                variantId = sp.dataset.variant; stock = parseInt(sp.dataset.stock) || 0;
+            }
+        });
+        if (!variantId) { msg.className = 'qa-msg err'; msg.textContent = 'این ترکیب موجود نیست'; return; }
+        if (stock < 1) { msg.className = 'qa-msg err'; msg.textContent = 'ناموجود'; return; }
+        const qty = panel.querySelector('.qa-qty').value || 1;
+        const token = document.querySelector('meta[name="csrf-token"]').content;
+        confirmBtn.disabled = true;
+        fetch('/cart/add/', {
+            method: 'POST', headers: { 'X-CSRFToken': token },
+            body: new URLSearchParams({ variant_id: variantId, quantity: qty })
+        })
+        .then(r => r.json())
+        .then(data => {
+            confirmBtn.disabled = false;
+            if (data.status === 'ok') {
+                msg.className = 'qa-msg ok'; msg.textContent = 'به سبد اضافه شد ✓';
+                if (window.refreshCartDrawer) window.refreshCartDrawer();
+                document.querySelectorAll('.cart-count').forEach(el => {
+                    el.textContent = data.count; el.style.display = 'flex';
+                });
+                setTimeout(() => panel.setAttribute('hidden', ''), 1200);
+            } else {
+                msg.className = 'qa-msg err'; msg.textContent = data.message || 'خطا';
+            }
+        })
+        .catch(() => { confirmBtn.disabled = false; msg.className = 'qa-msg err'; msg.textContent = 'خطا در ارتباط'; });
+    }
+});
 </script>

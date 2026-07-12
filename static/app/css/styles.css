@@ -6357,17 +6357,81 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   background: #e63946 !important; color: #fff !important;
   font-size: 11px; padding: 5px 9px; border-radius: 8px; font-weight: 700;
 }
-/* عنوان و دسته */
-.os-card-cat { display: block; font-size: 11px; color: #9a9a9a; margin-bottom: 3px; }
-.os-card-title { font-size: 14px; line-height: 1.6; margin-bottom: 8px !important; min-height: 2.6em; }
+/* عنوان محصول بالا، برند کمرنگ زیر آن */
+.os-card-title { font-size: 14px; line-height: 1.6; margin-bottom: 2px !important; }
 .os-card-title a { color: #1a1a1a; }
 .os-card-title a:hover { color: var(--os-cyan-dark); }
+.os-card-brand { display: block; font-size: 11px; color: #a6a6a6; margin-bottom: 8px; }
 /* قیمت‌ها — با فاصله مشخص */
-.os-card-prices { display: flex; flex-direction: column; gap: 2px; }
-.os-old-price {
-  font-size: 12px; color: #b0b0b0; text-decoration: line-through;
-}
+.os-card-prices { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+.os-old-price { font-size: 12px; color: #b0b0b0; text-decoration: line-through; }
 .os-final-price { font-size: 15px; font-weight: 800; color: var(--os-cyan-dark); }
+
+/* دکمه افزودن به سبد روی کارت */
+.os-card-addbtn {
+  width: 100%; border: none; border-radius: 10px; padding: 9px 12px;
+  background: var(--os-charcoal); color: #fff; font-family: inherit; font-weight: 700;
+  font-size: 13px; cursor: pointer; display: inline-flex; align-items: center;
+  justify-content: center; gap: 7px; transition: background .18s ease;
+}
+.os-card-addbtn:hover { background: #000; color: var(--os-cyan); }
+.os-card-addbtn .lni { font-size: 15px; }
+
+/* پنل انتخاب سریع سایز/رنگ/تعداد */
+.os-quickadd {
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;
+  display: flex; flex-direction: column; gap: 9px;
+}
+.os-quickadd[hidden] { display: none; }
+.qa-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qa-label { font-size: 11px; color: #888; min-width: 30px; }
+.qa-options { display: flex; flex-wrap: wrap; gap: 5px; }
+.qa-size {
+  min-width: 30px; padding: 4px 8px; border: 1px solid #ddd; border-radius: 7px;
+  background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s;
+}
+.qa-size:hover { border-color: #1a1a1a; }
+.qa-size.sel { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+.qa-color {
+  width: 22px; height: 22px; border-radius: 50%; border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #ddd; cursor: pointer; padding: 0;
+}
+.qa-color.sel { box-shadow: 0 0 0 2px var(--os-cyan-dark); }
+.qa-bottom { justify-content: space-between; }
+.qa-stepper { transform: scale(.9); transform-origin: right; }
+.qa-confirm {
+  border: none; border-radius: 9px; padding: 8px 16px; background: var(--os-cyan);
+  color: #0d0d0d; font-family: inherit; font-weight: 700; font-size: 13px; cursor: pointer;
+}
+.qa-confirm:hover { background: #00c8de; }
+.qa-msg { font-size: 11px; min-height: 14px; }
+.qa-msg.ok { color: #16a34a; }
+.qa-msg.err { color: #e63946; }
+
+/* باکس فیلتر صفحه محصولات — padding/margin استاندارد و یکسان */
+.os-filter-card {
+  padding: 20px 22px !important;
+  margin-top: 14px;
+  background: #fff;
+  border: 1px solid #eee !important;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.04);
+}
+.os-filter-card .row { margin-inline: 0; }
+.os-filter-card .row > [class*="col-"] { padding-inline: 10px; }
+.os-filter-card h6 { font-size: 13px; color: #1a1a1a; }
+.os-filter-card .form-check {
+  margin-bottom: 6px; padding-inline-start: 1.7em; padding-left: 0;
+  display: flex; align-items: center; gap: 7px;
+}
+.os-filter-card .form-check-label { font-size: 13px; color: #555; cursor: pointer; }
+.os-filter-card .form-check-input {
+  cursor: pointer; float: none; margin: 0; flex-shrink: 0;
+}
+@media (max-width: 767px) {
+  .os-filter-card { padding: 16px 16px !important; }
+  .os-filter-card .row > [class*="col-"] { padding-inline: 6px; }
+}
 
 /* ============ گرید بلاگ — همیشه هماهنگ و ریسپانسیو ============ */
 .blog-grid {

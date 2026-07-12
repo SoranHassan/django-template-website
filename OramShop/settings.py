@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',
     'OramShop.middleware.SecurityHeadersMiddleware',
+    'OramShop.middleware.VisitTrackingMiddleware',
 ]
 
 ROOT_URLCONF = 'OramShop.urls'

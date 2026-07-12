@@ -1,4 +1,30 @@
 from django.db import models
+from django.conf import settings
+
+
+class SiteVisit(models.Model):
+    """ثبت بازدیدهای واقعی سایت — توسط میدل‌ور ذخیره می‌شود (آمار بازدید پنل)"""
+
+    session_key = models.CharField(max_length=40, db_index=True, blank=True,
+                                   verbose_name='کلید نشست')
+    path = models.CharField(max_length=255, blank=True, verbose_name='مسیر')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True,
+                             on_delete=models.SET_NULL, verbose_name='کاربر')
+    ip_hash = models.CharField(max_length=32, blank=True, verbose_name='هش IP')
+    is_authenticated = models.BooleanField(default=False, verbose_name='کاربر عضو')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True,
+                                      verbose_name='زمان بازدید')
+
+    class Meta:
+        verbose_name = 'بازدید سایت'
+        verbose_name_plural = 'بازدیدهای سایت'
+        ordering = ('-created_at',)
+        indexes = [
+            models.Index(fields=['created_at', 'session_key']),
+        ]
+
+    def __str__(self):
+        return f'{self.path} — {self.created_at:%Y-%m-%d %H:%M}'
 
 
 class Announcement(models.Model):

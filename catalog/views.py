@@ -32,7 +32,8 @@ class SearchSuggestView(View):
 
 class HomeView(View):
     def get(self, request):
-        base_qs = Product.objects.filter(is_active=True).prefetch_related('images')
+        base_qs = Product.objects.filter(is_active=True).prefetch_related(
+            'images', 'variants__size', 'variants__color')
 
         from .templatetags.catalog_extras import collection_queryset
         from core.models import HomeCategoryCard
@@ -79,7 +80,7 @@ class HomeView(View):
 
 class ProductListView(View):
     def get(self, request):
-        products = Product.objects.filter(is_active=True).prefetch_related('images', 'variants')
+        products = Product.objects.filter(is_active=True).prefetch_related('images', 'variants__size', 'variants__color')
         category_slug = request.GET.get('category')
         if category_slug:
             products = products.filter(category__slug=category_slug)

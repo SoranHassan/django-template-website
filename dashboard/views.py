@@ -60,8 +60,15 @@ class DashboardIndexView(StaffRequiredMixin, View):
         pending_reviews = Review.objects.filter(is_approved=False).select_related('user', 'product')[:5]
         pending_reviews_count = Review.objects.filter(is_approved=False).count()
 
+        from core.models import SiteVisit
+        visits_today = SiteVisit.objects.filter(created_at__date=now.date()).count()
+        online_now = SiteVisit.objects.filter(
+            created_at__gte=now - timedelta(minutes=5)).values('session_key').distinct().count()
+
         return render(request, 'dashboard/index.html', {
             'active_nav': 'index',
+            'visits_today': visits_today,
+            'online_now': online_now,
             'users_count': users_count,
             'orders_count': pending_orders_count,
             'products_count': products_count,
@@ -359,9 +366,54 @@ class DashboardAnalyticsView(StaffRequiredMixin, View):
 
         recent_users = CustomUser.objects.order_by('-date_joined')[:6]
 
+        # ---------- آمار بازدید واقعی سایت ----------
+        from core.models import SiteVisit
+        today = now.date()
+        week_ago = now - timedelta(days=7)
+        month_ago = now - timedelta(days=30)
+        online_since = now - timedelta(minutes=5)
+
+        visits_today = SiteVisit.objects.filter(created_at__date=today).count()
+        visits_week = SiteVisit.objects.filter(created_at__gte=week_ago).count()
+        visits_month = SiteVisit.objects.filter(created_at__gte=month_ago).count()
+        unique_today = SiteVisit.objects.filter(created_at__date=today).values('session_key').distinct().count()
+        unique_month = SiteVisit.objects.filter(created_at__gte=month_ago).values('session_key').distinct().count()
+        online_now = SiteVisit.objects.filter(created_at__gte=online_since).values('session_key').distinct().count()
+
+        # نمودار بازدید ۱۴ روز اخیر
+        from django.db.models.functions import TruncDate
+        daily_qs = (SiteVisit.objects.filter(created_at__gte=now - timedelta(days=13))
+                    .annotate(day=TruncDate('created_at'))
+                    .values('day')
+                    .annotate(views=Count('id'), visitors=Count('session_key', distinct=True))
+                    .order_by('day'))
+        daily_map = {d['day']: d for d in daily_qs}
+        visit_labels, visit_views, visit_visitors = [], [], []
+        for i in range(13, -1, -1):
+            day = today - timedelta(days=i)
+            visit_labels.append(day.strftime('%m/%d'))
+            row = daily_map.get(day)
+            visit_views.append(row['views'] if row else 0)
+            visit_visitors.append(row['visitors'] if row else 0)
+
+        # پربازدیدترین صفحات (ماه اخیر)
+        top_pages_qs = (SiteVisit.objects.filter(created_at__gte=month_ago)
+                        .values('path').annotate(views=Count('id')).order_by('-views')[:6])
+        top_pages = list(top_pages_qs)
+
         return render(request, 'dashboard/analytics.html', {
             'active_nav': 'analytics',
             'period': period,
+            'visits_today': visits_today,
+            'visits_week': visits_week,
+            'visits_month': visits_month,
+            'unique_today': unique_today,
+            'unique_month': unique_month,
+            'online_now': online_now,
+            'visit_labels': json.dumps(visit_labels, ensure_ascii=False),
+            'visit_views': json.dumps(visit_views),
+            'visit_visitors': json.dumps(visit_visitors),
+            'top_pages': top_pages,
             'total_revenue': total_revenue,
             'total_orders': total_orders,
             'new_users': new_users,

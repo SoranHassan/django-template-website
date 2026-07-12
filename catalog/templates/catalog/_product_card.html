@@ -1,5 +1,8 @@
 {% load static humanize %}
-<div class="product_grid card b-0 mb-4 os-product-card">
+<div class="product_grid card b-0 mb-4 os-product-card" data-product="{{ product.pk }}"
+     data-name="{{ product.name }}" data-price="{{ product.price }}"
+     data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
+     data-slug="{{ product.slug }}">
 
     {% if product.discount_percent %}
     <div class="position-absolute ab-left os-badge-wrap">
@@ -27,28 +30,73 @@
                      src="{% static 'app/img/product-placeholder.svg' %}" alt="{{ product.name }}">
                 {% endif %}
             </a>
-            <a href="{% url 'catalog:product_detail' product.pk %}" class="os-card-cart" title="افزودن به سبد خرید">
-                <i class="lni lni-cart"></i>
-            </a>
         </div>
     </div>
 
     <div class="card-footer b-0 pt-3 px-2 bg-white os-card-foot">
         <div class="text-right">
-            {% if product.category %}
-            <span class="text-muted small os-card-cat">{{ product.category.name }}</span>
-            {% endif %}
             <h5 class="product_title fw-normal fs-md mb-0 lh-1 os-card-title">
                 <a href="{% url 'catalog:product_detail' product.pk %}" class="text-dark">
                     {{ product.name|truncatechars:34 }}
                 </a>
             </h5>
+            {% if product.brand %}
+            <span class="os-card-brand">{{ product.brand.name }}</span>
+            {% endif %}
             <div class="os-card-prices">
                 {% if product.original_price %}
                 <span class="os-old-price">{{ product.original_price|intcomma }} تومان</span>
                 {% endif %}
                 <span class="os-final-price">{{ product.price|intcomma }} تومان</span>
             </div>
+
+            <!-- دکمه افزودن به سبد -->
+            <button type="button" class="os-card-addbtn"><i class="lni lni-cart"></i> افزودن به سبد</button>
+        </div>
+
+        <!-- پنل انتخاب سایز/رنگ/تعداد (پس از کلیک باز می‌شود) -->
+        <div class="os-quickadd" hidden>
+            {% with variants=product.variants.all %}
+            {% regroup variants by size as size_groups %}
+            {% if size_groups %}
+            <div class="qa-row">
+                <span class="qa-label">سایز:</span>
+                <div class="qa-options qa-sizes">
+                    {% for g in size_groups %}{% if g.grouper %}
+                    <button type="button" class="qa-size" data-size="{{ g.grouper.pk }}">{{ g.grouper.name }}</button>
+                    {% endif %}{% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            {% regroup variants by color as color_groups %}
+            {% if color_groups %}
+            <div class="qa-row">
+                <span class="qa-label">رنگ:</span>
+                <div class="qa-options qa-colors">
+                    {% for g in color_groups %}{% if g.grouper %}
+                    <button type="button" class="qa-color" data-color="{{ g.grouper.pk }}"
+                            title="{{ g.grouper.name }}" style="background:{{ g.grouper.hex_code }};"></button>
+                    {% endif %}{% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            <div class="qa-row qa-bottom">
+                <div class="quantity-stepper qa-stepper" style="direction:ltr;">
+                    <button class="btn qty-btn qa-minus" type="button"><i class="lni lni-minus"></i></button>
+                    <input type="text" class="form-control text-center qty-value qa-qty" value="1" readonly>
+                    <button class="btn qty-btn qa-plus" type="button"><i class="lni lni-plus"></i></button>
+                </div>
+                <button type="button" class="qa-confirm">افزودن</button>
+            </div>
+            <div class="qa-msg"></div>
+            <!-- نگاشت واریانت‌ها برای JS -->
+            <div class="qa-variants" hidden>
+                {% for v in variants %}
+                <span data-variant="{{ v.pk }}" data-size="{{ v.size.pk|default:'' }}"
+                      data-color="{{ v.color.pk|default:'' }}" data-stock="{{ v.stock }}"></span>
+                {% endfor %}
+            </div>
+            {% endwith %}
         </div>
     </div>
 

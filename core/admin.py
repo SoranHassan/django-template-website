@@ -54,3 +54,17 @@ class NewsletterCampaignAdmin(admin.ModelAdmin):
     list_display = ('subject', 'recipients_count', 'sent_at')
     search_fields = ('subject',)
     readonly_fields = ('sent_at', 'recipients_count')
+
+
+from .models import SiteVisit
+
+
+@admin.register(SiteVisit)
+class SiteVisitAdmin(admin.ModelAdmin):
+    list_display = ('path', 'is_authenticated', 'session_key', 'created_at')
+    list_filter = ('is_authenticated', 'created_at')
+    search_fields = ('path', 'session_key')
+    readonly_fields = ('session_key', 'path', 'user', 'ip_hash', 'is_authenticated', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
