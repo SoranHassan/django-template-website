@@ -365,7 +365,7 @@
                         <!-- Review form -->
                         {% if user.is_authenticated %}
                         <div class="reviews_rate mt-4">
-                            <form method="POST" action="{% url 'reviews:add' product.slug %}" class="row g-3">
+                            <form method="POST" action="{% url 'reviews:add' product.slug %}" class="row g-3" id="reviewForm">
                                 {% csrf_token %}
 
                                 <div class="col-xl-12">
@@ -503,6 +503,33 @@
 {% endblock %}
 
 {% block js %}
+<script>
+// Review form: submit via AJAX and show the branded dialog instead of raw JSON
+(function () {
+    var form = document.getElementById('reviewForm');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('[type="submit"]');
+        if (btn) btn.disabled = true;
+        fetch(form.action, {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            body: new FormData(form)
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (btn) btn.disabled = false;
+            window.osDialog(data.message, data.status === 'ok');
+            if (data.status === 'ok') form.reset();
+        })
+        .catch(function () {
+            if (btn) btn.disabled = false;
+            window.osDialog('خطا در ارتباط با سرور. دوباره تلاش کنید.', false);
+        });
+    });
+})();
+</script>
 <script>
     // Variant data from the backend
     const variants = [

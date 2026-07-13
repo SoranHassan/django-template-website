@@ -6503,6 +6503,38 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .qa-msg.ok { color: #16a34a; }
 .qa-msg.err { color: #e63946; }
 
+/* ============ Branded site dialog (logo + message + ok) ============ */
+.os-dialog-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(10, 14, 18, .62); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.os-dialog-overlay[hidden] { display: none; }
+.os-dialog-box {
+  background: #fff; border-radius: 20px; width: min(420px, 100%);
+  padding: 28px 26px 22px; text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,.35);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  animation: osDialogIn .22s ease;
+}
+@keyframes osDialogIn { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; } }
+.os-dialog-logo { height: 34px; width: auto; }
+.os-dialog-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.os-dialog-icon .lni { margin-inline-end: 0; }
+.os-dialog-icon.ok { background: #e5f8fb; color: var(--os-cyan-dark); }
+.os-dialog-icon.err { background: #fdeef0; color: #e63946; }
+.os-dialog-msg { margin: 0; font-size: 14px; line-height: 2; color: #333; }
+.os-dialog-ok {
+  border: none; border-radius: 10px; padding: 10px 38px;
+  background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%);
+  color: #fff; font-family: inherit; font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: box-shadow .18s ease;
+}
+.os-dialog-ok:hover { box-shadow: 0 6px 16px rgba(0,184,204,.35); }
+
 /* Shop pagination - on-brand pills */
 .os-pagination { gap: 6px; }
 .os-pagination .page-link {

@@ -276,6 +276,10 @@ class DashboardReviewApproveView(StaffRequiredMixin, View):
         review = get_object_or_404(Review, pk=pk)
         review.is_approved = not review.is_approved
         review.save()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or \
+                request.headers.get('accept', '').startswith('application/json'):
+            from django.http import JsonResponse
+            return JsonResponse({'status': 'ok', 'is_approved': review.is_approved})
         return redirect('dashboard:reviews_list')
 
 class DashboardAnalyticsView(StaffRequiredMixin, View):

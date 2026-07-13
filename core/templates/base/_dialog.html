@@ -1,0 +1,32 @@
+{% load static %}
+{% comment %} Branded site dialog - call window.osDialog(message, ok) from any page {% endcomment %}
+<div id="osDialog" class="os-dialog-overlay" hidden>
+    <div class="os-dialog-box" role="alertdialog" aria-live="assertive">
+        <img src="{% static 'app/img/logo.svg' %}" alt="OramShop" class="os-dialog-logo">
+        <div class="os-dialog-icon" aria-hidden="true"></div>
+        <p class="os-dialog-msg"></p>
+        <button type="button" class="os-dialog-ok">باشه</button>
+    </div>
+</div>
+<script>
+window.osDialog = function (message, ok) {
+    var overlay = document.getElementById('osDialog');
+    if (!overlay) { alert(message); return; }
+    overlay.querySelector('.os-dialog-msg').textContent = message;
+    var icon = overlay.querySelector('.os-dialog-icon');
+    icon.className = 'os-dialog-icon ' + (ok === false ? 'err' : 'ok');
+    icon.innerHTML = ok === false ? '<i class="lni lni-close"></i>' : '<i class="lni lni-checkmark"></i>';
+    overlay.removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+};
+(function () {
+    var overlay = document.getElementById('osDialog');
+    if (!overlay) return;
+    function close() { overlay.setAttribute('hidden', ''); document.body.style.overflow = ''; }
+    overlay.querySelector('.os-dialog-ok').addEventListener('click', close);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !overlay.hasAttribute('hidden')) close();
+    });
+})();
+</script>

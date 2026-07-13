@@ -80,3 +80,38 @@ class HomeCardsCrudTest(TestCase):
         self.assertEqual(card.title, 'هودی')
         self.client.post(reverse('dashboard:home_card_delete', args=[card.pk]))
         self.assertFalse(HomeCategoryCard.objects.filter(pk=card.pk).exists())
+
+
+class ReviewApproveTest(TestCase):
+    """Approving a review from the panel must actually persist (was broken: GET to a POST view)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from reviews.models import Review
+        cls.staff = make_user(mobile='09127777774', is_staff=True)
+        cls.customer = make_user(mobile='09127777775')
+        cls.product, _ = make_product(slug='rev-prod')
+        cls.review = Review.objects.create(product=cls.product, user=cls.customer,
+                                           rating=5, body='عالی', is_approved=False)
+
+    def test_post_toggles_approval(self):
+        self.client.force_login(self.staff)
+        response = self.client.post(
+            reverse('dashboard:review_approve', args=[self.review.pk]),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.json()['is_approved'], True)
+        self.review.refresh_from_db()
+        self.assertTrue(self.review.is_approved)
+
+    def test_get_is_rejected(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('dashboard:review_approve', args=[self.review.pk]))
+        self.assertEqual(response.status_code, 405)
+        self.review.refresh_from_db()
+        self.assertFalse(self.review.is_approved)
+
+    def test_button_uses_generated_url_and_post(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('dashboard:reviews_list'))
+        self.assertContains(response, 'data-url=')
+        self.assertContains(response, "method: 'POST'")
