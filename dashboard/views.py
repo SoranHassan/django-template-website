@@ -16,26 +16,26 @@ from django.urls import reverse
 
 
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """Just Staff Users Has Permission"""
+    """Only staff users are allowed."""
 
     def test_func(self):
         return self.request.user.is_staff
 
 
 class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    """فقط سوپریوزر — برای عملیات حساس مثل ویرایش کاربران"""
+    """Superuser only - for sensitive operations such as user management and site settings."""
 
     def test_func(self):
         return self.request.user.is_superuser
 
 
 class DashboardUserToggleView(SuperuserRequiredMixin, View):
-    """فعال/غیرفعال یا مدیر کردن کاربر — فقط سوپریوزر"""
+    """Toggle a user active/staff - superuser only."""
 
     def post(self, request, pk):
         user = get_object_or_404(CustomUser, pk=pk)
         field = request.POST.get('field')
-        # سوپریوزر نباید خودش را از دسترسی خارج کند
+        # A superuser must not lock themselves out
         if user == request.user:
             return redirect('dashboard:users_list')
         if field == 'is_active':
@@ -83,7 +83,7 @@ class DashboardIndexView(StaffRequiredMixin, View):
         })
 
 def _mark_seen(request, key):
-    """ثبت زمان مشاهده تا بج اعلان آن بخش صفر شود"""
+    """Store the viewed-at time so the section badge resets to zero."""
     request.session[key] = timezone.now().isoformat()
 
 
@@ -120,8 +120,8 @@ class DashboardProductsListView(StaffRequiredMixin, View):
             'categories_count': Category.objects.count()})
 
 def _unique_product_slug(name, requested_slug='', exclude_pk=None):
-    """اسلاگ همیشه انگلیسی/اسکی و یکتا (مثل SKU)؛ فارسی هرگز در URL نمی‌آید.
-    اگر نام فارسی بود و اسکی چیزی نماند، از الگوی product-<کد یکتا> استفاده می‌شود."""
+    """Slug is always ASCII and unique (like a SKU); Persian never appears in URLs.
+    If the name is Persian and nothing ASCII remains, the product-<unique code> pattern is used."""
     base = slugify((requested_slug or '').strip(), allow_unicode=False) \
         or slugify(name or '', allow_unicode=False)
     if not base:
@@ -239,10 +239,10 @@ class DashboardOrderDetailView(StaffRequiredMixin, View):
                 order.tracking_code = tracking_code
             order.save()
 
-            # اطلاع‌رسانی پیامکی تغییر وضعیت به مشتری (مثلاً تأیید سفارش)
+            # SMS notification to the customer on status change (e.g. order confirmed)
             if new_status != old_status:
                 send_order_status_sms.delay(order.user.mobile, order.pk, new_status)
-                # اگر سفارش به وضعیت تأییدشده رفت، فاکتور برای ادمین آماده شود
+                # When the order becomes confirmed, prepare the invoice for the admin
                 if new_status in ('paid', 'processing', 'shipped', 'delivered'):
                     confirmed = True
 
@@ -366,7 +366,7 @@ class DashboardAnalyticsView(StaffRequiredMixin, View):
 
         recent_users = CustomUser.objects.order_by('-date_joined')[:6]
 
-        # ---------- آمار بازدید واقعی سایت ----------
+        # ---------- Real site visit statistics ----------
         from core.models import SiteVisit
         today = now.date()
         week_ago = now - timedelta(days=7)
@@ -380,7 +380,7 @@ class DashboardAnalyticsView(StaffRequiredMixin, View):
         unique_month = SiteVisit.objects.filter(created_at__gte=month_ago).values('session_key').distinct().count()
         online_now = SiteVisit.objects.filter(created_at__gte=online_since).values('session_key').distinct().count()
 
-        # نمودار بازدید ۱۴ روز اخیر
+        # Daily visits chart for the last 14 days
         from django.db.models.functions import TruncDate
         daily_qs = (SiteVisit.objects.filter(created_at__gte=now - timedelta(days=13))
                     .annotate(day=TruncDate('created_at'))
@@ -396,7 +396,7 @@ class DashboardAnalyticsView(StaffRequiredMixin, View):
             visit_views.append(row['views'] if row else 0)
             visit_visitors.append(row['visitors'] if row else 0)
 
-        # پربازدیدترین صفحات (ماه اخیر)
+        # Most visited pages (last month)
         top_pages_qs = (SiteVisit.objects.filter(created_at__gte=month_ago)
                         .values('path').annotate(views=Count('id')).order_by('-views')[:6])
         top_pages = list(top_pages_qs)
@@ -497,11 +497,11 @@ class DashboardProductEditView(StaffRequiredMixin, View):
         except Exception as e:
             return form_error(f'خطا در ذخیره محصول: {e}')
 
-# ---------- CRUD کامل داخل داشبورد (بدون ریدایرکت به ادمین جنگو) ----------
+# ---------- Full CRUD inside the dashboard (no redirects to Django admin) ----------
 
 def render_form_page(request, *, page_title, fields, action, cancel_url,
                      page_subtitle='', has_richtext=False, error=''):
-    """صفحه فرم استاندارد داشبورد (مثل ادمین جنگو) — همه ویرایش‌ها در یک صفحه جدا"""
+    """Standard dashboard form page (admin-like) - every edit gets its own page."""
     return render(request, 'dashboard/form-page.html', {
         'page_title': page_title,
         'page_subtitle': page_subtitle,
@@ -515,14 +515,14 @@ def render_form_page(request, *, page_title, fields, action, cancel_url,
 
 
 def _dt_local(value):
-    """فرمت datetime برای input[type=datetime-local]"""
+    """Format a datetime for input[type=datetime-local]."""
     if not value:
         return ''
     return timezone.localtime(value).strftime('%Y-%m-%dT%H:%M')
 
 
 class DashboardCategorySaveView(StaffRequiredMixin, View):
-    """ایجاد/ویرایش دسته‌بندی در یک صفحه جدا"""
+    """Create/edit a category on its own page."""
 
     def get(self, request, pk=None):
         cat = get_object_or_404(Category, pk=pk) if pk else None
@@ -571,7 +571,7 @@ class DashboardBrandsListView(StaffRequiredMixin, View):
 
 
 class DashboardBrandSaveView(StaffRequiredMixin, View):
-    """ایجاد/ویرایش برند در یک صفحه جدا"""
+    """Create/edit a brand on its own page."""
 
     def get(self, request, pk=None):
         brand = get_object_or_404(Brand, pk=pk) if pk else None
@@ -609,7 +609,7 @@ class DashboardBrandDeleteView(StaffRequiredMixin, View):
 class DashboardProductDeleteView(StaffRequiredMixin, View):
     def post(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
-        # اگر سفارشی به واریانت‌ها وصل باشد (PROTECT)، به جای حذف غیرفعال می‌کنیم
+        # If orders reference the variants (PROTECT), deactivate instead of deleting
         try:
             product.delete()
         except Exception:
@@ -635,7 +635,7 @@ class DashboardCouponsListView(StaffRequiredMixin, View):
 
 
 class DashboardCouponSaveView(StaffRequiredMixin, View):
-    """ایجاد (بدون pk) یا ویرایش (با pk) کد تخفیف در یک صفحه جدا"""
+    """Create (no pk) or edit (with pk) a coupon on its own page."""
 
     def get(self, request, pk=None):
         from orders.models import Coupon
@@ -693,7 +693,7 @@ class DashboardCouponDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:coupons_list')
 
 
-# ---------- مدیریت واریانت (سایز/رنگ/موجودی/قیمت) ----------
+# ---------- Variant management (size/color/stock/price) ----------
 
 class DashboardVariantSaveView(StaffRequiredMixin, View):
     def post(self, request, pk):
@@ -722,7 +722,7 @@ class DashboardVariantDeleteView(StaffRequiredMixin, View):
 
 
 class DashboardColorCreateView(StaffRequiredMixin, View):
-    """افزودن سریع رنگ (نام + کد هگز) از داخل فرم محصول"""
+    """Quick-add a color (name + hex code) from inside the product form."""
 
     def post(self, request):
         name = request.POST.get('name', '').strip()
@@ -739,7 +739,7 @@ class DashboardSizeCreateView(StaffRequiredMixin, View):
     def post(self, request):
         name = request.POST.get('name', '').strip()
         if name:
-            # برای سایز عددی (مثل 40، 42) ترتیب خودکار بر اساس مقدار عدد
+            # Numeric sizes (e.g. 40, 42) get automatic ordering by numeric value
             sort_order = 0
             try:
                 sort_order = int(float(name.replace('٫', '.').replace('،', '')))
@@ -752,7 +752,7 @@ class DashboardSizeCreateView(StaffRequiredMixin, View):
         return redirect('dashboard:products_list')
 
 
-# ---------- جدول سایزبندی (سانتی‌متر) ----------
+# ---------- Size chart (centimetres) ----------
 
 class DashboardSizeChartSaveView(StaffRequiredMixin, View):
     def post(self, request, pk):
@@ -776,7 +776,7 @@ class DashboardSizeChartDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:product_edit', pk=product_pk)
 
 
-# ---------- روش‌های ارسال / اطلاعیه‌ها / بنرها / بلاگ (مدیریت کامل بدون ادمین جنگو) ----------
+# ---------- Shipping methods / announcements / banners / blog (full management, no Django admin) ----------
 
 class DashboardShippingListView(StaffRequiredMixin, View):
     def get(self, request):
@@ -822,14 +822,14 @@ class DashboardShippingDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:shipping_list')
 
 
-class DashboardAnnouncementsListView(StaffRequiredMixin, View):
+class DashboardAnnouncementsListView(SuperuserRequiredMixin, View):
     def get(self, request):
         from core.models import Announcement
         return render(request, 'dashboard/announcements-list.html',
                       {'items': Announcement.objects.all(), 'active_nav': 'announcements'})
 
 
-class DashboardAnnouncementSaveView(StaffRequiredMixin, View):
+class DashboardAnnouncementSaveView(SuperuserRequiredMixin, View):
     def get(self, request, pk=None):
         from core.models import Announcement
         a = get_object_or_404(Announcement, pk=pk) if pk else None
@@ -859,21 +859,21 @@ class DashboardAnnouncementSaveView(StaffRequiredMixin, View):
         return redirect('dashboard:announcements_list')
 
 
-class DashboardAnnouncementDeleteView(StaffRequiredMixin, View):
+class DashboardAnnouncementDeleteView(SuperuserRequiredMixin, View):
     def post(self, request, pk):
         from core.models import Announcement
         get_object_or_404(Announcement, pk=pk).delete()
         return redirect('dashboard:announcements_list')
 
 
-class DashboardHeroListView(StaffRequiredMixin, View):
+class DashboardHeroListView(SuperuserRequiredMixin, View):
     def get(self, request):
         from core.models import HeroSlide
         return render(request, 'dashboard/hero-list.html',
                       {'slides': HeroSlide.objects.all(), 'active_nav': 'hero'})
 
 
-class DashboardHeroSaveView(StaffRequiredMixin, View):
+class DashboardHeroSaveView(SuperuserRequiredMixin, View):
     def get(self, request, pk=None):
         from core.models import HeroSlide
         s = get_object_or_404(HeroSlide, pk=pk) if pk else None
@@ -881,7 +881,8 @@ class DashboardHeroSaveView(StaffRequiredMixin, View):
             {'name': 'title', 'label': 'عنوان', 'type': 'text', 'required': True, 'value': s.title if s else ''},
             {'name': 'subtitle', 'label': 'زیرعنوان', 'type': 'text', 'full': True, 'value': s.subtitle if s else ''},
             {'name': 'image', 'label': 'تصویر بنر', 'type': 'image', 'value': s.image.url if s and s.image else '',
-             'help': 'ابعاد پیشنهادی: عریض (مثلاً ۱۹۲۰×۷۰۰)'},
+             'aspect': '4',
+             'help': 'کادر برش دقیقاً هم‌شکل بنر سایت است (نسبت ۴:۱ مثل ۱۹۲۰×۴۸۰) — همان چیزی که برش می‌دهید نمایش داده می‌شود'},
             {'name': 'button_text', 'label': 'متن دکمه', 'type': 'text', 'value': s.button_text if s else 'خرید کنید'},
             {'name': 'button_link', 'label': 'لینک دکمه', 'type': 'text', 'value': s.button_link if s else '/shop/'},
             {'name': 'order', 'label': 'ترتیب نمایش', 'type': 'number', 'value': s.order if s else 0},
@@ -908,15 +909,15 @@ class DashboardHeroSaveView(StaffRequiredMixin, View):
         return redirect('dashboard:hero_list')
 
 
-class DashboardHeroDeleteView(StaffRequiredMixin, View):
+class DashboardHeroDeleteView(SuperuserRequiredMixin, View):
     def post(self, request, pk):
         from core.models import HeroSlide
         get_object_or_404(HeroSlide, pk=pk).delete()
         return redirect('dashboard:hero_list')
 
 
-class DashboardHomeCardsListView(StaffRequiredMixin, View):
-    """۴ کارت دسته‌بندی زیر بنر اصلی صفحه اول"""
+class DashboardHomeCardsListView(SuperuserRequiredMixin, View):
+    """The 4 category cards under the hero banner on the home page."""
 
     def get(self, request):
         from core.models import HomeCategoryCard
@@ -924,7 +925,7 @@ class DashboardHomeCardsListView(StaffRequiredMixin, View):
                       {'cards': HomeCategoryCard.objects.all(), 'active_nav': 'home_cards'})
 
 
-class DashboardHomeCardSaveView(StaffRequiredMixin, View):
+class DashboardHomeCardSaveView(SuperuserRequiredMixin, View):
     def get(self, request, pk=None):
         from core.models import HomeCategoryCard
         c = get_object_or_404(HomeCategoryCard, pk=pk) if pk else None
@@ -934,7 +935,8 @@ class DashboardHomeCardSaveView(StaffRequiredMixin, View):
             {'name': 'link', 'label': 'لینک', 'type': 'text', 'value': c.link if c else '/shop/',
              'help': 'مثال: ‎/shop/?category=tshirt'},
             {'name': 'image', 'label': 'تصویر کارت', 'type': 'image', 'value': c.image.url if c and c.image else '',
-             'help': 'مربعی (مثلاً ۶۰۰×۶۰۰) — اگر خالی باشد آیکون نمایش داده می‌شود'},
+             'aspect': '1',
+             'help': 'کادر برش مربعی است، دقیقاً هم‌شکل کارت روی سایت — اگر خالی باشد آیکون نمایش داده می‌شود'},
             {'name': 'icon_class', 'label': 'کلاس آیکون (بدون تصویر)', 'type': 'text',
              'value': c.icon_class if c else 'lni lni-tshirt'},
             {'name': 'color', 'label': 'رنگ آیکون', 'type': 'color', 'value': c.color if c else '#00B8CC'},
@@ -964,7 +966,7 @@ class DashboardHomeCardSaveView(StaffRequiredMixin, View):
         return redirect('dashboard:home_cards_list')
 
 
-class DashboardHomeCardDeleteView(StaffRequiredMixin, View):
+class DashboardHomeCardDeleteView(SuperuserRequiredMixin, View):
     def post(self, request, pk):
         from core.models import HomeCategoryCard
         get_object_or_404(HomeCategoryCard, pk=pk).delete()
@@ -1011,8 +1013,8 @@ class DashboardBlogSaveView(StaffRequiredMixin, View):
         if not (post.title and post.body):
             return redirect('dashboard:blog_list')
 
-        # اسلاگ همیشه انگلیسی/اسکی است تا مشکل URL فارسی پیش نیاید؛
-        # اگر ورودی فارسی بود و اسکی چیزی نماند، با شناسه (pk) پر می‌شود.
+        # Slug is always ASCII so Persian URLs never cause problems;
+        # if the input is Persian and nothing ASCII remains, the pk is used.
         requested = request.POST.get('slug', '').strip()
         base = slugify(requested, allow_unicode=False) or slugify(post.title, allow_unicode=False)
         if base and (not pk or requested):
@@ -1022,7 +1024,7 @@ class DashboardBlogSaveView(StaffRequiredMixin, View):
                 slug, i = f'{base}-{i}', i + 1
             post.slug = slug
         elif not post.slug:
-            post.slug = 'post'  # موقت تا pk بگیریم
+            post.slug = 'post'  # temporary until we have a pk
 
         post.save()
         if not base and (post.slug == 'post' or not post.slug):
@@ -1038,8 +1040,8 @@ class DashboardBlogDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:blog_list')
 
 
-class DashboardNewsletterView(StaffRequiredMixin, View):
-    """نوشتن و ارسال خبرنامه به همهٔ مشترکین با یک کلیک"""
+class DashboardNewsletterView(SuperuserRequiredMixin, View):
+    """Compose and send the newsletter to all subscribers in one click."""
 
     def get(self, request):
         from core.models import NewsletterSubscriber, NewsletterCampaign
@@ -1068,7 +1070,7 @@ class DashboardNewsletterView(StaffRequiredMixin, View):
         from_email = getattr(dj_settings, 'DEFAULT_FROM_EMAIL', None) or 'no-reply@oramshop.com'
         sent = 0
 
-        # ایمیل
+        # Email
         if emails:
             try:
                 connection = get_connection(fail_silently=True)
@@ -1081,7 +1083,7 @@ class DashboardNewsletterView(StaffRequiredMixin, View):
             except Exception:
                 pass
 
-        # پیامک (به شماره‌های موبایل)
+        # SMS (to mobile numbers)
         if mobiles:
             try:
                 from accounts.tasks import send_newsletter_sms
@@ -1094,8 +1096,8 @@ class DashboardNewsletterView(StaffRequiredMixin, View):
         return redirect(f"{reverse('dashboard:newsletter')}?sent=1&count={sent}")
 
 
-class DashboardSeoView(StaffRequiredMixin, View):
-    """گزارش سئوی واقعی — بر اساس وضعیت واقعی محصولات/محتوای سایت محاسبه می‌شود"""
+class DashboardSeoView(SuperuserRequiredMixin, View):
+    """Real SEO report - computed from the actual state of the site content."""
 
     def get(self, request):
         from blog.models import Post
@@ -1111,7 +1113,7 @@ class DashboardSeoView(StaffRequiredMixin, View):
         def pct(n):
             return round(n / total * 100)
 
-        # هر آیتم: (عنوان، امتیاز۰تا۱۰۰، وزن، پیشنهاد)
+        # Each item: (title, score 0-100, weight, suggestion)
         checks = [
             {'title': 'فایل robots.txt', 'score': 100, 'weight': 1,
              'detail': 'فعال است (/robots.txt)', 'ok': True},
@@ -1160,24 +1162,31 @@ class DashboardSeoView(StaffRequiredMixin, View):
         })
 
 
-class DashboardSiteSettingsView(StaffRequiredMixin, View):
-    """تنظیمات ظاهری سایت (متن واترمارک صفحه اصلی + رنگ نوار اطلاعیه)"""
+class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
+    """Site appearance settings (topbar, banners, footer, vectors, about text)."""
 
     def get(self, request):
         from core.models import SiteSetting
         s = SiteSetting.get()
         fields = [
-            {'name': 'home_watermark', 'label': 'متن بزرگ صفحه اصلی (جای «محصولات ویژه»)',
-             'type': 'text', 'full': True, 'value': s.home_watermark,
-             'help': 'این متن به‌صورت واترمارک بزرگ پشت بخش پرفروش‌ها نمایش داده می‌شود'},
             {'name': 'topbar_style', 'label': 'رنگ نوار اطلاعیه بالای سایت', 'type': 'select',
              'options': SiteSetting.TOPBAR_CHOICES, 'value': s.topbar_style},
-            # بنر صفحه محصولات
+            # Shop page banner
             {'name': 'shop_banner', 'label': 'بنر صفحه محصولات', 'type': 'image',
              'value': s.shop_banner.url if s.shop_banner else '', 'full': True},
+            # Home collection vectors
+            {'name': 'men_vector', 'label': 'وکتور کالکشن مردانه', 'type': 'image',
+             'value': s.men_vector.url if s.men_vector else '',
+             'help': 'اگر خالی بماند وکتور پیش‌فرض استفاده می‌شود — PNG/SVG با پس‌زمینه شفاف'},
+            {'name': 'women_vector', 'label': 'وکتور کالکشن زنانه', 'type': 'image',
+             'value': s.women_vector.url if s.women_vector else '',
+             'help': 'اگر خالی بماند وکتور پیش‌فرض استفاده می‌شود — PNG/SVG با پس‌زمینه شفاف'},
+            # About-us band before the footer
+            {'name': 'about_home', 'label': 'متن دربارهٔ ما (قبل از فوتر صفحه اصلی)', 'type': 'textarea',
+             'full': True, 'value': s.about_home},
             {'name': 'shop_banner_title', 'label': 'عنوان بنر محصولات', 'type': 'text', 'value': s.shop_banner_title},
             {'name': 'shop_banner_subtitle', 'label': 'زیرعنوان بنر محصولات', 'type': 'text', 'value': s.shop_banner_subtitle},
-            # اطلاعات فوتر
+            # Footer info
             {'name': 'footer_about', 'label': 'متن دربارهٔ فوتر', 'type': 'textarea', 'full': True, 'value': s.footer_about},
             {'name': 'footer_phone', 'label': 'تلفن پشتیبانی', 'type': 'text', 'value': s.footer_phone},
             {'name': 'footer_email', 'label': 'ایمیل', 'type': 'text', 'value': s.footer_email},
@@ -1186,10 +1195,10 @@ class DashboardSiteSettingsView(StaffRequiredMixin, View):
             {'name': 'instagram_url', 'label': 'لینک اینستاگرام', 'type': 'text', 'value': s.instagram_url},
             {'name': 'telegram_url', 'label': 'لینک تلگرام', 'type': 'text', 'value': s.telegram_url},
             {'name': 'whatsapp_url', 'label': 'لینک واتساپ', 'type': 'text', 'value': s.whatsapp_url},
-            # سازنده
+            # Site credit
             {'name': 'credit_text', 'label': 'متن سازندهٔ سایت (پایین صفحه)', 'type': 'text', 'value': s.credit_text},
             {'name': 'credit_url', 'label': 'لینک سازنده', 'type': 'text', 'value': s.credit_url},
-            # رتبهٔ جستجو
+            # Search rank
             {'name': 'search_rank', 'label': 'رتبهٔ فعلی در گوگل (از سرچ‌کنسول)', 'type': 'number',
              'value': s.search_rank, 'help': 'اگر ۱ تا ۱۰ باشد، در داشبورد آلرت تبریک نمایش داده می‌شود'},
             {'name': 'search_keyword', 'label': 'کلمهٔ کلیدی رتبه', 'type': 'text', 'value': s.search_keyword},
@@ -1202,16 +1211,20 @@ class DashboardSiteSettingsView(StaffRequiredMixin, View):
     def post(self, request):
         from core.models import SiteSetting
         s = SiteSetting.get()
-        s.home_watermark = request.POST.get('home_watermark', '').strip() or 'ORAM SHOP'
         topbar = request.POST.get('topbar_style', 'black')
         if topbar in dict(SiteSetting.TOPBAR_CHOICES):
             s.topbar_style = topbar
-        # بنر محصولات
+        # Shop banner + collection vectors
         if request.FILES.get('shop_banner'):
             s.shop_banner = request.FILES['shop_banner']
+        if request.FILES.get('men_vector'):
+            s.men_vector = request.FILES['men_vector']
+        if request.FILES.get('women_vector'):
+            s.women_vector = request.FILES['women_vector']
         s.shop_banner_title = request.POST.get('shop_banner_title', '').strip()
         s.shop_banner_subtitle = request.POST.get('shop_banner_subtitle', '').strip()
-        # فوتر
+        # About + footer
+        s.about_home = request.POST.get('about_home', '').strip()
         s.footer_about = request.POST.get('footer_about', '').strip()
         s.footer_phone = request.POST.get('footer_phone', '').strip()
         s.footer_email = request.POST.get('footer_email', '').strip()

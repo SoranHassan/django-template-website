@@ -7,7 +7,7 @@ register = template.Library()
 
 
 def rating_subquery():
-    """میانگین امتیاز تأییدشده به‌صورت Subquery — تا با Sum فروش تداخل join نداشته باشد"""
+    """Approved average rating as a Subquery - avoids join interference with the sales Sum."""
     from reviews.models import Review
     return Subquery(
         Review.objects.filter(product=OuterRef('pk'), is_approved=True)
@@ -16,7 +16,7 @@ def rating_subquery():
 
 
 def collection_queryset(kind):
-    """کوئری مجموعه‌ها: new | discount | bestseller"""
+    """Collection querysets: new | discount | bestseller."""
     qs = Product.objects.filter(is_active=True).prefetch_related(
         'images', 'variants__size', 'variants__color'
     ).annotate(avg_rating=rating_subquery())
@@ -31,7 +31,7 @@ def collection_queryset(kind):
 
 @register.inclusion_tag('catalog/_related_row.html', takes_context=True)
 def product_row(context, kind='new', title='', limit=8):
-    """ردیف اسلایدی محصولات برای استفاده در هر صفحه: {% product_row 'discount' 'تخفیف‌دارها' %}"""
+    """Sliding product row usable on any page: {% product_row 'discount' 'Discounted' %}."""
     return {
         'row_title': title,
         'row_kind': kind,

@@ -65,7 +65,7 @@
     <div class="container">
         <div class="row align-items-center">
 
-            <!-- تصاویر محصول -->
+            <!-- Product images -->
             <div class="col-xl-5 col-lg-6 col-md-12 col-sm-12">
                 <div class="sp-loading">
                     <img src="{% static 'app/img/product/15.png' %}" alt=""><br>در حال بارگذاری
@@ -90,11 +90,11 @@
                 </div>
             </div>
 
-            <!-- اطلاعات محصول -->
+            <!-- Product info -->
             <div class="col-xl-7 col-lg-6 col-md-12 col-sm-12">
                 <div class="prd_details ps-xl-5">
 
-                    <!-- دسته‌بندی -->
+                    <!-- Category -->
                     <div class="prt_01 mb-2 d-flex flex-wrap gap-2 align-items-center">
                         <span class="badge rounded-pill" style="background:#EAF9FB; color:#00798a; font-weight:500; padding:7px 14px;">
                             {{ product.category.name|default:"پوشاک" }}
@@ -111,11 +111,11 @@
                         {% endif %}
                     </div>
 
-                    <!-- نام و امتیاز -->
+                    <!-- Name and rating -->
                     <div class="prt_02 mb-3">
                         <h2 class="ft-bold mb-1">{{ product.name }}</h2>
                         <div class="text-left">
-                            <!-- ستاره‌های امتیاز -->
+                            <!-- Rating stars -->
                             <div class="star-rating align-items-center d-flex justify-content-left mb-1 p-0">
                                 {% for i in "12345" %}
                                 {% if forloop.counter <= avg_rating %}
@@ -126,7 +126,7 @@
                                 {% endfor %}
                                 <span class="small">({{ reviews.count }} نظر)</span>
                             </div>
-                            <!-- قیمت -->
+                            <!-- Price -->
                             <div class="elis_rty">
                                 {% if product.original_price %}
                                 <span class="ft-medium text-muted line-through fs-md me-2">
@@ -140,12 +140,12 @@
                         </div>
                     </div>
 
-                    <!-- توضیحات کوتاه -->
+                    <!-- Short description -->
                     <div class="prt_03 mb-4">
                         <p>{{ product.description|truncatewords:40 }}</p>
                     </div>
 
-                    <!-- اطلاعات بیشتر -->
+                    <!-- More info -->
                     <div class="prt_04 mb-4">
                         {% if product.category %}
                         <p class="d-flex align-items-center gap-1 mb-1">
@@ -171,7 +171,7 @@
                         </p>
                     </div>
 
-                    <!-- انتخاب واریانت و افزودن به سبد -->
+                    <!-- Variant selection and add to cart -->
                     <div class="prt_05 mb-4">
                         <form method="POST" action="{% url 'cart:add' %}" id="addToCartForm">
                             {% csrf_token %}
@@ -179,7 +179,7 @@
 
                             <div class="form-row row g-3 mb-3">
 
-                                <!-- انتخاب سایز -->
+                                <!-- Size selection -->
                                 {% if sizes %}
                                 <div class="col-12 col-md-12 col-lg-6">
                                     <label class="small ft-medium mb-2">سایز:</label>
@@ -195,7 +195,7 @@
                                 </div>
                                 {% endif %}
 
-                                <!-- انتخاب رنگ -->
+                                <!-- Color selection -->
                                 {% if colors %}
                                 <div class="col-12 col-md-12 col-lg-6">
                                     <label class="small ft-medium mb-2">رنگ:</label>
@@ -214,7 +214,7 @@
 
                             </div>
 
-                            <!-- موجودی -->
+                            <!-- Stock -->
                             <div id="stock-info" class="mb-3 d-none">
                                 <span class="small text-success">
                                     <i class="lni lni-checkmark-circle me-1"></i>
@@ -223,7 +223,7 @@
                             </div>
 
                             <div class="form-row row g-3">
-                                <!-- تعداد -->
+                                <!-- Quantity -->
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <select class="mb-2 custom-select" name="quantity" id="quantity">
                                         <option value="1">1</option>
@@ -234,7 +234,7 @@
                                     </select>
                                 </div>
 
-                                <!-- افزودن به سبد -->
+                                <!-- Add to cart -->
                                 <div class="col-12 col-md-12 col-lg-6">
                                     <button type="submit" id="add-to-cart-btn"
                                             class="btn btn-block custom-height bg-dark mb-2 w-100">
@@ -242,7 +242,7 @@
                                     </button>
                                 </div>
 
-                                <!-- ویشلیست -->
+                                <!-- Wishlist -->
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <button type="button"
                                             class="btn custom-height btn-default btn-block mb-2 text-dark w-100 wishlist-btn{% if product.pk|stringformat:'s' in wishlist_ids %} in-wishlist{% endif %}"
@@ -257,11 +257,11 @@
                             </div>
                         </form>
 
-                        <!-- پیام موفقیت/خطا -->
+                        <!-- Success/error message -->
                         <div id="cart-message" class="mt-2 d-none"></div>
                     </div>
 
-                    <!-- اشتراک‌گذاری -->
+                    <!-- Share -->
                     <div class="prt_06">
                         <p class="mb-0 d-flex align-items-center">
                             <span class="me-4">اشتراک‌گذاری:</span>
@@ -289,7 +289,7 @@
     </div>
 </section>
 
-<!-- توضیحات، اطلاعات، نظرات -->
+<!-- Description, info, reviews -->
 <section class="middle">
     <div class="container">
         <div class="row align-items-center justify-content-center">
@@ -315,14 +315,14 @@
 
                 <div class="tab-content" id="myTabContent">
 
-                    <!-- توضیحات -->
+                    <!-- Description -->
                     <div class="tab-pane fade show active" id="description" role="tabpanel">
                         <div class="description_info">
                             <p>{{ product.description }}</p>
                         </div>
                     </div>
 
-                    <!-- اطلاعات تکمیلی (جدول سایزبندی سانتی‌متر) -->
+                    <!-- Extra info (size chart in centimetres) -->
                     <div class="tab-pane fade" id="information" role="tabpanel">
                         <div class="additionals">
                             {% if size_chart_columns %}
@@ -356,13 +356,13 @@
                         </div>
                     </div>
 
-                    <!-- نظرات -->
+                    <!-- Reviews -->
                     <div class="tab-pane fade" id="reviews" role="tabpanel">
                         <div class="reviews_info">
                             {% include 'reviews/reviews.html' %}
                         </div>
 
-                        <!-- فرم ثبت نظر -->
+                        <!-- Review form -->
                         {% if user.is_authenticated %}
                         <div class="reviews_rate mt-4">
                             <form method="POST" action="{% url 'reviews:add' product.slug %}" class="row g-3">
@@ -444,13 +444,12 @@
     </div>
 </section>
 
-<!-- محصولات مشابه -->
+<!-- Similar products -->
 <section class="middle pt-0">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                 <div class="sec_title position-relative text-center">
-                    <h2 class="off_title">محصولات مشابه</h2>
                     <h3 class="ft-bold pt-3">پیشنهاد ویژه</h3>
                 </div>
             </div>
@@ -489,12 +488,10 @@
     </div>
 </section>
 
-<!-- ویژگی‌ها -->
+<!-- Features -->
 <section class="px-0 py-3 br-top">
     <div class="container">
-        <div class="row">
-            {% include 'catalog/features.html' %}
-        </div>
+        {% include 'catalog/features.html' %}
     </div>
 </section>
 
@@ -507,7 +504,7 @@
 
 {% block js %}
 <script>
-    // داده‌های واریانت‌ها از بک‌اند
+    // Variant data from the backend
     const variants = [
         {% for variant in variants %}
         {
@@ -523,7 +520,7 @@
     let selectedSize = null;
     let selectedColor = null;
 
-    // انتخاب سایز
+    // Size selection
     document.querySelectorAll('.size-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('btn-dark'));
@@ -533,7 +530,7 @@
         });
     });
 
-    // انتخاب رنگ
+    // Color selection
     document.querySelectorAll('.color-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.color-btn').forEach(b => b.style.border = '2px solid #ddd');
@@ -543,7 +540,7 @@
         });
     });
 
-    // پیدا کردن واریانت مناسب
+    // Find the matching variant
     function updateVariant() {
         const variant = variants.find(v => {
             const sizeMatch = !v.sizeId || v.sizeId === selectedSize;
@@ -574,7 +571,7 @@
         }
     }
 
-    // ارسال فرم با AJAX
+    // Submit the form via AJAX
     document.getElementById('addToCartForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -596,7 +593,7 @@
         .then(data => {
             if (data.status === 'ok') {
                 showMessage('محصول به سبد خرید اضافه شد ✓', 'success');
-                // آپدیت تعداد سبد در navbar
+                // Update the cart count in the navbar
                 if (window.refreshCartDrawer) window.refreshCartDrawer();
                 document.querySelectorAll('.cart-count').forEach(el => {
                     el.textContent = data.count;
@@ -609,7 +606,7 @@
     });
 
 
-    // امتیاز ستاره
+    // Star rating
     document.querySelectorAll('input[name="rating"]').forEach(input => {
         input.addEventListener('change', function() {
             document.getElementById('rating-label').textContent = this.value + ' ستاره';

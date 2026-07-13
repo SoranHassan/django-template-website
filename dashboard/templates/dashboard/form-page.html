@@ -50,7 +50,7 @@
 
                 {% elif f.type == 'image' %}
                 {% if f.value %}<div style="margin-bottom:8px;"><img src="{{ f.value }}" alt="" style="max-height:90px; border-radius:8px; border:1px solid #eee;"></div>{% endif %}
-                <input type="file" name="{{ f.name }}" accept="image/*" class="dash-input dash-image-input">
+                <input type="file" name="{{ f.name }}" accept="image/*" class="dash-input dash-image-input"{% if f.aspect %} data-aspect="{{ f.aspect }}"{% endif %}>
                 <div class="dash-img-edited" hidden>
                     <img alt="" style="max-height:70px; border-radius:8px; border:1px solid #cdeef3;">
                     <small style="color:#00919f;"><i class="fas fa-crop-alt"></i> تصویر ویرایش شد — همین نسخه آپلود می‌شود</small>
@@ -101,7 +101,7 @@
 {% endblock %}
 
 {% block js %}
-<!-- ویرایشگر تصویر هنگام آپلود: برش، تغییر اندازه و چرخش (Cropper.js — لوکال) -->
+<!-- Upload-time image editor: crop, resize and rotate (Cropper.js - local) -->
 <link rel="stylesheet" href="{% static 'vendor/cropperjs/cropper.min.css' %}">
 <div id="imgEditorModal" class="img-editor-overlay" hidden>
     <div class="img-editor-box">
@@ -172,13 +172,21 @@
         imgEl.src = objUrl;
         modal.removeAttribute('hidden');
         if (cropper) cropper.destroy();
+        // When the target spot on the site has a fixed shape (e.g. hero banner),
+        // lock the crop box to that exact aspect ratio so WYSIWYG = uploaded result.
+        var fixedAr = input.dataset.aspect ? parseFloat(input.dataset.aspect) : null;
         cropper = new Cropper(imgEl, {
             viewMode: 1, autoCropArea: 1, background: false, responsive: true,
+            aspectRatio: fixedAr || NaN,
             crop: function (e) {
                 dimsEl.textContent = Math.round(e.detail.width) + ' × ' + Math.round(e.detail.height) + ' px';
             }
         });
-        setAr(null);
+        // Hide the free/16:9/1:1 toggles when the shape is locked
+        modal.querySelectorAll('.ar-btn').forEach(function (b) {
+            b.style.display = fixedAr ? 'none' : '';
+        });
+        if (!fixedAr) setAr(null);
     }
     function closeEditor() {
         modal.setAttribute('hidden', '');

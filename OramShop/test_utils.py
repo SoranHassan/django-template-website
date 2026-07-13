@@ -1,4 +1,4 @@
-"""ابزارهای مشترک تست‌ها"""
+"""Shared test helpers."""
 from accounts.models import CustomUser
 from catalog.models import Product, ProductVariant, Size, Color
 

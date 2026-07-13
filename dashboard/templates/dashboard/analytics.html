@@ -32,7 +32,7 @@
                     <h1>تحلیل و گزارش</h1>
                     <p>آمار و اطلاعات فروشگاه</p>
                 </div>
-                <!-- انتخاب بازه زمانی -->
+                <!-- Period selector -->
                 <div style="display: flex; gap: 8px;">
                     <a href="?period=week"
                        class="btn-secondary"
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        <!-- کارت‌های آمار کلی -->
+        <!-- Overview stat cards -->
         <div class="stats-grid" style="margin-bottom: 20px;">
             <div class="stat-card">
                 <div class="stat-icon green"><i class="fas fa-coins"></i></div>
@@ -91,7 +91,7 @@
             </div>
         </div>
 
-        <!-- آمار بازدید واقعی سایت -->
+        <!-- Real site visit statistics -->
         <div class="card-header" style="margin-bottom: 12px;">
             <h2><i class="fas fa-eye" style="margin-inline-end:8px;"></i>آمار بازدید سایت</h2>
             <span style="color: var(--text-secondary); font-size: 13px;">۱۴ روز اخیر</span>
@@ -168,10 +168,10 @@
             </div>
         </div>
 
-        <!-- نمودارها -->
+        <!-- Charts -->
         <div class="content-grid">
 
-            <!-- نمودار درآمد ماهانه -->
+            <!-- Monthly revenue chart -->
             <div class="glass-card" style="grid-column: 1 / -1;">
                 <div class="card-header">
                     <h2>درآمد ماهانه</h2>
@@ -184,7 +184,7 @@
                 </div>
             </div>
 
-            <!-- نمودار سفارشات هفتگی -->
+            <!-- Weekly orders chart -->
             <div class="glass-card">
                 <div class="card-header">
                     <h2>سفارشات هفتگی</h2>
@@ -197,7 +197,7 @@
                 </div>
             </div>
 
-            <!-- نمودار وضعیت سفارشات -->
+            <!-- Order status chart -->
             <div class="glass-card">
                 <div class="card-header">
                     <h2>وضعیت سفارشات</h2>
@@ -210,7 +210,7 @@
                 </div>
             </div>
 
-            <!-- نمودار پرفروش‌ترین دسته‌بندی‌ها -->
+            <!-- Top categories chart -->
             <div class="glass-card">
                 <div class="card-header">
                     <h2>پرفروش‌ترین دسته‌بندی‌ها</h2>
@@ -220,7 +220,7 @@
                 </div>
             </div>
 
-            <!-- جدول پرفروش‌ترین محصولات -->
+            <!-- Top products table -->
             <div class="glass-card">
                 <div class="card-header">
                     <h2>پرفروش‌ترین محصولات</h2>
@@ -281,7 +281,7 @@
                 </div>
             </div>
 
-            <!-- آخرین کاربران -->
+            <!-- Latest users -->
             <div class="glass-card">
                 <div class="card-header">
                     <h2>آخرین کاربران</h2>
@@ -331,12 +331,12 @@
 <script src="{% static 'dashboard/js/script.js' %}"></script>
 
 <script>
-    // تنظیمات پیش‌فرض Chart.js برای RTL
+    // Chart.js defaults for RTL
     Chart.defaults.font.family = 'Vazirmatn, Tahoma, sans-serif';
     Chart.defaults.font.size = 12;
     Chart.defaults.color = '#86868B';
 
-    // ۱. نمودار درآمد ماهانه
+    // 1. Monthly revenue chart
     const revenueCtx = document.getElementById('revenueChart').getContext('2d');
     new Chart(revenueCtx, {
         type: 'line',
@@ -380,7 +380,7 @@
         }
     });
 
-    // نمودار بازدید روزانه سایت
+    // Daily site visits chart
     const visitsCtx = document.getElementById('visitsChart').getContext('2d');
     new Chart(visitsCtx, {
         type: 'line',
@@ -415,7 +415,7 @@
         }
     });
 
-    // ۲. نمودار سفارشات هفتگی
+    // 2. Weekly orders chart
     const ordersCtx = document.getElementById('ordersChart').getContext('2d');
     new Chart(ordersCtx, {
         type: 'bar',
@@ -443,7 +443,7 @@
         }
     });
 
-    // ۳. نمودار وضعیت سفارشات
+    // 3. Order status chart
     const statusCtx = document.getElementById('statusChart').getContext('2d');
     new Chart(statusCtx, {
         type: 'doughnut',
@@ -477,7 +477,7 @@
         }
     });
 
-    // ۴. نمودار دسته‌بندی‌ها
+    // 4. Categories chart
     const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
     new Chart(categoriesCtx, {
         type: 'bar',

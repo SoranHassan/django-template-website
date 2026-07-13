@@ -71,7 +71,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         random.seed(1404)
 
-        # ---------- روش‌های ارسال ایرانی ----------
+        # ---------- Iranian shipping methods ----------
         for order_i, (name, price, desc) in enumerate([
             ('پست پیشتاز', 65000, 'تحویل ۲ تا ۴ روز کاری'),
             ('پست سفارشی', 45000, 'تحویل ۴ تا ۷ روز کاری'),
@@ -82,7 +82,7 @@ class Command(BaseCommand):
                 name=name, defaults={'price': price, 'description': desc, 'order': order_i})
         self.stdout.write('✓ روش‌های ارسال')
 
-        # ---------- برندها (لوگوهای گرافیکی یکدست SVG) ----------
+        # ---------- Brands (uniform graphic SVG logos) ----------
         import os
         from django.conf import settings as dj_settings
         brand_svg_map = {
@@ -104,7 +104,7 @@ class Command(BaseCommand):
             brands.append(brand)
         self.stdout.write('✓ برندها (لوگوی گرافیکی)')
 
-        # ---------- دسته‌بندی‌ها ----------
+        # ---------- Categories ----------
         cat_defs = ['تیشرت', 'پیراهن', 'شلوار', 'هودی و سویشرت', 'کفش', 'کاپشن و پالتو', 'اکسسوری', 'ست ورزشی']
         categories = []
         for i, name in enumerate(cat_defs):
@@ -112,8 +112,8 @@ class Command(BaseCommand):
             categories.append(cat)
         self.stdout.write('✓ دسته‌بندی‌ها')
 
-        # ---------- سایز و رنگ ----------
-        # سایزهای حرفی + عددی (کفش) با ترتیب صحیح کوچک به بزرگ
+        # ---------- Sizes and colors ----------
+        # Letter + numeric (shoe) sizes with the correct small-to-large ordering
         size_specs = [('S', 1), ('M', 2), ('L', 3), ('XL', 4), ('XXL', 5),
                       ('38', 38), ('39', 39), ('40', 40), ('41', 41), ('42', 42), ('43', 43)]
         sizes = []
@@ -127,7 +127,7 @@ class Command(BaseCommand):
             ('مشکی', '#212121'), ('سفید', '#fafafa'), ('سرمه‌ای', '#1d3557'),
             ('طوسی', '#8d99ae'), ('زیتونی', '#606c38'), ('قرمز', '#e63946')]]
 
-        # ---------- محصولات ----------
+        # ---------- Products ----------
         product_defs = [
             ('تیشرت نخی یقه گرد', 0, 'men'), ('تیشرت اورسایز طرح‌دار', 0, 'men'),
             ('تیشرت بیسیک زنانه', 0, 'women'), ('کراپ تیشرت زنانه', 0, 'women'),
@@ -171,7 +171,7 @@ class Command(BaseCommand):
             created_count += 1
         self.stdout.write(f'✓ {created_count} محصول')
 
-        # ---------- بنرهای هیرو ----------
+        # ---------- Hero banners ----------
         if not HeroSlide.objects.exists():
             slides = [
                 ('کالکشن جدید بهار', 'جدیدترین مدل‌های پوشاک مردانه و زنانه', '#16324f'),
@@ -183,7 +183,7 @@ class Command(BaseCommand):
                 slide.image.save(f'hero-{i + 1}.jpg', hero_image(color_hex, i), save=True)
         self.stdout.write('✓ اسلایدهای بنر')
 
-        # ---------- کوپن و اطلاعیه ----------
+        # ---------- Coupon and announcement ----------
         now = timezone.now()
         Coupon.objects.get_or_create(code='WELCOME10', defaults=dict(
             discount_type='percent', discount_value=10, max_discount_amount=200000,
@@ -196,7 +196,7 @@ class Command(BaseCommand):
             defaults={'link': '/shop/', 'link_text': 'خرید کنید'})
         self.stdout.write('✓ کوپن و اطلاعیه')
 
-        # ---------- نظرات نمونه ----------
+        # ---------- Sample reviews ----------
         reviewer, created = CustomUser.objects.get_or_create(
             mobile='09120000010', defaults={'first_name': 'مشتری', 'last_name': 'نمونه'})
         if created:
@@ -210,10 +210,10 @@ class Command(BaseCommand):
                 body=random.choice(bodies), is_approved=True))
         self.stdout.write('✓ نظرات')
 
-        # ---------- تنظیمات سایت و کارت‌های دسته‌بندی ----------
+        # ---------- Site settings and category cards ----------
         from core.models import SiteSetting, HomeCategoryCard
-        SiteSetting.get()  # ساخت ردیف پیش‌فرض تنظیمات
-        # کارت‌های دسته‌بندی اصلی پوشاک با گرافیک برند
+        SiteSetting.get()  # create the default settings row
+        # Main clothing category cards with brand graphics
         card_specs = [
             ('تیشرت', 'خنک و راحت', 'categories/tshirt.svg', 'تیشرت'),
             ('هودی و سویشرت', 'گرم و اسپرت', 'categories/hoodie.svg', 'هودی و سویشرت'),

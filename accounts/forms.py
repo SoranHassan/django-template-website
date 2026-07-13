@@ -97,7 +97,7 @@ class AddressForm(forms.ModelForm):
 
 
 def first_error(form):
-    """اولین پیام خطای فرم به صورت یک رشته — برای نمایش در تمپلیت‌های فعلی"""
+    """First form error as a single string - for display in the current templates."""
     for errors in form.errors.values():
         return errors[0]
     return 'اطلاعات وارد شده معتبر نیست'

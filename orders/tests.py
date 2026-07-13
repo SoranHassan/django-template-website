@@ -30,7 +30,7 @@ class VerifyPaymentProtectionTest(TestCase):
         OrderItem.objects.create(order=self.order, variant=self.variant, quantity=2, price=1000)
 
     def test_paid_order_not_cancelled_on_revisit(self):
-        """باز کردن دوباره لینک بازگشت درگاه نباید سفارش پرداخت‌شده را لغو کند"""
+        """Re-opening the gateway callback link must not cancel a paid order."""
         url = reverse('orders:verify_payment', kwargs={'pk': self.order.pk})
         response = self.client.get(url + '?Status=NOK&Authority=AUTH123')
         self.order.refresh_from_db()

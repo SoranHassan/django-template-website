@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class SiteVisit(models.Model):
-    """ثبت بازدیدهای واقعی سایت — توسط میدل‌ور ذخیره می‌شود (آمار بازدید پنل)"""
+    """Real site visits - stored by the middleware (panel visit statistics)."""
 
     session_key = models.CharField(max_length=40, db_index=True, blank=True,
                                    verbose_name='کلید نشست')
@@ -44,7 +44,7 @@ class Announcement(models.Model):
 
 
 class HeroSlide(models.Model):
-    """اسلایدهای بنر اصلی سایت — از پنل ادمین جنگو قابل مدیریت است"""
+    """Main hero banner slides - manageable from the admin panel."""
 
     title = models.CharField(max_length=100, verbose_name='عنوان')
     subtitle = models.CharField(max_length=200, blank=True, verbose_name='زیرعنوان')
@@ -63,7 +63,7 @@ class HeroSlide(models.Model):
         return self.title
 
 class SiteSetting(models.Model):
-    """تنظیمات ظاهری سایت — از ادمین قابل تغییر بدون دیپلوی"""
+    """Site appearance settings - changeable from the panel without a deploy."""
 
     TOPBAR_CHOICES = [
         ('black', 'مشکی ساده'),
@@ -82,7 +82,7 @@ class SiteSetting(models.Model):
     topbar_style = models.CharField(max_length=20, choices=TOPBAR_CHOICES, default='black',
                                     verbose_name='رنگ نوار اطلاعیه بالای سایت')
 
-    # ---------- اطلاعات فوتر / تماس ----------
+    # ---------- Footer / contact info ----------
     footer_about = models.TextField(
         blank=True, verbose_name='متن دربارهٔ فوتر',
         default='اُرام‌شاپ، فروشگاه اینترنتی پوشاک مردانه و زنانه؛ با ضمانت اصالت کالا، ارسال سریع به سراسر ایران و ۷ روز ضمانت بازگشت.')
@@ -97,16 +97,31 @@ class SiteSetting(models.Model):
                                    verbose_name='متن سازندهٔ سایت')
     credit_url = models.CharField(max_length=200, blank=True, verbose_name='لینک سازنده')
 
-    # ---------- رتبهٔ جستجو (از سرچ‌کنسول گوگل وارد می‌شود) ----------
+    # ---------- Search rank (entered from Google Search Console) ----------
     search_rank = models.PositiveIntegerField(
         default=0, verbose_name='رتبهٔ فعلی در جستجوی گوگل',
         help_text='این عدد را از گوگل سرچ‌کنسول وارد کنید (۰ یعنی نامشخص). اگر ۱ تا ۱۰ باشد، در داشبورد آلرت داده می‌شود.')
     search_keyword = models.CharField(max_length=100, blank=True, verbose_name='کلمهٔ کلیدی رتبه')
 
-    # ---------- بنر صفحهٔ محصولات ----------
+    # ---------- Shop page banner ----------
     shop_banner = models.ImageField(upload_to='banners/', blank=True, null=True, verbose_name='بنر صفحه محصولات')
     shop_banner_title = models.CharField(max_length=100, blank=True, default='فروشگاه اُرام‌شاپ', verbose_name='عنوان بنر محصولات')
     shop_banner_subtitle = models.CharField(max_length=160, blank=True, default='جدیدترین کالکشن‌ها با بهترین قیمت', verbose_name='زیرعنوان بنر محصولات')
+
+    # ---------- Home collection banner vectors (fall back to bundled SVGs) ----------
+    men_vector = models.ImageField(upload_to='collections/', blank=True, null=True,
+                                   verbose_name='وکتور کالکشن مردانه',
+                                   help_text='اگر خالی باشد وکتور پیش‌فرض نمایش داده می‌شود')
+    women_vector = models.ImageField(upload_to='collections/', blank=True, null=True,
+                                     verbose_name='وکتور کالکشن زنانه',
+                                     help_text='اگر خالی باشد وکتور پیش‌فرض نمایش داده می‌شود')
+
+    # ---------- About-us text shown right before the footer on the home page ----------
+    about_home = models.TextField(
+        blank=True, verbose_name='متن دربارهٔ ما (قبل از فوتر)',
+        default='اُرام‌شاپ با هدف ارائهٔ پوشاک باکیفیت مردانه و زنانه از برندهای معتبر راه‌اندازی شده است. '
+                'ما با ضمانت اصالت کالا، ارسال سریع به سراسر ایران، ۷ روز ضمانت بازگشت و پشتیبانی پاسخگو '
+                'تلاش می‌کنیم تجربه‌ای آرام و مطمئن از خرید آنلاین برای شما بسازیم.')
 
     class Meta:
         verbose_name = 'تنظیمات سایت'
@@ -116,7 +131,7 @@ class SiteSetting(models.Model):
         return 'تنظیمات سایت'
 
     def save(self, *args, **kwargs):
-        # فقط یک ردیف تنظیمات
+        # Single settings row only
         self.pk = 1
         super().save(*args, **kwargs)
 
@@ -127,7 +142,7 @@ class SiteSetting(models.Model):
 
 
 class NewsletterSubscriber(models.Model):
-    """مشترکین خبرنامه — با ایمیل یا شماره موبایل ثبت می‌شوند"""
+    """Newsletter subscribers - registered with an email or mobile number."""
 
     email = models.EmailField(unique=True, null=True, blank=True, verbose_name='ایمیل')
     mobile = models.CharField(max_length=15, unique=True, null=True, blank=True, verbose_name='موبایل')
@@ -148,7 +163,7 @@ class NewsletterSubscriber(models.Model):
 
 
 class NewsletterCampaign(models.Model):
-    """کمپین‌های ارسال‌شدهٔ خبرنامه (تاریخچه)"""
+    """Sent newsletter campaigns (history)."""
 
     subject = models.CharField(max_length=200, verbose_name='موضوع')
     body = models.TextField(verbose_name='متن')
@@ -165,7 +180,7 @@ class NewsletterCampaign(models.Model):
 
 
 class HomeCategoryCard(models.Model):
-    """۴ کارت دسته‌بندی زیر بنر اصلی — تصویر/آیکون از پنل قابل تغییر"""
+    """The 4 category cards under the hero banner - image/icon editable from the panel."""
 
     title = models.CharField(max_length=50, verbose_name='عنوان')
     subtitle = models.CharField(max_length=80, blank=True, verbose_name='زیرعنوان')

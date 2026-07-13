@@ -20,14 +20,14 @@ logger = logging.getLogger('oramshop')
 
 
 def _decrease_stock(order):
-    """کسر موجودی واریانت‌ها بعد از پرداخت موفق"""
+    """Decrement variant stock after a successful payment."""
     for item in order.items.select_related('variant'):
         ProductVariant.objects.filter(pk=item.variant_id).update(
             stock=Greatest(F('stock') - item.quantity, 0))
 
 
 def _finalize_paid_order(order):
-    """کارهای پس از پرداخت موفق: کسر موجودی، مصرف کوپن و خالی کردن آیتم‌های خریداری‌شده از سبد"""
+    """Post-payment work: decrement stock, consume the coupon and clear purchased items from the cart."""
     _decrease_stock(order)
 
     if order.coupon_id:
@@ -49,7 +49,7 @@ class ApplyCouponView(View):
         code = request.POST.get('code', '').strip()
 
         try:
-            # بدون حساسیت به بزرگی/کوچکی حروف
+            # Case-insensitive
             coupon = Coupon.objects.get(code__iexact=code)
         except Coupon.DoesNotExist:
             return JsonResponse({
@@ -91,7 +91,7 @@ class RemoveCouponView(LoginRequiredMixin, View):
 
 
 def _get_session_coupon(request, cart):
-    """کوپن ذخیره‌شده در سشن را برمی‌گرداند: (coupon, discount_amount)"""
+    """Return the coupon stored in the session as (coupon, discount_amount)."""
     coupon = None
     discount_amount = 0
     coupon_id = request.session.get('coupon_id')
@@ -137,7 +137,7 @@ class CheckoutView(LoginRequiredMixin, View):
         if not items.exists():
             return redirect('cart:cart')
 
-        # چک موجودی قبل از ثبت سفارش
+        # Stock check before placing the order
         for item in items:
             if item.quantity > item.variant.stock:
                 return render(request, 'orders/checkout.html', {
@@ -166,11 +166,11 @@ class CheckoutView(LoginRequiredMixin, View):
         for item in items:
             OrderItem.objects.create(order=order, variant=item.variant, quantity=item.quantity, price=item.variant.final_price)
 
-        # کوپن به سفارش وصل شد؛ مصرف آن (used_count و CouponUsage) بعد از پرداخت موفق ثبت می‌شود
+        # Coupon linked to the order; its usage (used_count and CouponUsage) is recorded after payment
         if coupon:
             request.session.pop('coupon_id', None)
 
-        # سبد خرید تا پرداخت موفق دست‌نخورده می‌ماند تا در صورت انصراف از دست نرود
+        # The cart stays untouched until payment succeeds so nothing is lost on cancel
         callback_url = request.build_absolute_uri(reverse('orders:verify_payment', kwargs={'pk': order.pk}))
         result = request_payment(
             amount=order.final_total,
@@ -200,7 +200,7 @@ class VerifyPaymentView(LoginRequiredMixin, View):
         authority = request.GET.get('Authority')
         status = request.GET.get('Status')
 
-        # جلوگیری از پردازش دوباره: اگر سفارش قبلاً پرداخت یا لغو شده، دست نزن
+        # Prevent double processing: leave already paid or cancelled orders alone
         if order.status in ('paid', 'processing', 'shipped', 'delivered'):
             return redirect('orders:complete_order', pk=order.pk)
         if order.status != 'pending':
@@ -229,7 +229,7 @@ class VerifyPaymentView(LoginRequiredMixin, View):
 
 
 class RetryPaymentView(LoginRequiredMixin, View):
-    """پرداخت مجدد سفارش‌های پرداخت‌نشده — بدون نیاز به ساخت دوباره سبد"""
+    """Retry payment for unpaid orders - without rebuilding the cart."""
 
     def post(self, request, pk):
         order = get_object_or_404(Order, pk=pk, user=request.user)

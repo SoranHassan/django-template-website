@@ -4,7 +4,7 @@
 """
 import os
 
-# مقادیر پیش‌فرض برای متغیرهای محیطی اجباری (فقط برای تست)
+# Defaults for required environment variables (tests only)
 _TEST_ENV_DEFAULTS = {
     'SECRET_KEY': 'test-secret-key-not-for-production',
     'DEBUG': 'False',
@@ -27,9 +27,9 @@ DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memor
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-# در محیط تست لازم نیست
+# Not needed in the test environment
 AXES_ENABLED = False
 SECURE_SSL_REDIRECT = False
 
-# هش سریع‌تر برای سرعت تست‌ها
+# Faster password hasher to speed up tests
 PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher']

@@ -19,7 +19,7 @@ def _get_or_create_cart(request):
 
 class CartView(View):
     def get(self, request):
-        # import محلی برای جلوگیری از import حلقوی با orders
+        # Local import to avoid a circular import with orders
         from orders.views import _get_session_coupon
 
         cart = _get_or_create_cart(request)
@@ -35,7 +35,7 @@ class CartView(View):
 
 
 def _parse_quantity(value, default=1):
-    """تبدیل امن ورودی تعداد؛ None یعنی نامعتبر"""
+    """Safely parse the quantity input; None means invalid."""
     try:
         quantity = int(value if value is not None else default)
     except (TypeError, ValueError):
@@ -58,7 +58,7 @@ class CartAddView(View):
 
         cart = _get_or_create_cart(request)
 
-        # تعداد درخواستی (به‌علاوه آنچه از قبل در سبد است) نباید از موجودی بیشتر شود
+        # Requested quantity (plus what is already in the cart) must not exceed stock
         existing = CartItem.objects.filter(cart=cart, variant=variant).first()
         current_quantity = existing.quantity if existing else 0
         if current_quantity + quantity > variant.stock:
@@ -126,10 +126,10 @@ class CartUpdateView(View):
 
 
 class CartDrawerView(View):
-    """HTML دراور سبد برای رفرش زنده بعد از افزودن/حذف"""
+    """Cart drawer HTML for live refresh after add/remove."""
 
     def get(self, request):
-        from orders.views import _get_session_coupon  # noqa: F401 (سازگاری import)
+        from orders.views import _get_session_coupon  # noqa: F401 (import compatibility)
         cart = _get_or_create_cart(request)
         items = cart.items.select_related('variant__product', 'variant__size', 'variant__color').prefetch_related('variant__product__images')
         return render(request, 'cart/_drawer_content.html', {

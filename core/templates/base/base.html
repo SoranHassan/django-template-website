@@ -32,6 +32,17 @@
     <link rel="stylesheet" href="{% static 'vendor/toastify.min.css' %}">
     {% block css %}{% endblock %}
 
+    {% if goftino_id %}
+    <!-- Goftino live chat (widget id comes from the GOFTINO_ID env variable) -->
+    <script type="text/javascript">
+        !function () {
+            var i = "{{ goftino_id|escapejs }}", d = document, g = d.createElement("script"),
+                s = "https://www.goftino.com/widget/" + i, l = localStorage.getItem("goftino_" + i);
+            g.type = "text/javascript"; g.async = !0; g.src = l ? s + "?o=" + l : s;
+            d.getElementsByTagName("head")[0].appendChild(g);
+        }();
+    </script>
+    {% endif %}
 </head>
 
 <body>
@@ -64,12 +75,12 @@
 <script src="{% static 'app/js/base.js' %}"></script>
 <script src="{% static 'vendor/toastify.min.js' %}"></script>
 <script>
-    // init سراسری ردیف‌های اسلایدی محصولات (هر صفحه‌ای که product_row دارد)
-    // چرخش خودکار هر چند ثانیه؛ ردیف‌های زوج/فرد در جهت مخالف هم می‌چرخند
+    // Global init for sliding product rows (any page using product_row)
+    // Auto-rotate every few seconds; alternating rows spin in opposite directions
     $(function () {
         $('.products-row-slider').not('.slick-initialized').each(function (i) {
             var $s = $(this);
-            var reverse = i % 2 === 1; // یکی در میان جهت عکس
+            var reverse = i % 2 === 1; // every other row spins the opposite way
             $s.slick({
                 rtl: true, slidesToShow: 4, slidesToScroll: 1, arrows: true, dots: false,
                 infinite: true, speed: 700, autoplay: !reverse, autoplaySpeed: 3800,

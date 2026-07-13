@@ -4,7 +4,7 @@
     <div class="container">
         <div class="row g-4">
 
-            <!-- درباره -->
+            <!-- About -->
             <div class="col-12 col-md-4">
                 <img src="{% static 'app/img/logo-light.svg' %}" alt="Oram Shop" style="max-height: 40px;" class="mb-3">
                 <p class="text-white-50 small lh-lg mb-3">
@@ -17,7 +17,7 @@
                 </div>
             </div>
 
-            <!-- دسترسی سریع -->
+            <!-- Quick links -->
             <div class="col-6 col-md-2">
                 <h6 class="text-white ft-medium mb-3">فروشگاه</h6>
                 <ul class="list-unstyled small">
@@ -29,7 +29,7 @@
                 </ul>
             </div>
 
-            <!-- حساب کاربری -->
+            <!-- Account -->
             <div class="col-6 col-md-2">
                 <h6 class="text-white ft-medium mb-3">حساب کاربری</h6>
                 <ul class="list-unstyled small">
@@ -40,7 +40,7 @@
                 </ul>
             </div>
 
-            <!-- تماس -->
+            <!-- Contact -->
             <div class="col-12 col-md-4">
                 <h6 class="text-white ft-medium mb-3">با ما در تماس باشید</h6>
                 <ul class="list-unstyled small text-white-50">
@@ -49,7 +49,7 @@
                     <li class="mb-2"><i class="lni lni-alarm-clock me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_hours|default:"شنبه تا پنجشنبه، ۹ تا ۱۸" }}</li>
                     {% if site_settings.footer_address %}<li class="mb-2"><i class="lni lni-map-marker me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_address }}</li>{% endif %}
                 </ul>
-                <!-- عضویت در خبرنامه — جمع‌وجور -->
+                <!-- Newsletter signup - compact -->
                 <div class="footer-newsletter mt-3">
                     <h6 class="text-white ft-medium mb-2" style="font-size:13px;">
                         <i class="lni lni-envelope" style="color:#00E6FF;"></i> عضویت در خبرنامه
@@ -62,7 +62,7 @@
                     <div id="footerNewsletterMsg" style="display:none; font-size:11.5px; margin-top:6px;"></div>
                 </div>
 
-                <!-- جای نماد اعتماد الکترونیکی -->
+                <!-- Placeholder for the e-trust badge -->
                 <div class="d-flex gap-2 mt-3">
                     <div class="bg-white rounded d-flex align-items-center justify-content-center"
                          style="width:72px; height:72px; opacity:.9;" title="نماد اعتماد الکترونیکی — به‌زودی">

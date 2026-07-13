@@ -36,7 +36,7 @@
             {% if cart and cart|length > 0 %}
             <div class="row justify-content-between">
 
-                <!-- آیتم‌های سبد -->
+                <!-- Cart items -->
                 <div class="col-12 col-lg-8 col-md-12">
 
                     {% for item in cart %}
@@ -44,7 +44,7 @@
                         <div class="border rounded p-3">
                             <div class="row align-items-center">
 
-                                <!-- تصویر -->
+                                <!-- Image -->
                                 <div class="col-3 col-md-2">
                                     <a href="{{ item.variant.product.get_absolute_url }}">
                                         {% if item.variant.product.main_image %}
@@ -60,7 +60,7 @@
                                     </a>
                                 </div>
 
-                                <!-- اطلاعات -->
+                                <!-- Info -->
                                 <div class="col-6 col-md-7">
                                     <div class="cart_single_caption pe-2">
                                         <h5 class="fs-md ft-medium mb-1">
@@ -92,11 +92,11 @@
                                     </div>
                                 </div>
 
-                                <!-- تعداد و حذف -->
+                                <!-- Quantity and remove -->
                                 <div class="col-3 col-md-3 text-start">
                                     <div class="d-flex flex-column align-items-start gap-2">
 
-                                        <!-- تعداد (+/-) -->
+                                        <!-- Quantity (+/-) -->
                                         <div class="input-group input-group-sm quantity-stepper"
                                              style="direction: ltr;"
                                              data-item-id="{{ item.pk }}" data-stock="{{ item.variant.stock }}">
@@ -106,7 +106,7 @@
                                             <button class="btn qty-btn qty-plus" type="button" data-delta="1" aria-label="افزایش"><i class="lni lni-plus"></i></button>
                                         </div>
 
-                                        <!-- حذف -->
+                                        <!-- Remove -->
                                         <button class="btn btn-sm btn-outline-danger remove-item-btn"
                                                 data-item-id="{{ item.pk }}">
                                             <i class="lni lni-trash-can me-1"></i>حذف
@@ -120,7 +120,7 @@
                     </div>
                     {% endfor %}
 
-                    <!-- کوپن -->
+                    <!-- Coupon -->
                     <div class="border rounded p-3 mt-4">
                         <h6 class="ft-medium mb-3">کد تخفیف</h6>
                         <div class="d-flex gap-2">
@@ -146,7 +146,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- دکمه ادامه خرید -->
+                    <!-- Continue shopping button -->
                     <div class="mt-3">
                         <a href="{% url 'catalog:shop_style_1' %}" class="btn btn-outline-dark">
                             <i class="lni lni-arrow-right me-2"></i>ادامه خرید
@@ -155,7 +155,7 @@
 
                 </div>
 
-                <!-- خلاصه سفارش -->
+                <!-- Order summary -->
                 <div class="col-12 col-lg-4 col-md-12">
                     <div class="border rounded p-3 sticky-top" style="top: 80px;">
                         <h5 class="ft-medium mb-3 pb-2 border-bottom">خلاصه سفارش</h5>
@@ -187,7 +187,7 @@
                             <i class="lni lni-arrow-left ms-2"></i>
                         </a>
 
-                        <!-- درگاه پرداخت -->
+                        <!-- Payment gateway -->
                         <div class="text-center mt-3">
                             <small class="text-muted"><i class="lni lni-shield me-1" style="color:var(--os-cyan-dark);"></i>پرداخت امن با درگاه زرین‌پال</small>
                         </div>
@@ -198,7 +198,7 @@
             </div>
 
             {% else %}
-            <!-- سبد خالی -->
+            <!-- Empty cart -->
             <div class="d-flex flex-column justify-content-center align-items-center text-center py-5">
                 <div class="mb-4">
                     <div style="width: 120px; height: 120px; background: #f8f9fa; border-radius: 50%;
@@ -222,9 +222,7 @@
 
 <section class="px-0 py-3 br-top">
     <div class="container">
-        <div class="row">
-            {% include 'catalog/features.html' %}
-        </div>
+        {% include 'catalog/features.html' %}
     </div>
 </section>
 
@@ -241,7 +239,7 @@
 <script>
     const CSRF = '{{ csrf_token }}';
 
-    // استپر تعداد (+/-)
+    // Quantity stepper (+/-)
     document.querySelectorAll('.quantity-stepper .qty-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const stepper = this.closest('.quantity-stepper');
@@ -267,7 +265,7 @@
             .then(r => r.json())
             .then(data => {
                 if (data.status === 'ok') {
-                    // رفرش برای بازمحاسبه تخفیف کوپن روی جمع جدید
+                    // Refresh to recompute the coupon discount on the new total
                     location.reload();
                 }
             })
@@ -275,7 +273,7 @@
         });
     });
 
-    // حذف آیتم
+    // Remove item
     document.querySelectorAll('.remove-item-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const itemId = this.dataset.itemId;
@@ -303,7 +301,7 @@
         });
     });
 
-    // اعمال کوپن
+    // Apply coupon
     const applyBtn = document.getElementById('apply-coupon-btn');
     if (applyBtn) {
         applyBtn.addEventListener('click', function() {
@@ -331,7 +329,7 @@
         });
     }
 
-    // حذف کوپن
+    // Remove coupon
     const removeBtn = document.getElementById('remove-coupon-btn');
     if (removeBtn) {
         removeBtn.addEventListener('click', function() {

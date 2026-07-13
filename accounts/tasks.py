@@ -10,7 +10,7 @@ logger = logging.getLogger('oramshop')
 
 @shared_task
 def send_otp_sms(mobile, code):
-    """ارسال OTP با sms.ir"""
+    """Send the OTP code via sms.ir."""
     url = 'https://api.sms.ir/v1/send/verify'
 
     headers = {
@@ -41,7 +41,7 @@ def send_otp_sms(mobile, code):
 
 @shared_task
 def cleanup_expired_otps():
-    """پاک‌سازی OTP های منقضی‌شده — اجرا با Celery Beat"""
+    """Purge expired OTP codes - run by Celery Beat."""
     from .models import OTP
     deleted_count, _ = OTP.objects.filter(expires_at__lt=timezone.now()).delete()
     return f'{deleted_count} کد منقضی‌شده پاک شد'
@@ -49,7 +49,7 @@ def cleanup_expired_otps():
 
 @shared_task
 def send_newsletter_sms(mobiles, text):
-    """ارسال پیامک خبرنامه به فهرست شماره‌ها (bulk)"""
+    """Send the newsletter SMS to a list of numbers (bulk)."""
     if not mobiles:
         return {'status': 'ok', 'count': 0}
     url = 'https://api.sms.ir/v1/send/bulk'
@@ -71,7 +71,7 @@ def send_newsletter_sms(mobiles, text):
 
 @shared_task
 def send_order_status_sms(mobile, order_id, status):
-    """اطلاع‌رسانی وضعیت سفارش با پیامک"""
+    """Notify the customer about an order status change via SMS."""
     status_messages = {
         'paid': 'پرداخت شما تأیید شد',
         'processing': 'سفارش شما در حال پردازش است',

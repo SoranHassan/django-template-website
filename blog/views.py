@@ -7,7 +7,7 @@ from .models import Post
 
 
 def _related_products(post, limit=8):
-    """محصولات مرتبط با متن بلاگ: تطبیق نام برند/محصول؛ در نبودش تخفیف‌دارها"""
+    """Products related to the post body: match brand/product names; fall back to discounted items."""
     text = f'{post.title} {post.excerpt} {post.body}'.lower()
 
     matched_brands = [b for b in Brand.objects.filter(is_active=True) if b.name.lower() in text]
@@ -18,7 +18,7 @@ def _related_products(post, limit=8):
         if related:
             return related, 'محصولات مرتبط با این مطلب'
 
-    # نام محصولات داخل متن
+    # Product names mentioned in the body
     matched = [p.pk for p in qs.only('pk', 'name')[:300] if len(p.name) > 5 and p.name.lower() in text]
     if matched:
         return qs.filter(pk__in=matched)[:limit], 'محصولات مرتبط با این مطلب'

@@ -27,7 +27,7 @@ def request_payment(amount, description, callback_url, mobile=None, email=None):
 
     data = {
         'merchant_id': settings.ZARINPAL_MERCHANT_ID,
-        'amount': int(amount) * 10,  # تبدیل تومان به ریال
+        'amount': int(amount) * 10,  # convert toman to rial
         'description': description,
         'callback_url': callback_url}
 
@@ -40,7 +40,7 @@ def request_payment(amount, description, callback_url, mobile=None, email=None):
         response = requests.post(url, json=data, timeout=10)
         result = response.json()
 
-        # در پاسخ خطا، zarinpal فیلد data را خالی و errors را پر می‌فرستد
+        # On error responses zarinpal sends an empty data field and a filled errors field
         result_data = result.get('data') or {}
         if isinstance(result_data, dict) and result_data.get('code') == 100:
             authority = result_data['authority']
@@ -59,7 +59,7 @@ def request_payment(amount, description, callback_url, mobile=None, email=None):
 
 
 def verify_payment(amount, authority):
-    """تأیید پرداخت"""
+    """Verify the payment."""
     url = get_api_url() + 'verify.json'
     data = {
         'merchant_id': settings.ZARINPAL_MERCHANT_ID,

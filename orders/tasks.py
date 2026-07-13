@@ -4,7 +4,7 @@ from django.utils import timezone
 
 @shared_task
 def auto_cancel_unpaid_orders():
-    """لغو خودکار سفارشات پرداخت‌نشده بعد از ۳۰ دقیقه"""
+    """Auto-cancel unpaid orders after 30 minutes."""
     from .models import Order
     from datetime import timedelta
 

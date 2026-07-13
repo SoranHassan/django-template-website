@@ -22,10 +22,10 @@ from .models import SiteSetting, HomeCategoryCard
 
 @admin.register(SiteSetting)
 class SiteSettingAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'home_watermark', 'topbar_style')
+    list_display = ('__str__', 'topbar_style')
 
     def has_add_permission(self, request):
-        # فقط یک ردیف تنظیمات — اگر وجود ندارد اجازه ساخت بده
+        # Only one settings row - allow creation only when none exists
         return not SiteSetting.objects.exists()
 
     def has_delete_permission(self, request, obj=None):

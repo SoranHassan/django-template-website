@@ -7,7 +7,7 @@
 
 {% include 'base/navbar.html' %}
 
-<!-- Hero Banner (اسلایدر — از ادمین جنگو با مدل HeroSlide مدیریت می‌شود) -->
+<!-- Hero banner (slider - managed via the HeroSlide model) -->
 <div class="hero-slider" dir="ltr">
     {% for slide in hero_slides %}
     <div class="hero-slide position-relative">
@@ -24,7 +24,7 @@
         </div>
     </div>
     {% empty %}
-    {# اسلایدهای پیش‌فرض تا زمانی که از ادمین اسلاید اضافه شود #}
+    {# Default slides until real ones are added from the panel #}
     {% for banner in 'abc'|make_list %}
     <div class="hero-slide position-relative">
         <img src="{% static 'app/img/banner-' %}{{ banner }}.jpg" alt="Oram Shop"
@@ -42,7 +42,7 @@
 </div>
 <!-- Hero Banner End -->
 
-<!-- ۴ کارت دسته‌بندی — قابل مدیریت از پنل ادمین (HomeCategoryCard) -->
+<!-- The 4 category cards - manageable from the panel (HomeCategoryCard) -->
 <section class="p-0">
     <div class="container">
         <div class="row g-3 py-4">
@@ -67,7 +67,7 @@
             </div>
 
             {% empty %}
-            <!-- پیش‌فرض: دسته‌بندی‌های اصلی پوشاک با گرافیک برند -->
+            <!-- Default: main clothing categories with brand graphics -->
             {% for c in default_cats %}
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
                 <a href="{{ c.link }}" class="text-decoration-none">
@@ -86,15 +86,14 @@
         </div>
     </div>
 </section>
-<!-- دسته‌بندی‌ها End -->
+<!-- Categories end -->
 
-<!-- محصولات پرفروش -->
+<!-- Bestselling products -->
 <section class="middle home-band home-band-best">
     <div class="container">
 
         <div class="row justify-content-center mb-3">
             <div class="col-xl-12 text-center">
-                <h2 class="off_title">{% if site_settings %}{{ site_settings.home_watermark }}{% else %}ORAM SHOP{% endif %}</h2>
                 <h3 class="ft-bold pt-2">پرفروش‌ترین‌ها</h3>
             </div>
         </div>
@@ -108,7 +107,7 @@
         </div>
         </div><!-- /home-band-inner -->
         {% else %}
-        <!-- Skeleton محصولات -->
+        <!-- Product skeletons -->
         <div class="row align-items-center rows-products">
             {% for i in "1234" %}
             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-6">
@@ -147,15 +146,15 @@
 
     </div>
 </section>
-<!-- محصولات End -->
+<!-- Products end -->
 
-<!-- کالکشن‌ها — با وکتور اختصاصی هر کالکشن -->
+<!-- Collections - each with its own custom vector -->
 <section class="pt-2 pb-3">
     <div class="container">
         <div class="row g-3">
             <div class="col-md-6">
                 <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="promo-banner promo-men">
-                    <img src="{% static 'app/img/collections/man-vector.svg' %}" alt="کالکشن مردانه" class="promo-vector" loading="lazy">
+                    <img src="{% if site_settings.men_vector %}{{ site_settings.men_vector.url }}{% else %}{% static 'app/img/collections/man-vector.svg' %}{% endif %}" alt="کالکشن مردانه" class="promo-vector" loading="lazy">
                     <div class="promo-content">
                         <span class="promo-sub">کالکشن مردانه</span>
                         <h3 class="promo-title">استایل روز آقایان</h3>
@@ -165,7 +164,7 @@
             </div>
             <div class="col-md-6">
                 <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="promo-banner promo-women">
-                    <img src="{% static 'app/img/collections/woman-vector.svg' %}" alt="کالکشن زنانه" class="promo-vector" loading="lazy">
+                    <img src="{% if site_settings.women_vector %}{{ site_settings.women_vector.url }}{% else %}{% static 'app/img/collections/woman-vector.svg' %}{% endif %}" alt="کالکشن زنانه" class="promo-vector" loading="lazy">
                     <div class="promo-content">
                         <span class="promo-sub">کالکشن زنانه</span>
                         <h3 class="promo-title">جدیدترین مدل‌های بانوان</h3>
@@ -177,7 +176,7 @@
     </div>
 </section>
 
-<!-- ردیف‌های داینامیک: جدیدترین / مردانه / زنانه -->
+<!-- Dynamic rows: newest / men / women -->
 {% if new_products %}
 <section class="middle home-band home-band-new">
     <div class="container">
@@ -198,7 +197,7 @@
 </section>
 {% endif %}
 
-<!-- نوار آمار برند — بین بلاک‌ها، روشن و واقعی -->
+<!-- Brand stats band - between blocks, light and real -->
 <section class="pt-2 pb-3">
     <div class="container">
         <div class="os-stats-band">
@@ -246,7 +245,7 @@
 </section>
 {% endif %}
 
-<!-- بنر کالکشن تابستانی — بین دو بلاک محصولات -->
+<!-- Summer collection banner - between two product blocks -->
 <section class="py-5 my-2"
          style="background: linear-gradient(135deg, #000 0%, #1A1A1A 60%, #007a8a 100%);">
     <div class="container">
@@ -287,7 +286,7 @@
 </section>
 {% endif %}
 
-<!-- برندها — بین دو بلاک -->
+<!-- Brands - between two blocks -->
 {% if brands %}
 <section class="py-4 my-2 br-top br-bottom brand-strip">
     <div class="container">
@@ -310,8 +309,15 @@
 
 {% product_row 'discount' 'تخفیف‌دارها' 10 %}
 
+<!-- Store features - right above customer reviews -->
+<section class="py-4 mt-3">
+    <div class="container">
+        {% include 'catalog/features.html' %}
+    </div>
+</section>
+
 {% if recent_reviews %}
-<!-- نظرات مشتریان -->
+<!-- Customer reviews -->
 <section class="middle testimonials-sec">
     <div class="container">
         <div class="row justify-content-center mb-4">
@@ -343,16 +349,17 @@
 </section>
 {% endif %}
 
-<!-- ویژگی‌های فروشگاه — جای خبرنامهٔ قبلی (پایین صفحه) -->
+<!-- About us - editable from the dashboard, shown right before the footer -->
+{% if site_settings.about_home %}
 <section class="py-4" style="background:#f5f6f8;">
     <div class="container">
-        <div class="os-features-band">
-            <div class="row g-0 align-items-center">
-                {% include 'catalog/features.html' %}
-            </div>
+        <div class="os-about-band">
+            <h4 class="ft-bold mb-2"><i class="lni lni-crown" style="color:var(--os-cyan-dark);"></i> دربارهٔ اُرام‌شاپ</h4>
+            <p class="mb-0">{{ site_settings.about_home|linebreaksbr }}</p>
         </div>
     </div>
 </section>
+{% endif %}
 
 {% include 'catalog/_quickview.html' %}
 {% include 'catalog/_search_drawer.html' %}
@@ -363,7 +370,7 @@
 
 {% block js %}
 <script>
-    // Hover انیمیشن دسته‌بندی
+    // Category hover animation
     document.querySelectorAll('.category-card').forEach(card => {
         card.addEventListener('mouseenter', () => {
             card.style.transform = 'translateY(-5px)';
@@ -379,7 +386,7 @@
 
 <script>
     $(document).ready(function () {
-        // اسلایدهای تمام‌عرض؛ حالت RTL لازم ندارند (باگ slick با rtl+infinite)
+        // Full-width slides; RTL mode not needed (slick bug with rtl+infinite)
         $('.hero-slider').slick({
             autoplay: true, autoplaySpeed: 4500, arrows: false,
             dots: true, infinite: true, pauseOnHover: false, pauseOnFocus: false

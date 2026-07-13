@@ -11,11 +11,18 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 
-# حالت توسعه سبک (مثلاً روی ویندوز): بدون Redis و PostgreSQL و Celery worker
-# فقط DEV_MODE=True در .env کافی است — دیتابیس sqlite و کش حافظه‌ای می‌شود
+# Lightweight development mode (e.g. on Windows): no Redis, PostgreSQL or Celery worker.
+# Setting DEV_MODE=True in .env is enough - sqlite database and in-memory cache.
 DEV_MODE = config('DEV_MODE', default=False, cast=bool)
 
-# آدرس‌های مخفی پنل‌ها (قابل تغییر از .env تا غیرقابل حدس باشند)
+# Goftino live-chat widget id (loaded in the base template when set)
+GOFTINO_ID = config('GOFTINO_ID', default='')
+
+# Static key for the JSON API used by the Telegram bot (empty = API disabled)
+BOT_API_KEY = config('BOT_API_KEY', default='')
+
+# Hidden panel URLs (changeable via .env so they cannot be guessed)
+
 ADMIN_URL = config('ADMIN_URL', default='admin/').strip('/') + '/'
 DASHBOARD_URL = config('DASHBOARD_URL', default='dashboard/').strip('/') + '/'
 
@@ -47,6 +54,7 @@ INSTALLED_APPS = [
     'dashboard',
     'core',
     'blog',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -92,7 +100,7 @@ WSGI_APPLICATION = 'OramShop.wsgi.application'
 
 
 if DEV_MODE:
-    # sqlite + کش حافظه‌ای — بدون هیچ سرویس جانبی
+    # sqlite + in-memory cache - no external services needed
     DATABASES = {
         'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}
     }
@@ -126,7 +134,7 @@ else:
         }
     }
 
-    # cached_db: سرعت کش + ماندگاری در دیتابیس (با ری‌استارت Redis سشن‌ها نمی‌پرند)
+    # cached_db: cache speed + database persistence (sessions survive Redis restarts)
     SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
     SESSION_CACHE_ALIAS = 'default'
 
@@ -135,7 +143,7 @@ else:
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='memory://')
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='cache+memory://')
 if DEV_MODE:
-    # بدون worker: تسک‌ها همان لحظه در همان پروسه اجرا می‌شوند
+    # No worker: tasks run immediately in the same process
     CELERY_TASK_ALWAYS_EAGER = True
     CELERY_TASK_EAGER_PROPAGATES = False
 CELERY_ACCEPT_CONTENT = ['json']
@@ -176,7 +184,7 @@ AXES_RESET_ON_SUCCESS = True
 
 
 # REGION SETTINGS
-# en-us: صفحات پیش‌فرض جنگو (ادمین، خطاها، پیام‌های فرم) کاملاً انگلیسی نمایش داده می‌شوند
+# en-us: default Django pages (admin, errors, form messages) are shown fully in English
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
@@ -200,7 +208,7 @@ if USE_S3:
     AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
     AWS_S3_FILE_OVERWRITE = False
 
-    # از Django 5.1 به بعد STATICFILES_STORAGE و DEFAULT_FILE_STORAGE حذف شده‌اند و باید STORAGES استفاده شود
+    # Since Django 5.1 STATICFILES_STORAGE and DEFAULT_FILE_STORAGE are removed; STORAGES must be used
     STORAGES = {
         'default': {'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage'},
         'staticfiles': {'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage'},
@@ -246,18 +254,18 @@ ZARINPAL_MERCHANT_ID = config('ZARINPAL_MERCHANT_ID', default='')
 ZARINPAL_SANDBOX = config('ZARINPAL_SANDBOX', default=True, cast=bool)
 
 
-# SECURITY (همه محیط‌ها)
+# SECURITY (all environments)
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 14  # ۲ هفته
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 14  # two weeks
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 
-# دامنه‌های مجاز برای CSRF (پشت پروکسی/دامنه اصلی)
+# Trusted origins for CSRF (behind a proxy / main domain)
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
 
 # PRODUCTION SECURITY
@@ -271,7 +279,7 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
-# CKEDITOR 5 (ادیتور متن بلاگ — کاملاً local)
+# CKEDITOR 5 (blog rich-text editor - fully local)
 CKEDITOR_5_CONFIGS = {
     'default': {
         'language': 'fa',
@@ -301,7 +309,7 @@ LOGGING = {
         },
     },
     'handlers': {
-        # خطاهای برنامه — چرخشی، حداکثر ۵ فایل ۵ مگابایتی
+        # Application errors - rotating, at most five 5MB files
         'error_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -310,7 +318,7 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'verbose',
         },
-        # رخدادهای امنیتی (CSRF، لاگین ناموفق، ...)
+        # Security events (CSRF, failed logins, ...)
         'security_file': {
             'level': 'WARNING',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -319,7 +327,7 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'verbose',
         },
-        # رخدادهای کسب‌وکار: پرداخت، سفارش، OTP
+        # Business events: payments, orders, OTP
         'app_file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -353,7 +361,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-        # لاگر اختصاصی پروژه — استفاده: logging.getLogger('oramshop')
+        # Project logger - usage: logging.getLogger('oramshop')
         'oramshop': {
             'handlers': ['app_file', 'console'],
             'level': 'INFO',

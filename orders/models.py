@@ -5,7 +5,7 @@ from catalog.models import ProductVariant, Product, Category
 
 
 class ShippingMethod(models.Model):
-    """روش‌های ارسال (تیپاکس، پست پیشتاز، ...) — قیمت‌ها از ادمین قابل تغییر است"""
+    """Shipping methods (Tipax, express post, ...) - prices editable from the panel."""
 
     name = models.CharField(max_length=100, verbose_name='نام روش ارسال')
     price = models.DecimalField(max_digits=12, decimal_places=0, verbose_name='هزینه (تومان)')
@@ -63,7 +63,7 @@ class Coupon(models.Model):
         return True, 'معتبر'
 
     def calculate_discount(self, subtotal):
-        """محاسبه مقدار تخفیف"""
+        """Calculate the discount amount."""
         if self.discount_type == 'percent':
             discount = subtotal * self.discount_value / 100
             if self.max_discount_amount:
@@ -74,7 +74,7 @@ class Coupon(models.Model):
 
 
 class CouponUsage(models.Model):
-    """ردیابی استفاده از کد تخفیف"""
+    """Tracks coupon usage."""
 
     coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE, related_name='usages', verbose_name='کد تخفیف')
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='coupon_usages', verbose_name='کاربر')

@@ -8,7 +8,7 @@ from .models import Brand, Category, Product, ProductVariant
 
 
 class SearchSuggestView(View):
-    """پیشنهادهای زنده جستجو برای منوی کشویی زیر باکس سرچ"""
+    """Live search suggestions for the dropdown under the search box."""
 
     def get(self, request):
         query = request.GET.get('q', '').strip()
@@ -51,7 +51,7 @@ class HomeView(View):
             'rating': round(Review.objects.filter(is_approved=True).aggregate(a=Avg('rating'))['a'] or 5, 1),
         }
 
-        # دسته‌بندی‌های پیش‌فرض صفحه اصلی (اگر از پنل کارتی تعریف نشده) — با لینک به دستهٔ واقعی
+        # Default home category cards (when none are defined in the panel) - linked to real categories
         cat_specs = [
             ('تیشرت', 'خنک و راحت', 'app/img/categories/tshirt.svg', ['تیشرت', 'تی‌شرت', 'تی شرت']),
             ('هودی و سویشرت', 'گرم و اسپرت', 'app/img/categories/hoodie.svg', ['هودی و سویشرت', 'هودی', 'سویشرت']),
@@ -118,7 +118,7 @@ class ProductListView(View):
                 Q(brand__name__icontains=query)
             )
 
-        # مجموعه‌ها: جدیدترین / تخفیف‌دار / پرفروش
+        # Collections: newest / discounted / bestseller
         from django.db.models import F, Sum
         collection = request.GET.get('collection', '')
         if collection == 'discount':
@@ -169,7 +169,7 @@ class ProductDetailView(View):
         )
 
         variants = product.variants.all()
-        # سایزها به ترتیب عددی/منطقی (کوچک به بزرگ) نه تصادفی
+        # Sizes in numeric/logical order (small to large), not random
         seen = set()
         sizes = []
         for v in sorted(variants, key=lambda x: (x.size.sort_order, x.size.name) if x.size else (0, '')):
@@ -178,8 +178,8 @@ class ProductDetailView(View):
                 sizes.append(v.size)
         colors = list({v.color.pk: v.color for v in variants if v.color}.values())
 
-        # جدول سایزبندی (سانتی‌متر) — همیشه نمایش داده شود اگر داده‌ای هست،
-        # فقط ستون‌هایی که حداقل یک مقدار دارند نشان داده می‌شوند (مستقل از نوع محصول)
+        # Size chart (centimetres) - always shown when data exists;
+        # only columns with at least one value are displayed (independent of product type)
         size_charts = list(product.size_charts.select_related('size').all())
         _chart_labels = [
             ('shoulder', 'عرض شانه'), ('sleeve', 'طول آستین'), ('chest', 'عرض سینه'),
@@ -190,7 +190,7 @@ class ProductDetailView(View):
             (f, label) for f, label in _chart_labels
             if any(getattr(c, f) is not None for c in size_charts)
         ]
-        # ردیف‌ها را با ستون‌های فعال آماده می‌کنیم تا در قالب ساده رندر شوند
+        # Prepare the rows against the active columns for simple template rendering
         size_chart_rows = [
             {'size': c.size.name, 'values': [getattr(c, f) for f, _ in size_chart_columns]}
             for c in size_charts

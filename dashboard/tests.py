@@ -29,3 +29,54 @@ class DashboardPagesTest(TestCase):
                      'categories_list', 'orders_list', 'reviews_list', 'analytics']:
             response = self.client.get(reverse(f'dashboard:{name}'))
             self.assertEqual(response.status_code, 200, f'dashboard:{name} failed')
+
+
+class SuperuserOnlySectionsTest(TestCase):
+    """Site-critical sections must reject regular staff admins (403)."""
+
+    SUPER_ONLY = ['hero_list', 'home_cards_list', 'announcements_list',
+                  'site_settings', 'seo', 'newsletter']
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff = make_user(mobile='09127777771', is_staff=True)
+        cls.boss = make_user(mobile='09127777772', is_staff=True, is_superuser=True)
+
+    def test_staff_admin_gets_403(self):
+        self.client.force_login(self.staff)
+        for name in self.SUPER_ONLY:
+            response = self.client.get(reverse(f'dashboard:{name}'))
+            self.assertEqual(response.status_code, 403, f'dashboard:{name} not protected')
+
+    def test_superuser_gets_200(self):
+        self.client.force_login(self.boss)
+        for name in self.SUPER_ONLY:
+            response = self.client.get(reverse(f'dashboard:{name}'))
+            self.assertEqual(response.status_code, 200, f'dashboard:{name} failed')
+
+    def test_staff_still_reaches_daily_sections(self):
+        self.client.force_login(self.staff)
+        for name in ['index', 'products_list', 'orders_list', 'blog_list']:
+            response = self.client.get(reverse(f'dashboard:{name}'))
+            self.assertEqual(response.status_code, 200, f'dashboard:{name} failed')
+
+
+class HomeCardsCrudTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.boss = make_user(mobile='09127777773', is_staff=True, is_superuser=True)
+
+    def setUp(self):
+        self.client.force_login(self.boss)
+
+    def test_create_edit_delete_card(self):
+        from core.models import HomeCategoryCard
+        self.client.post(reverse('dashboard:home_card_create'),
+                         {'title': 'تیشرت', 'link': '/shop/?category=tshirt', 'order': 1})
+        card = HomeCategoryCard.objects.get(title='تیشرت')
+        self.client.post(reverse('dashboard:home_card_edit', args=[card.pk]),
+                         {'title': 'هودی', 'link': card.link, 'order': 2})
+        card.refresh_from_db()
+        self.assertEqual(card.title, 'هودی')
+        self.client.post(reverse('dashboard:home_card_delete', args=[card.pk]))
+        self.assertFalse(HomeCategoryCard.objects.filter(pk=card.pk).exists())

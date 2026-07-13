@@ -122,7 +122,7 @@ class SizeChart(models.Model):
     crotch = models.DecimalField(max_digits=5, decimal_places=1,null=True, blank=True,verbose_name='فاق (cm)')
     length_bottom = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='قد (cm)')
 
-    # کفش
+    # Shoes
     foot_length = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True, verbose_name='طول کف پا (cm)')
 
     class Meta:

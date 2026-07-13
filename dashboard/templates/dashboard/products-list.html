@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <!-- آمار سریع -->
+        <!-- Quick stats -->
         <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
             <div class="stat-card">
                 <div class="stat-icon blue"><i class="fas fa-box"></i></div>
@@ -70,7 +70,7 @@
             </div>
         </div>
 
-        <!-- فیلتر -->
+        <!-- Filter -->
         <div class="glass-card" style="margin-bottom: 16px;">
             <form method="GET" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
                 <select name="category" class="select-dropdown">
@@ -106,7 +106,7 @@
             </form>
         </div>
 
-        <!-- جدول محصولات -->
+        <!-- Products table -->
         <div class="glass-card">
             <div class="card-header">
                 <h2>لیست محصولات ({{ products|length }})</h2>
@@ -239,7 +239,7 @@
 <div class="overlay" id="overlay"></div>
 <script src="{% static 'dashboard/js/script.js' %}"></script>
 <script>
-    // جستجو
+    // Search
     document.getElementById('searchInput').addEventListener('input', function() {
         const term = this.value.toLowerCase();
         document.querySelectorAll('#productsTable tbody tr').forEach(row => {
@@ -247,7 +247,7 @@
         });
     });
 
-    // غیرفعال کردن محصول
+    // Deactivate product
     document.querySelectorAll('.delete-product-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const name = this.dataset.name;

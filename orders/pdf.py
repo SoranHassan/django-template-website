@@ -5,7 +5,7 @@ import os
 
 
 def generate_invoice_pdf(order, request=None):
-    """تولید فاکتور PDF برای سفارش"""
+    """Generate the PDF invoice for an order."""
 
     html_string = render_to_string('orders/invoice.html', {'order': order}, request=request)
     html = HTML(string=html_string, base_url=request.build_absolute_uri() if request else '/')
@@ -14,7 +14,7 @@ def generate_invoice_pdf(order, request=None):
 
 
 def generate_invoice_response(order, request=None):
-    """برگرداندن فاکتور PDF به عنوان HTTP Response"""
+    """Return the PDF invoice as an HTTP response."""
 
     pdf = generate_invoice_pdf(order, request)
     response = HttpResponse(pdf, content_type='application/pdf')

@@ -26,7 +26,7 @@
 
     <div class="dashboard-content">
 
-        <!-- عنوان و breadcrumb -->
+        <!-- Title and breadcrumb -->
         <div class="page-title">
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <div>
@@ -49,10 +49,10 @@
 
         <div style="display: grid; grid-template-columns: 1fr 380px; gap: 16px;">
 
-            <!-- ستون اصلی -->
+            <!-- Main column -->
             <div style="display: flex; flex-direction: column; gap: 16px;">
 
-                <!-- آیتم‌های سفارش -->
+                <!-- Order items -->
                 <div class="glass-card">
                     <div class="card-header">
                         <h2>محصولات سفارش</h2>
@@ -65,7 +65,7 @@
                     <div style="display: flex; align-items: center; gap: 16px; padding: 16px 0;
                                     border-bottom: 0.5px solid rgba(0,0,0,0.06);">
 
-                        <!-- تصویر -->
+                        <!-- Image -->
                         <div style="flex-shrink: 0;">
                             {% if item.variant.product.main_image %}
                             <img src="{{ item.variant.product.main_image.image.url }}"
@@ -81,7 +81,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- اطلاعات -->
+                        <!-- Info -->
                         <div style="flex: 1;">
                             <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">
                                 {{ item.variant.product.name }}
@@ -104,7 +104,7 @@
                             </div>
                         </div>
 
-                        <!-- تعداد و جمع -->
+                        <!-- Quantity and total -->
                         <div style="text-align: left; flex-shrink: 0;">
                             <div style="font-size: 12px; color: var(--text-secondary);">
                                 {{ item.quantity }} × {{ item.price }}
@@ -119,7 +119,7 @@
 
                 </div>
 
-                <!-- اطلاعات مشتری -->
+                <!-- Customer info -->
                 <div class="glass-card">
                     <div class="card-header">
                         <h2>اطلاعات مشتری</h2>
@@ -148,7 +148,7 @@
                     </div>
                 </div>
 
-                <!-- آدرس تحویل -->
+                <!-- Delivery address -->
                 <div class="glass-card">
                     <div class="card-header">
                         <h2>آدرس تحویل</h2>
@@ -186,10 +186,10 @@
 
             </div>
 
-            <!-- ستون کناری -->
+            <!-- Side column -->
             <div style="display: flex; flex-direction: column; gap: 16px;">
 
-                <!-- تغییر وضعیت -->
+                <!-- Status change -->
                 <div class="glass-card">
                     <div class="card-header"><h2>وضعیت سفارش</h2></div>
                     <form method="POST">
@@ -220,7 +220,7 @@
                     </form>
                 </div>
 
-                <!-- فاکتور سفارش (برای ادمین) -->
+                <!-- Order invoice (for the admin) -->
                 <div class="glass-card">
                     <div class="card-header"><h2>فاکتور سفارش</h2></div>
                     {% if order.status in 'paid,processing,shipped,delivered' %}
@@ -243,7 +243,7 @@
                     {% endif %}
                 </div>
 
-                <!-- خلاصه مالی -->
+                <!-- Financial summary -->
                 <div class="glass-card">
                     <div class="card-header"><h2>خلاصه مالی</h2></div>
                     <div style="display: flex; flex-direction: column; gap: 10px; font-size: 14px;">

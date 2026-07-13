@@ -42,7 +42,7 @@ class GuestCartTest(TestCase):
         self.assertEqual(CartItem.objects.count(), 1)
 
     def test_guest_cart_merged_into_user_cart_on_login(self):
-        """سبد مهمان بعد از ورود نباید گم شود"""
+        """The guest cart must survive login."""
         user = make_user(mobile='09127777777')
         _, variant = make_product(stock=5)
 

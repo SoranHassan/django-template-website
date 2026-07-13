@@ -3,11 +3,11 @@ import hashlib
 
 
 class VisitTrackingMiddleware:
-    """آمار بازدید واقعی سایت را ثبت می‌کند.
+    """Records real site visits.
 
-    فقط صفحات HTML فروشگاه (GET، پاسخ ۲۰۰) شمرده می‌شوند؛ فایل‌های استاتیک،
-    پنل مدیریت، درخواست‌های AJAX و ربات‌ها نادیده گرفته می‌شوند تا آمار واقعی
-    و بدون نویز باشد.
+    Only storefront HTML pages (GET, 200 responses) are counted; static
+    files, admin panels, AJAX requests and bots are ignored so the
+    statistics stay real and noise-free.
     """
 
     SKIP_PREFIXES = ('/static/', '/media/', '/admin/', '/dashboard/',
@@ -23,14 +23,14 @@ class VisitTrackingMiddleware:
         try:
             self._track(request, response)
         except Exception:
-            # ثبت آمار هرگز نباید سرویس‌دهی صفحه را مختل کند
+            # Tracking must never break page delivery
             pass
         return response
 
     def _track(self, request, response):
         if request.method != 'GET' or response.status_code != 200:
             return
-        # فقط پاسخ‌های HTML
+        # HTML responses only
         ctype = response.get('Content-Type', '')
         if 'text/html' not in ctype:
             return
@@ -63,9 +63,9 @@ class VisitTrackingMiddleware:
 
 class SecurityHeadersMiddleware:
     """
-    فقط هدرهایی که جنگو خودش ست نمی‌کند.
-    (nosniff ،X-Frame-Options و HSTS توسط SecurityMiddleware و
-    XFrameOptionsMiddleware با تنظیمات production ست می‌شوند)
+    Only the headers Django does not set by itself.
+    (nosniff, X-Frame-Options and HSTS are set by SecurityMiddleware and
+    XFrameOptionsMiddleware with the production settings.)
     """
 
     def __init__(self, get_response):

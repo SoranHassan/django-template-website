@@ -26,7 +26,7 @@ class Cart(models.Model):
 
     @property
     def total(self):
-        # هزینه ارسال در مرحله تسویه‌حساب اضافه می‌شود
+        # Shipping cost is added at the checkout step
         return self.subtotal
 
 

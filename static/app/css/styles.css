@@ -36,7 +36,7 @@
 /*------------------------------------
 	Fonts
 ------------------------------------ */
-/* فونت‌های گوگل حذف شدند — همه‌چیز لوکال (وزیرمتن) برای سازگاری با نت ملی */
+/* Google fonts removed - everything local (Vazirmatn) for national-internet compatibility */
 
 /*------------------------------------------------------------
 	Global Settings
@@ -1270,7 +1270,7 @@ outline:none;
 /*----------- GLobal Settings: Custom Radio Button ------------*/
 [type="radio"]:checked,
 [type="radio"]:not(:checked) {
-    /* مخفی‌سازی بدون جابه‌جایی؛ left منفی در RTL باعث اسکرول افقی عظیم می‌شد */
+    /* Hide without offsetting; a negative left in RTL caused a huge horizontal scroll */
     position: absolute;
     opacity: 0;
     width: 0;
@@ -5837,13 +5837,13 @@ body { direction: rtl; text-align: right; }
     margin-left: 0;
 }
 
-/* فرم‌ها */
+/* Forms */
 .form-control { text-align: right; }
 input[type="text"], input[type="email"], input[type="password"] {
     direction: rtl;
 }
 
-/* دکمه‌های سبد و ویشلیست */
+/* Cart and wishlist buttons */
 .cart-count, .wishlist-count {
     position: absolute;
     top: -6px;
@@ -5851,14 +5851,14 @@ input[type="text"], input[type="email"], input[type="password"] {
     right: auto;
 }
 
-/* کارت محصول */
+/* Product card */
 .product_grid:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     transition: all 0.3s;
 }
 
-/* پروفایل dropdown */
+/* Profile dropdown */
 .user-nav-item .dropdown-menu {
     right: 0;
     left: auto;
@@ -5900,7 +5900,7 @@ input[type="text"], input[type="email"], input[type="password"] {
 
 :root {
   --os-cyan: #00E6FF;
-  --os-cyan-dark: #00B8CC;   /* برای متن روی پس‌زمینه روشن (کنتراست بهتر) */
+  --os-cyan-dark: #00B8CC;   /* For text on light backgrounds (better contrast) */
   --os-black: #000000;
   --os-charcoal: #1A1A1A;
   --os-silver: #A6A6A6;
@@ -5912,7 +5912,7 @@ body, h1, h2, h3, h4, h5, h6, p, a, span, li, input, textarea, select, button,
   font-family: 'Vazirmatn', 'DM Sans', Tahoma, sans-serif !important;
 }
 
-/* یکسان‌سازی اندازه تصاویر محصول (کارت‌ها و صفحه جزئیات) */
+/* Uniform product image sizing (cards and detail page) */
 .product_grid .card-img-top,
 .product_grid .card-img-top img,
 .similar-products .card-img-top img {
@@ -5927,11 +5927,11 @@ body, h1, h2, h3, h4, h5, h6, p, a, span, li, input, textarea, select, button,
   border-radius: 12px;
 }
 
-/* رنگ برند به جای قرمز قالب */
+/* Brand color instead of the template red */
 a:hover { color: var(--os-cyan-dark); }
 .text-danger.price, .prt_01 .text-danger { color: var(--os-cyan-dark) !important; }
 
-/* دکمه اصلی برند — هم‌رنگ لوگو */
+/* Primary brand button - matches the logo color */
 .btn-os {
   background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%);
   color: #fff; border: none;
@@ -5939,17 +5939,17 @@ a:hover { color: var(--os-cyan-dark); }
 }
 .btn-os:hover { background: linear-gradient(120deg, #00a5b8, #008ba0); color: #fff; box-shadow: 0 6px 18px rgba(0,184,204,.35); }
 
-/* اسلایدر هیرو */
+/* Hero slider */
 .hero-slider .hero-slide { position: relative; }
 .hero-slider .slick-dots { bottom: 18px; }
 .hero-slider .slick-dots li button:before { color: #fff; opacity: .5; font-size: 10px; }
 .hero-slider .slick-dots li.slick-active button:before { color: var(--os-cyan); opacity: 1; }
 
-/* نوار برندها */
+/* Brand strip */
 .brand-strip img { max-height: 44px; filter: grayscale(1); opacity: .65; transition: all .2s; }
 .brand-strip img:hover { filter: none; opacity: 1; }
 
-/* منوی پیشنهاد جستجو */
+/* Search suggestion menu */
 .search-suggest {
   position: absolute; top: 100%; right: 0; left: 0; z-index: 1050;
   background: #fff; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,.12);
@@ -5963,14 +5963,14 @@ a:hover { color: var(--os-cyan-dark); }
 .search-suggest a:hover { background: #f8fdfe; color: var(--os-cyan-dark); }
 .search-suggest img { width: 40px; height: 52px; object-fit: cover; border-radius: 8px; }
 
-/* ==================== ظرافت صفحه اصلی و اجزا ==================== */
+/* ==================== Home page polish and components ==================== */
 .home-section-alt {
   background: var(--os-ivory);
   border-top: 1px solid #eee9df;
   border-bottom: 1px solid #eee9df;
 }
 
-/* تیتر سکشن با خط سایان + لینک مشاهده همه کنار تیتر (سمت راست) */
+/* Section title with a cyan bar + view-all link next to the title (right side) */
 .sec-accent h3, .sec-accent h4 { position: relative; padding-right: 14px; }
 .sec-accent h3::before, .sec-accent h4::before {
   content: ''; position: absolute; right: 0; top: 6px; bottom: 6px;
@@ -5983,32 +5983,32 @@ a:hover { color: var(--os-cyan-dark); }
 }
 .view-all-link:hover { background: var(--os-cyan-dark); color: #fff; }
 
-/* قلب علاقه‌مندی — حالت فعال کاملاً مشخص */
+/* Wishlist heart - clearly visible active state */
 .wishlist-btn.in-wishlist { background: #ffe9eb !important; border-color: #e63946 !important; }
 .wishlist-btn.in-wishlist i { color: #e63946 !important; }
 .wishlist-btn.in-wishlist .wishlist-label::after { content: ' ✓'; }
 
-/* دکمه حذف آیتم */
+/* Item delete button */
 .remove-item-btn, .close_cart_item {
   border-radius: 999px !important; transition: all .15s ease;
 }
 .remove-item-btn:hover { background: #e63946 !important; color: #fff !important; }
 
-/* کارت محصول: سایه لطیف */
+/* Product card: soft shadow */
 .product_grid.card {
   border-radius: 14px; overflow: hidden; transition: all .2s ease;
   border: 1px solid #f0f0f0 !important;
 }
 .product_grid.card:hover { box-shadow: 0 14px 34px rgba(0,0,0,.08); transform: translateY(-3px); }
 
-/* ============ فاصله استاندارد متن و آیکون روی دکمه‌ها ============ */
+/* ============ Standard icon/text spacing on buttons ============ */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .btn > i, .btn > svg { flex-shrink: 0; }
-/* آیکون‌هایی که با margin دستی فاصله می‌گرفتند خنثی می‌شوند تا gap یکدست شود */
+/* Icons that used manual margins are neutralised so the gap stays uniform */
 .btn > i.me-1, .btn > i.me-2, .btn > i.ms-1, .btn > i.ms-2 { margin-right: 0 !important; margin-left: 0 !important; }
 .wishlist-btn, .add-to-cart, .btn-os { display: inline-flex; align-items: center; gap: 8px; }
 
-/* ============ استپر تعداد — خیلی جمع‌وجور (سبک دیجی‌کالا) ============ */
+/* ============ Quantity stepper - very compact (Digikala style) ============ */
 .quantity-stepper {
   display: inline-flex !important;
   align-items: center;
@@ -6043,13 +6043,13 @@ a:hover { color: var(--os-cyan-dark); }
 }
 .quantity-stepper .qty-value:focus { outline: none; box-shadow: none !important; }
 
-/* قلب کاملاً قرمز و پر وقتی در علاقه‌مندی است */
+/* Fully red, filled heart while in the wishlist */
 .wishlist-btn.in-wishlist i,
 .p_icon .wishlist-btn.in-wishlist i,
 a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
 .lni-heart-filled::before { color: inherit; }
 
-/* ============ انیمیشن عبور نور از روی لوگو ============ */
+/* ============ Light-sweep animation over the logo ============ */
 .logo-shine {
   position: relative;
   display: inline-block;
@@ -6083,11 +6083,11 @@ a.wishlist-btn.in-wishlist i { color: #e63946 !important; }
   .logo-shine::after { animation: none; }
 }
 
-/* ============ حذف خط زیر دکمه‌ها + استایل دکمه‌های بدون کلاس ============ */
+/* ============ Remove button underlines + style class-less buttons ============ */
 .btn, a.btn, button, .btn-os, .view-all-link, .simple-nav-btn,
 .os-card-cart, .footer-credit, [class*="btn-"] { text-decoration: none !important; }
 .btn:hover, a.btn:hover, .view-all-link:hover { text-decoration: none !important; }
-/* دکمه‌های بدون استایل یک ظاهر پایه بگیرند */
+/* Unstyled buttons get a base look */
 button:not([class]) {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 9px 18px; border: none; border-radius: 10px;
@@ -6096,20 +6096,20 @@ button:not([class]) {
 }
 button:not([class]):hover { background: #000; color: var(--os-cyan); }
 
-/* ============ فاصلهٔ استاندارد آیکون و متن در کل سایت ============ */
+/* ============ Standard icon/text spacing across the site ============ */
 .lni, .fa, .fas, .far, .fab { margin-inline-end: .4em; }
-/* آیکون‌های تنها (بدون متن کنارشان) بدون فاصله */
+/* Stand-alone icons (no adjacent text) get no spacing */
 .nav-icon-btn > .lni, .qty-btn > .lni, .btn_love > .lni, .os-card-cart > .lni,
 .close_cart_item > .lni, .menu-toggle > .lni, .menu-toggle > .fa,
 .header-btn > .fa, .close-btn > .fa, .btn-icon > .lni,
 .star-rating .fa, .star-rating .fas,
 .wishlist-btn.btn_love > .lni, .simple-nav-btn > .lni { margin-inline-end: 0; }
 
-/* ============ آیکون حذف قرمز در کل سایت ============ */
+/* ============ Red delete icon across the site ============ */
 .lni-trash-can { color: #e63946; }
 .close_cart_item .lni-trash-can, .remove-item-btn .lni-trash-can { color: inherit; }
 
-/* ============ دراپ‌داون‌های نوبار — تمیز و مرتب ============ */
+/* ============ Navbar dropdowns - clean and tidy ============ */
 .custom-dropdown, .user-dropdown, .cart-dropdown, .wishlist-dropdown {
   border: 1px solid #eee !important;
   border-radius: 14px !important;
@@ -6133,8 +6133,8 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .user-dropdown-header { border-bottom: 1px solid #f0f0f0; }
 .user-dropdown .dropdown-divider { margin: 6px 4px; }
 
-/* ============ بلاک‌های رنگی سکشن‌های صفحه اصلی — روشن و لطیف ============ */
-/* تیتر و «مشاهده همه» بیرونِ بلاک (بالای آن) قرار می‌گیرند */
+/* ============ Colored home section blocks - light and soft ============ */
+/* Title and view-all sit outside (above) the block */
 .home-band-inner {
   border-radius: 22px;
   padding: 26px 20px;
@@ -6147,16 +6147,29 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .home-band-men   .home-band-inner { background: linear-gradient(150deg,#f0f4f9 0%,#e7edf5 100%); }
 .home-band-women .home-band-inner { background: linear-gradient(150deg,#fbf2f8 0%,#f4e8f1 100%); }
 .home-band-sale  .home-band-inner { background: linear-gradient(150deg,#eefaf5 0%,#e3f4ec 100%); }
-/* سرتیتر بیرون بلاک — متن تیره روی زمینهٔ روشن صفحه */
+/* Heading outside the block - dark text on the light page background */
 .home-band-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 .home-band-head h2, .home-band-head h3 { margin: 0; }
 @media (max-width: 767px) {
   .home-band-inner { padding: 18px 12px; border-radius: 16px; }
 }
 
-/* ============ فوتر — متن کمی بزرگ‌تر + خبرنامهٔ جمع‌وجور ============ */
+/* ============ About-us band shown right before the footer ============ */
+.os-about-band {
+  background: #fff; border: 1px solid #ececec; border-radius: 18px;
+  padding: 24px 28px; box-shadow: 0 8px 24px rgba(0,0,0,.04);
+}
+.os-about-band h4 { font-size: 17px; }
+.os-about-band p { font-size: 13.5px; line-height: 2.1; color: #5a5a5a; }
+
+/* ============ Footer: slightly larger text + compact newsletter ============ */
 .os-footer .small, .os-footer p, .os-footer li, .os-footer a { font-size: 15px; }
-.os-footer h6 { font-size: 16px; }
+/* Headings aligned on one baseline with the lists under them */
+.os-footer h6 { font-size: 16px; margin-bottom: 14px !important; line-height: 1.4; }
+.os-footer ul { margin-bottom: 0; }
+.os-footer ul li { line-height: 1.9; }
+/* Fixed icon column so contact texts line up under the heading */
+.os-footer ul li > .lni { width: 20px; text-align: center; margin-inline-end: 6px !important; }
 .footer-newsletter { max-width: 300px; }
 .footer-newsletter-form {
   display: flex; border-radius: 10px; overflow: hidden;
@@ -6175,7 +6188,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 }
 .footer-newsletter-form button:hover { background: #00a5b8; }
 
-/* ============ لینک سازندهٔ سایت در فوتر ============ */
+/* ============ Site credit link in the footer ============ */
 .footer-credit {
   display: inline-flex; align-items: center; gap: 7px;
   color: rgba(255,255,255,.55); padding: 5px 12px; border-radius: 999px;
@@ -6184,13 +6197,13 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .footer-credit:hover { color: var(--os-cyan); border-color: rgba(0,230,255,.4); }
 .footer-credit .lni { color: var(--os-cyan); }
 
-/* ============ یکدستی اندازهٔ کارت محصول (مستقل از عکس کاربر) ============ */
+/* ============ Uniform product card size (independent of the uploaded photo) ============ */
 .os-thumb .card-img-top { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
 @supports not (aspect-ratio: 1) {
   .os-thumb .card-img-top { height: 300px; }
 }
 
-/* ============ آیکون‌های نوبار — لوکس و یکدست ============ */
+/* ============ Navbar icons - luxe and uniform ============ */
 .nav-actions { gap: 6px !important; }
 .nav-icon-btn {
   width: 44px; height: 44px; border-radius: 50%;
@@ -6200,16 +6213,16 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 }
 .nav-icon-btn:hover { background: #f2f4f6; color: var(--os-cyan-dark); transform: translateY(-1px); }
 .nav-icon-btn > i { line-height: 1; }
-/* شمارندهٔ روی آیکون‌ها یکدست */
+/* Uniform counters on icons */
 .nav-icon-btn .dn-counter {
   top: 4px; inset-inline-start: 4px;
   min-width: 18px; height: 18px; font-size: 10px; font-weight: 700;
   display: inline-flex; align-items: center; justify-content: center; border-radius: 999px;
 }
-/* آیکون‌های خطی کمی نازک‌تر و مینیمال‌تر برای حس لوکس */
+/* Line icons slightly thinner and more minimal for a luxe feel */
 .lni { font-weight: 400; }
 
-/* ============ فلش‌های اسلایدر محصولات — تمیز و برندمحور ============ */
+/* ============ Product slider arrows - clean and on-brand ============ */
 .products-row-slider { position: relative; }
 .products-row-slider .slick-arrow {
   width: 40px; height: 40px; border-radius: 50%;
@@ -6238,18 +6251,29 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   .products-row-slider .slick-next { right: 0; }
 }
 
-/* ============ نوار ویژگی‌ها (بالای صفحه، داخل کارت — همه در یک خط) ============ */
+/* ============ Features strip - identical style on every page, all in one line ============ */
 .os-features-band {
   background: #fff; border: 1px solid #f0f0f0; border-radius: 18px;
   padding: 10px 8px; box-shadow: 0 8px 24px rgba(0,0,0,.05);
 }
 .os-features-band .row > div { border-inline-end: 1px solid #f2f2f2; }
 .os-features-band .row > div:last-child { border-inline-end: none; }
+/* Icon centered exactly above its caption (cancel global icon spacing) */
+.os-feature-item > .lni {
+  display: block; margin: 0 auto; font-size: 34px; color: var(--os-cyan-dark);
+  margin-inline-end: 0;
+}
 @media (max-width: 767px) {
   .os-features-band .row > div:nth-child(2) { border-inline-end: none; }
 }
 
-/* ============ دکمه‌های اصلی سایت — هم‌رنگ لوگو (سایان) ============ */
+/* Any stacked icon-above-text pattern: keep the icon perfectly centered */
+.text-center > .lni:first-child, .text-center > .fa:first-child,
+.text-center > .fas:first-child, .os-stat > .lni {
+  display: inline-block; margin-inline-end: 0;
+}
+
+/* ============ Primary site buttons - matching the logo (cyan) ============ */
 .btn-dark, a.btn-dark {
   background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%) !important;
   border-color: var(--os-cyan-dark) !important; color: #fff !important;
@@ -6266,7 +6290,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   background: var(--os-cyan-dark) !important; color: #fff !important;
 }
 
-/* ============ نوار آمار برند — روشن و واقعی ============ */
+/* ============ Brand stats band - light and real ============ */
 .os-stats-band {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
   background: linear-gradient(120deg, #f4fbfd 0%, #eaf6f9 100%);
@@ -6287,13 +6311,13 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   .os-stat-num { font-size: 21px; }
 }
 
-/* ============ بنرهای تبلیغاتی دوتایی صفحه اصلی ============ */
+/* ============ Twin promo banners on the home page ============ */
 .promo-banner {
   display: block; position: relative; overflow: hidden;
   border-radius: 20px; min-height: 200px; text-decoration: none;
   box-shadow: 0 10px 30px rgba(0,0,0,.08);
 }
-/* وکتور اختصاصی هر کالکشن — سمت چپ بنر */
+/* Custom vector per collection - left side of the banner */
 .promo-vector {
   position: absolute; left: 26px; bottom: 0; height: 94%; width: auto;
   z-index: 1; opacity: .95; pointer-events: none;
@@ -6320,8 +6344,8 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 }
 .promo-banner:hover .promo-cta { color: var(--os-cyan); }
 
-/* ============ کارت نظرات مشتریان ============ */
-/* فاصلهٔ کافی از بلاک بالایی تا تیتر «نظر مشتریان» نچسبد */
+/* ============ Customer testimonial cards ============ */
+/* Enough space so the reviews heading never sticks to the block above */
 .testimonials-sec { margin-top: 34px; padding-top: 20px; }
 
 .testimonial-card {
@@ -6342,7 +6366,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .testimonial-name { font-weight: 700; font-size: 13px; color: #1a1a1a; }
 .testimonial-product { font-size: 11px; color: #999; }
 
-/* ============ نوار خبرنامه صفحه اصلی ============ */
+/* ============ Home newsletter band (legacy) ============ */
 .os-newsletter { padding: 40px 0; background: #f5f6f8; }
 .os-newsletter-box {
   background: linear-gradient(120deg, #1A1A1A 0%, #0b3a45 60%, #007a8a 100%);
@@ -6369,7 +6393,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   .os-newsletter-form { max-width: 100%; width: 100%; }
 }
 
-/* ============ کارت محصول — هم‌سایز، مرتب، با دکمه سبد ============ */
+/* ============ Product card - equal size, tidy, with a cart button ============ */
 .os-product-card { height: 100%; display: flex; flex-direction: column; }
 .os-product-card .card-body { flex: 0 0 auto; }
 .os-card-foot { margin-top: auto; }
@@ -6380,7 +6404,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 }
 .os-product-card:hover .os-thumb .card-img-top { transform: scale(1.04); }
 .os-placeholder { object-fit: cover; background: #0d0d0d; }
-/* دکمه سبد روی تصویر */
+/* Cart button over the image */
 .os-card-cart {
   position: absolute; bottom: 10px; left: 10px;
   width: 42px; height: 42px; border-radius: 50%;
@@ -6394,32 +6418,42 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .os-product-card:hover .os-card-cart { opacity: 1; transform: translateY(0); }
 .os-card-cart:hover { background: var(--os-cyan); color: #0d0d0d; }
 @media (max-width: 767px) { .os-card-cart { opacity: 1; transform: none; width: 38px; height: 38px; font-size: 16px; } }
-/* بج تخفیف */
+/* Discount badge */
 .os-discount-badge {
   background: #e63946 !important; color: #fff !important;
   font-size: 11px; padding: 5px 9px; border-radius: 8px; font-weight: 700;
 }
-/* عنوان محصول بالا، برند کمرنگ زیر آن */
+/* Product name on top, faint brand under it */
 .os-card-title { font-size: 14px; line-height: 1.6; margin-bottom: 2px !important; }
 .os-card-title a { color: #1a1a1a; }
 .os-card-title a:hover { color: var(--os-cyan-dark); }
-.os-card-sub {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; margin-bottom: 8px;
+/* Title row: name on the right, rating chip fills the empty left side */
+.os-card-titlerow {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 8px; margin-bottom: 2px;
 }
-.os-card-brand { display: block; font-size: 11px; color: #a6a6a6; }
+.os-card-titlerow .os-card-title { flex: 1; min-width: 0; }
+.os-card-brand { display: block; font-size: 11px; color: #a6a6a6; margin-bottom: 8px; }
 .os-card-rating {
-  display: inline-flex; align-items: center; gap: 3px;
+  display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0;
   font-size: 11px; font-weight: 700; color: #1a1a1a;
   background: #fff8e6; border: 1px solid #f5e2b0; border-radius: 7px; padding: 1px 7px;
 }
 .os-card-rating .lni { color: #f5b301; font-size: 10px; margin-inline-end: 0; }
-/* قیمت‌ها — با فاصله مشخص */
-.os-card-prices { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+/* Price row: final price right, old price + discount chip fill the left side */
+.os-card-prices {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 10px; min-height: 24px;
+}
+.os-old-wrap { display: inline-flex; align-items: center; gap: 6px; }
 .os-old-price { font-size: 12px; color: #b0b0b0; text-decoration: line-through; }
+.os-off-chip {
+  background: #e63946; color: #fff; font-size: 10px; font-weight: 700;
+  border-radius: 6px; padding: 1px 6px;
+}
 .os-final-price { font-size: 15px; font-weight: 800; color: var(--os-cyan-dark); }
 
-/* دکمه افزودن به سبد روی کارت — هم‌رنگ لوگو */
+/* Add-to-cart button on the card - matches the logo color */
 .os-card-addbtn {
   width: 100%; border: none; border-radius: 10px; padding: 9px 12px;
   background: linear-gradient(120deg, var(--os-cyan-dark) 0%, #009cb4 100%);
@@ -6430,7 +6464,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .os-card-addbtn:hover { background: linear-gradient(120deg, #00a5b8, #008ba0); color: #fff; box-shadow: 0 6px 16px rgba(0,184,204,.30); }
 .os-card-addbtn .lni { font-size: 15px; }
 
-/* پنل انتخاب سریع سایز/رنگ/تعداد */
+/* Quick size/color/qty selection panel */
 .os-quickadd {
   margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;
   display: flex; flex-direction: column; gap: 9px;
@@ -6463,7 +6497,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .qa-msg.ok { color: #16a34a; }
 .qa-msg.err { color: #e63946; }
 
-/* باکس فیلتر صفحه محصولات — padding/margin استاندارد و یکسان */
+/* Shop page filter box - standard, uniform padding/margin */
 .os-filter-card {
   padding: 20px 22px !important;
   margin-top: 14px;
@@ -6488,7 +6522,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   .os-filter-card .row > [class*="col-"] { padding-inline: 6px; }
 }
 
-/* ============ گرید بلاگ — همیشه هماهنگ و ریسپانسیو ============ */
+/* ============ Blog grid - always aligned and responsive ============ */
 .blog-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -6526,7 +6560,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
   .blog-card-thumb, .blog-card-thumb img, .blog-card-ph { height: 110px; }
 }
 
-/* کارت دسته‌بندی گرافیکی صفحه اصلی */
+/* Graphic home category card */
 .home-cat-graphic {
   position: relative; overflow: hidden; border-radius: 16px;
   aspect-ratio: 1 / 1; display: block; box-shadow: 0 8px 24px rgba(0,0,0,.08);
@@ -6542,7 +6576,7 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .home-cat-graphic-cap h5 { color: #fff; font-size: 16px; }
 .home-cat-graphic-cap .home-cat-sub { color: rgba(255,255,255,.8); font-size: 12px; }
 
-/* کارت دسته‌بندی صفحه اصلی */
+/* Home category card */
 .home-cat-card { transition: transform .3s, box-shadow .3s; background: #fafafa; }
 .home-cat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,.08); }
 .home-cat-icon { width: 70px; height: 70px; border-radius: 50%; background: rgba(0,0,0,.04);

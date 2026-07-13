@@ -9,17 +9,20 @@ def announcements_context(request):
 
 
 def site_settings_context(request):
-    """تنظیمات ظاهری سایت (واترمارک، رنگ تاپ‌بار) برای همه صفحات"""
+    """Site appearance settings + third-party widget ids for all pages."""
+    from django.conf import settings as dj_settings
     from .models import SiteSetting
+    ctx = {'goftino_id': getattr(dj_settings, 'GOFTINO_ID', '')}
     try:
-        return {'site_settings': SiteSetting.get()}
+        ctx['site_settings'] = SiteSetting.get()
     except Exception:
-        # قبل از اجرای مایگریشن‌ها جدول وجود ندارد
-        return {'site_settings': None}
+        # Table does not exist before migrations have run
+        ctx['site_settings'] = None
+    return ctx
 
 
 def categories_context(request):
-    """دسته‌بندی‌های فعال برای مگامنوی ناوبار"""
+    """Active categories for the navbar mega menu."""
     from catalog.models import Category
     return {'nav_categories': Category.objects.filter(is_active=True)}
 
@@ -34,7 +37,7 @@ def _get_request_cart(request):
 
 
 def cart_context(request):
-    """تعداد و آیتم‌های سبد برای ناوبار (drawer)"""
+    """Cart count and items for the navbar drawer."""
     try:
         cart = _get_request_cart(request)
         if cart:
@@ -64,7 +67,7 @@ def wishlist_context(request):
 
 
 def _unseen_count(request, session_key, queryset, date_field):
-    """تعداد آیتم‌های جدید از آخرین باری که ادمین آن بخش را دیده است.
+    """Number of new items since the admin last viewed that section.
     اگر تاکنون دیده نشده، همین حالا را مبنا می‌گیرد (بدون آلارم کاذب)."""
     from django.utils import timezone
     from django.utils.dateparse import parse_datetime
@@ -79,23 +82,23 @@ def _unseen_count(request, session_key, queryset, date_field):
 
 
 def dashboard_context(request):
-    """بج‌های اعلان داشبورد — بعد از مشاهدهٔ هر بخش، عددش پاک می‌شود"""
+    """Dashboard notification badges - each clears after its section is viewed."""
     if not request.user.is_authenticated or not request.user.is_staff:
         return {}
 
     from accounts.models import CustomUser
 
-    # شمارش آیتم‌های «خوانده‌نشده» (بعد از آخرین مشاهده)
+    # Count of 'unread' items (since the last view)
     new_orders_count = _unseen_count(request, 'seen_orders_at', Order.objects.all(), 'created_at')
     new_users_count = _unseen_count(request, 'seen_users_at', CustomUser.objects.all(), 'date_joined')
     new_reviews_count = _unseen_count(request, 'seen_reviews_at', Review.objects.filter(is_approved=False), 'created_at')
 
     return {
-        # بج‌های اعلان (پاک‌شونده)
+        # Notification badges (clearable)
         'new_orders_count': new_orders_count,
         'new_users_count': new_users_count,
         'new_reviews_count': new_reviews_count,
-        # شمارش‌های اقدام‌پذیر برای صفحهٔ داشبورد (پاک نمی‌شوند)
+        # Actionable counts for the dashboard page (never cleared)
         'pending_orders_count': Order.objects.filter(status='pending').count(),
         'pending_reviews_count': Review.objects.filter(is_approved=False).count(),
     }

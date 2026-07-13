@@ -10,7 +10,7 @@ def error_404(request, exception=None):
 
 
 def _normalize_mobile(value):
-    """اعداد فارسی/عربی را به انگلیسی تبدیل و موبایل ایرانی را نرمال می‌کند."""
+    """Convert Persian/Arabic digits to English and normalise Iranian mobile numbers."""
     trans = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')
     v = (value or '').translate(trans).strip().replace(' ', '').replace('-', '')
     if v.startswith('+98'):
@@ -21,14 +21,14 @@ def _normalize_mobile(value):
 
 
 class NewsletterSubscribeView(View):
-    """ثبت ایمیل یا شماره موبایل در خبرنامه (فرم فوتر/صفحه اصلی، با AJAX)"""
+    """Register an email or mobile number for the newsletter (footer form, AJAX)."""
 
     def post(self, request):
         import re
         from .models import NewsletterSubscriber
         raw = (request.POST.get('email') or request.POST.get('contact') or '').strip()
 
-        # تشخیص ایمیل یا موبایل
+        # Detect email vs. mobile
         if '@' in raw:
             email = raw.lower()
             try:

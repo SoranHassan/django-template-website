@@ -16,6 +16,7 @@ urlpatterns = [
     path(settings.DASHBOARD_URL, include('dashboard.urls')),
     path('reviews/', include('reviews.urls')),
     path('blog/', include('blog.urls')),
+    path('api/v1/', include('api.urls')),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
 
     # SEO
@@ -25,5 +26,5 @@ urlpatterns = [
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# هندلر ۴۰۴ سفارشی
+# Custom 404 handler
 handler404 = 'core.views.error_404'

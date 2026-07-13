@@ -33,7 +33,7 @@ class PublicPagesTest(TestCase):
 
 
 class TemplateSyntaxTest(TestCase):
-    """همه تمپلیت‌ها باید بدون خطای سینتکس لود شوند.
+    """Every template must load without a syntax error.
     (محافظت در برابر فرمت‌کننده‌هایی که تگ‌های جنگو را می‌شکنند)"""
 
     def test_all_templates_parse(self):
@@ -81,3 +81,49 @@ class PriceFormattingTest(TestCase):
         product, _ = make_product(price=1890000, slug='price-test', name='محصول قیمت')
         response = self.client.get(reverse('catalog:product_detail', kwargs={'id': product.pk}))
         self.assertContains(response, '1,890,000')
+
+
+class ProductCardTest(TestCase):
+    """Shared product card: rating badge, brand line and quick-add markup."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.product, cls.variant = make_product()
+
+    def test_shop_uses_shared_card_with_quickadd(self):
+        response = self.client.get(reverse('catalog:shop_style_1'))
+        self.assertContains(response, 'os-product-card')
+        self.assertContains(response, 'os-card-addbtn')
+        self.assertContains(response, 'qa-variants')
+
+    def test_card_shows_rating_when_reviewed(self):
+        from OramShop.test_utils import make_user
+        from reviews.models import Review
+        Review.objects.create(product=self.product, user=make_user(mobile='09125550001'),
+                              rating=4, body='خوب', is_approved=True)
+        response = self.client.get(reverse('catalog:shop_style_1'))
+        self.assertContains(response, 'os-card-rating')
+
+    def test_card_hides_rating_without_reviews(self):
+        response = self.client.get(reverse('catalog:shop_style_1'))
+        self.assertNotContains(response, 'os-card-rating')
+
+
+class QuickAddToCartTest(TestCase):
+    """The inline size/color/qty quick-add posts straight to the cart API."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.product, cls.variant = make_product(stock=3)
+
+    def test_add_variant_to_cart(self):
+        response = self.client.post('/cart/add/', {
+            'variant_id': self.variant.pk, 'quantity': 2})
+        data = response.json()
+        self.assertEqual(data['status'], 'ok')
+        self.assertEqual(data['count'], 2)
+
+    def test_add_over_stock_fails(self):
+        response = self.client.post('/cart/add/', {
+            'variant_id': self.variant.pk, 'quantity': 99})
+        self.assertNotEqual(response.json().get('status'), 'ok')

@@ -35,31 +35,34 @@
 
     <div class="card-footer b-0 pt-3 px-2 bg-white os-card-foot">
         <div class="text-right">
-            <h5 class="product_title fw-normal fs-md mb-0 lh-1 os-card-title">
-                <a href="{% url 'catalog:product_detail' product.pk %}" class="text-dark">
-                    {{ product.name|truncatechars:34 }}
-                </a>
-            </h5>
-            <div class="os-card-sub">
-                {% if product.brand %}
-                <span class="os-card-brand">{{ product.brand.name }}</span>
-                {% else %}<span></span>{% endif %}
+            <div class="os-card-titlerow">
+                <h5 class="product_title fw-normal fs-md mb-0 lh-1 os-card-title">
+                    <a href="{% url 'catalog:product_detail' product.pk %}" class="text-dark">
+                        {{ product.name|truncatechars:30 }}
+                    </a>
+                </h5>
                 {% if product.avg_rating %}
                 <span class="os-card-rating"><i class="lni lni-star-filled"></i>{{ product.avg_rating|floatformat:1 }}</span>
                 {% endif %}
             </div>
+            {% if product.brand %}
+            <span class="os-card-brand">{{ product.brand.name }}</span>
+            {% endif %}
             <div class="os-card-prices">
-                {% if product.original_price %}
-                <span class="os-old-price">{{ product.original_price|intcomma }} تومان</span>
-                {% endif %}
                 <span class="os-final-price">{{ product.price|intcomma }} تومان</span>
+                {% if product.original_price %}
+                <span class="os-old-wrap">
+                    <span class="os-old-price">{{ product.original_price|intcomma }}</span>
+                    {% if product.discount_percent %}<span class="os-off-chip">{{ product.discount_percent }}٪</span>{% endif %}
+                </span>
+                {% endif %}
             </div>
 
-            <!-- دکمه افزودن به سبد -->
+            <!-- Add-to-cart button -->
             <button type="button" class="os-card-addbtn"><i class="lni lni-cart"></i> افزودن به سبد</button>
         </div>
 
-        <!-- پنل انتخاب سایز/رنگ/تعداد (پس از کلیک باز می‌شود) -->
+        <!-- Size/color/qty selection panel (opens on click) -->
         <div class="os-quickadd" hidden>
             {% with variants=product.variants.all %}
             {% regroup variants by size as size_groups %}
@@ -94,7 +97,7 @@
                 <button type="button" class="qa-confirm">افزودن</button>
             </div>
             <div class="qa-msg"></div>
-            <!-- نگاشت واریانت‌ها برای JS -->
+            <!-- Variant map for JS -->
             <div class="qa-variants" hidden>
                 {% for v in variants %}
                 <span data-variant="{{ v.pk }}" data-size="{{ v.size.pk|default:'' }}"

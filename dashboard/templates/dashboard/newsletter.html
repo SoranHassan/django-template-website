@@ -17,7 +17,7 @@
 {% endif %}
 
 <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:16px; align-items:start;">
-    <!-- فرم ارسال -->
+    <!-- Send form -->
     <div class="glass-card">
         <div class="card-header"><h2>ارسال خبرنامهٔ جدید</h2></div>
         <form method="POST" action="{% url 'dashboard:newsletter' %}" style="display:flex; flex-direction:column; gap:14px;">
@@ -43,7 +43,7 @@
         </form>
     </div>
 
-    <!-- مشترکین -->
+    <!-- Subscribers -->
     <div class="glass-card">
         <div class="card-header"><h2>مشترکین ({{ subscribers_count }})</h2></div>
         <div class="table-container" style="max-height:360px; overflow:auto;">

@@ -41,10 +41,10 @@
 
             <div class="row justify-content-between">
 
-                <!-- سمت راست: آدرس و اطلاعات -->
+                <!-- Right: address and info -->
                 <div class="col-12 col-lg-7 col-md-12">
 
-                    <!-- انتخاب آدرس -->
+                    <!-- Address selection -->
                     <div class="border rounded p-4 mb-4">
                         <h5 class="ft-medium mb-3 pb-2 border-bottom">
                             <i class="lni lni-map-marker me-2 text-danger"></i>
@@ -105,7 +105,7 @@
 
                     </div>
 
-                    <!-- روش ارسال -->
+                    <!-- Shipping method -->
                     <div class="border rounded p-4 mb-4">
                         <h5 class="ft-medium mb-3 pb-2 border-bottom">
                             <i class="lni lni-delivery me-2" style="color:var(--os-cyan-dark);"></i>
@@ -129,7 +129,7 @@
                         {% endfor %}
                     </div>
 
-                    <!-- روش پرداخت -->
+                    <!-- Payment method -->
                     <div class="border rounded p-4 mb-4">
                         <h5 class="ft-medium mb-3 pb-2 border-bottom">
                             <i class="lni lni-credit-cards me-2 text-danger"></i>
@@ -156,7 +156,7 @@
 
                     </div>
 
-                    <!-- توضیحات -->
+                    <!-- Description -->
                     <div class="border rounded p-4 mb-4">
                         <h5 class="ft-medium mb-3">
                             <i class="lni lni-pencil me-2 text-muted"></i>
@@ -168,12 +168,12 @@
 
                 </div>
 
-                <!-- سمت چپ: خلاصه سفارش -->
+                <!-- Left: order summary -->
                 <div class="col-12 col-lg-4 col-md-12">
                     <div class="border rounded p-4 sticky-top" style="top: 80px;">
                         <h5 class="ft-medium mb-3 pb-2 border-bottom">خلاصه سفارش</h5>
 
-                        <!-- آیتم‌ها -->
+                        <!-- Items -->
                         <div class="mb-3">
                             {% for item in cart %}
                             <div class="d-flex align-items-center gap-2 mb-2 pb-2 border-bottom">
@@ -206,7 +206,7 @@
                             {% endfor %}
                         </div>
 
-                        <!-- مبالغ -->
+                        <!-- Amounts -->
                         <ul class="list-unstyled">
                             <li class="d-flex justify-content-between mb-2">
                                 <span class="text-muted small">جمع کالاها</span>
@@ -232,7 +232,7 @@
                             </li>
                         </ul>
 
-                        <!-- دکمه پرداخت -->
+                        <!-- Pay button -->
                         {% if addresses %}
                         <button type="submit" class="btn btn-os w-100 mt-3 py-2 ft-medium"
                                 id="pay-btn">
@@ -253,7 +253,7 @@
                             </small>
                         </div>
 
-                        <!-- لوگو زرین‌پال -->
+                        <!-- Zarinpal logo -->
                         <div class="text-center mt-2">
                             </div>
 
@@ -268,9 +268,7 @@
 
 <section class="px-0 py-3 br-top">
     <div class="container">
-        <div class="row">
-            {% include 'catalog/features.html' %}
-        </div>
+        {% include 'catalog/features.html' %}
     </div>
 </section>
 
@@ -282,7 +280,7 @@
 
 {% block js %}
 <script>
-    // هایلایت آدرس انتخاب‌شده
+    // Highlight the selected address
     document.querySelectorAll('input[name="address_id"]').forEach(radio => {
         radio.addEventListener('change', function() {
             document.querySelectorAll('.address-card').forEach(card => {
@@ -293,14 +291,14 @@
             this.closest('.address-card').style.background = '#f4feff';
         });
 
-        // اعمال استایل برای آدرس از پیش انتخاب‌شده
+        // Apply styling to the pre-selected address
         if (radio.checked) {
             radio.closest('.address-card').style.borderColor = '#00B8CC';
             radio.closest('.address-card').style.background = '#f4feff';
         }
     });
 
-    // جلوگیری از submit دوباره
+    // Prevent double submit
     document.getElementById('checkoutForm')?.addEventListener('submit', function() {
         const btn = document.getElementById('pay-btn');
         if (btn) {

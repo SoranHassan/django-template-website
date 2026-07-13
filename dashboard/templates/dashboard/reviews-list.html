@@ -30,7 +30,7 @@
             <p>مدیریت و تأیید نظرات کاربران</p>
         </div>
 
-        <!-- آمار -->
+        <!-- Stats -->
         <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
             <div class="stat-card">
                 <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
@@ -55,7 +55,7 @@
             </div>
         </div>
 
-        <!-- فیلتر -->
+        <!-- Filter -->
         <div class="glass-card" style="margin-bottom: 16px;">
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <a href="{% url 'dashboard:reviews_list' %}"
@@ -76,7 +76,7 @@
             </div>
         </div>
 
-        <!-- لیست نظرات -->
+        <!-- Reviews list -->
         <div style="display: flex; flex-direction: column; gap: 12px;" id="reviewsList">
 
             {% for review in reviews %}
@@ -85,7 +85,7 @@
 
                 <div style="display: flex; align-items: flex-start; gap: 16px;">
 
-                    <!-- آواتار -->
+                    <!-- Avatar -->
                     <div style="flex-shrink: 0;">
                         {% if review.user.avatar %}
                         <img src="{{ review.user.avatar.url }}" width="44" height="44"
@@ -100,7 +100,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- محتوا -->
+                    <!-- Content -->
                     <div style="flex: 1;">
 
                         <div style="display: flex; align-items: center;
@@ -114,7 +114,7 @@
                                     </span>
                             </div>
 
-                            <!-- ستاره‌ها -->
+                            <!-- Stars -->
                             <div style="display: flex; gap: 2px;">
                                 {% for i in "12345" %}
                                 <i class="fas fa-star"
@@ -123,7 +123,7 @@
                             </div>
                         </div>
 
-                        <!-- محصول -->
+                        <!-- Product -->
                         <div style="margin-bottom: 8px;">
                             <a href="{% url 'catalog:product_detail' review.product.id %}"
                                target="_blank"
@@ -134,28 +134,28 @@
                             </a>
                         </div>
 
-                        <!-- عنوان -->
+                        <!-- Title -->
                         {% if review.title %}
                         <div style="font-weight: 600; font-size: 14px; margin-bottom: 6px;">
                             {{ review.title }}
                         </div>
                         {% endif %}
 
-                        <!-- متن -->
+                        <!-- Body -->
                         <div style="font-size: 13px; color: var(--text-secondary);
                                         line-height: 1.6; margin-bottom: 12px;">
                             {{ review.body }}
                         </div>
 
-                        <!-- دکمه‌ها -->
+                        <!-- Buttons -->
                         <div style="display: flex; gap: 8px; align-items: center;">
 
-                            <!-- وضعیت -->
+                            <!-- Status -->
                             <span class="status {% if review.is_approved %}success{% else %}pending{% endif %}">
                                     {% if review.is_approved %}تأیید شده{% else %}در انتظار تأیید{% endif %}
                                 </span>
 
-                            <!-- تأیید/رد -->
+                            <!-- Approve/reject -->
                             <button class="btn-secondary toggle-review-btn"
                                     data-id="{{ review.pk }}"
                                     style="padding: 6px 12px; font-size: 12px;
@@ -171,7 +171,7 @@
                                 {% endif %}
                             </button>
 
-                            <!-- ویرایش در ادمین -->
+                            <!-- Edit in admin -->
                             
 
                         </div>
@@ -196,7 +196,7 @@
 <script>
     const CSRF = '{{ csrf_token }}';
 
-    // جستجو
+    // Search
     document.getElementById('searchInput').addEventListener('input', function() {
         const term = this.value.toLowerCase();
         document.querySelectorAll('.review-item').forEach(item => {
@@ -204,7 +204,7 @@
         });
     });
 
-    // تأیید/رد نظر
+    // Approve/reject review
     document.querySelectorAll('.toggle-review-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const id = this.dataset.id;
@@ -221,7 +221,7 @@
                     const isApproved = btn.textContent.trim().includes('رد');
 
                     if (isApproved) {
-                        // رد نظر
+                        // Reject review
                         card.style.borderRightColor = '#FF9500';
                         statusEl.className = 'status pending';
                         statusEl.textContent = 'در انتظار تأیید';
@@ -229,7 +229,7 @@
                         btn.style.color = '#34C759';
                         btn.innerHTML = '<i class="fas fa-check me-1"></i>تأیید نظر';
                     } else {
-                        // تأیید نظر
+                        // Approve review
                         card.style.borderRightColor = '#34C759';
                         statusEl.className = 'status success';
                         statusEl.textContent = 'تأیید شده';
@@ -238,7 +238,7 @@
                         btn.innerHTML = '<i class="fas fa-times me-1"></i>رد نظر';
                     }
 
-                    // آپدیت badge
+                    // Update badge
                     const badge = document.querySelector('.sidebar-nav .badge');
                     if (badge) {
                         const count = parseInt(badge.textContent);

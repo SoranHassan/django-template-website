@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* وزیرمتن لوکال — بدون وابستگی به فونت گوگل */
+        /* Local Vazirmatn - no Google Fonts dependency */
         @font-face {
             font-family: 'Vazirmatn';
             src: url('{% static "app/css/fonts/Vazirmatn-Regular.woff2" %}') format('woff2');
@@ -36,7 +36,7 @@
             padding: 40px;
         }
 
-        /* هدر — لوگو راست، عنوان وسط، تاریخ چپ */
+        /* Header - logo right, title centre, date left */
         .invoice-header {
             display: flex;
             justify-content: space-between;
@@ -63,7 +63,7 @@
             margin-bottom: 26px; padding-bottom: 14px; border-bottom: 1px dashed #ddd;
         }
 
-        /* اطلاعات مشتری و آدرس */
+        /* Customer info and address */
         .info-section {
             display: flex;
             justify-content: space-between;
@@ -94,7 +94,7 @@
             line-height: 1.6;
         }
 
-        /* جدول محصولات */
+        /* Products table */
         .products-table {
             width: 100%;
             border-collapse: collapse;
@@ -127,7 +127,7 @@
             color: #333;
         }
 
-        /* جمع‌بندی */
+        /* Totals */
         .summary-section {
             display: flex;
             justify-content: flex-end;
@@ -167,7 +167,7 @@
             color: #28a745;
         }
 
-        /* وضعیت پرداخت */
+        /* Payment status */
         .payment-status {
             display: inline-block;
             padding: 6px 16px;
@@ -186,7 +186,7 @@
             color: #856404;
         }
 
-        /* یادداشت‌ها */
+        /* Notes */
         .notes-section {
             background: #f8f9fa;
             border-radius: 8px;
@@ -206,7 +206,7 @@
             line-height: 1.6;
         }
 
-        /* فوتر */
+        /* Footer */
         .invoice-footer {
             text-align: center;
             padding-top: 20px;
@@ -234,7 +234,7 @@
 <body>
 <div class="invoice-wrapper">
 
-    <!-- هدر: لوگو راست | فاکتور رسمی وسط | تاریخ چپ -->
+    <!-- Header: logo right | official invoice centre | date left -->
     <div class="invoice-header">
         <div class="inv-logo">
             <img src="{% static 'app/img/logo.svg' %}" alt="Oram Shop" style="max-height:56px; max-width:170px;">
@@ -254,7 +254,7 @@
         </div>
     </div>
 
-    <!-- اطلاعات تماس فروشگاه (از دیتابیس، همیشه به‌روز) -->
+    <!-- Store contact info (from the database, always current) -->
     <div class="company-contact">
         فروشگاه اینترنتی اُرام‌شاپ
         {% if site_settings.footer_phone %} | تلفن: {{ site_settings.footer_phone }}{% endif %}
@@ -262,7 +262,7 @@
         {% if site_settings.footer_address %} | {{ site_settings.footer_address }}{% endif %}
     </div>
 
-    <!-- اطلاعات مشتری و آدرس -->
+    <!-- Customer info and address -->
     <div class="info-section">
         <div class="info-box">
             <h3>اطلاعات خریدار</h3>
@@ -287,14 +287,14 @@
         {% endif %}
     </div>
 
-    <!-- کد مرجع پرداخت -->
+    <!-- Payment reference code -->
     {% if order.zarinpal_ref_id %}
     <div class="ref-id">
         کد پیگیری پرداخت: <span>{{ order.zarinpal_ref_id }}</span>
     </div>
     {% endif %}
 
-    <!-- جدول محصولات -->
+    <!-- Products table -->
     <table class="products-table">
         <thead>
         <tr>
@@ -322,7 +322,7 @@
         </tbody>
     </table>
 
-    <!-- جمع‌بندی -->
+    <!-- Totals -->
     <div class="summary-section">
         <table class="summary-table">
             <tr>
@@ -356,7 +356,7 @@
         </table>
     </div>
 
-    <!-- یادداشت -->
+    <!-- Note -->
     {% if order.notes %}
     <div class="notes-section">
         <h3>توضیحات سفارش</h3>
@@ -364,7 +364,7 @@
     </div>
     {% endif %}
 
-    <!-- فوتر -->
+    <!-- Footer -->
     <div class="invoice-footer">
         <p>با تشکر از خرید شما از اُرام‌شاپ</p>
         <p>این فاکتور به‌صورت سیستمی صادر شده و نیاز به مهر و امضا ندارد.</p>

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'dashboard/css/style.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
     <style>
-        /* سوییچ وضعیت انتشار — حالا واقعا وضعیت را نشان می‌دهد */
+        /* Publish status switch - now actually reflects the state */
         .os-toggle { position: relative; display: inline-block; width: 50px; height: 28px; }
         .os-toggle input { opacity: 0; width: 0; height: 0; }
         .os-toggle-slider { position: absolute; cursor: pointer; inset: 0;
@@ -65,10 +65,10 @@
 
             <div style="display: grid; grid-template-columns: 1fr 360px; gap: 16px;">
 
-                <!-- ستون اصلی -->
+                <!-- Main column -->
                 <div style="display: flex; flex-direction: column; gap: 16px;">
 
-                    <!-- اطلاعات اصلی -->
+                    <!-- Main info -->
                     <div class="glass-card">
                         <div class="card-header">
                             <h2>اطلاعات اصلی</h2>
@@ -133,7 +133,7 @@
                         </div>
                     </div>
 
-                    <!-- قیمت‌گذاری -->
+                    <!-- Pricing -->
                     <div class="glass-card">
                         <div class="card-header">
                             <h2>قیمت‌گذاری</h2>
@@ -164,7 +164,7 @@
                             </div>
                         </div>
 
-                        <!-- پیش‌نمایش تخفیف -->
+                        <!-- Discount preview -->
                         <div id="discountPreview"
                              style="margin-top: 12px; padding: 10px 14px; border-radius: 10px;
                                         background: rgba(52,199,89,0.1); display: none;">
@@ -175,7 +175,7 @@
                         </div>
                     </div>
 
-                    <!-- تصاویر -->
+                    <!-- Images -->
                     <div class="glass-card">
                         <div class="card-header"><h2>تصاویر محصول</h2></div>
 
@@ -191,7 +191,7 @@
                                    id="imageInput" style="display:none;">
                         </div>
 
-                        <!-- پیش‌نمایش با انتخاب عکس اصلی -->
+                        <!-- Preview with main image selection -->
                         <div id="imagePreview"
                              style="display:flex; flex-wrap:wrap; gap:10px; margin-top:16px;">
                         </div>
@@ -206,10 +206,10 @@
 
                 </div>
 
-                <!-- ستون کناری -->
+                <!-- Side column -->
                 <div style="display: flex; flex-direction: column; gap: 16px;">
 
-                    <!-- دسته‌بندی و برند -->
+                    <!-- Category and brand -->
                     <div class="glass-card">
                         <div class="card-header">
                             <h2>دسته‌بندی</h2>
@@ -285,7 +285,7 @@
                         </div>
                     </div>
 
-                    <!-- وضعیت -->
+                    <!-- Status -->
                     <div class="glass-card">
                         <div class="card-header">
                             <h2>وضعیت انتشار</h2>
@@ -327,7 +327,7 @@
                         </div>
                     </div>
 
-                    <!-- راهنما -->
+                    <!-- Help -->
                     <div class="glass-card">
                         <div class="card-header">
                             <h2>راهنما</h2>
@@ -354,7 +354,7 @@
         </form>
 
 {% if product %}
-<!-- ================== واریانت‌ها (سایز/رنگ/موجودی/قیمت) ================== -->
+<!-- ================== Variants (size/color/stock/price) ================== -->
 <div style="margin-top:16px; display:flex; flex-direction:column; gap:16px;">
     <div class="glass-card">
         <div class="card-header"><h2>واریانت‌ها (سایز، رنگ و موجودی)</h2></div>
@@ -422,7 +422,7 @@
             </button>
         </form>
 
-        <!-- افزودن سریع رنگ و سایز جدید -->
+        <!-- Quick-add a new color or size -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; padding-top:16px; border-top:1px solid rgba(0,0,0,0.06);">
             <form method="POST" action="{% url 'dashboard:color_create' %}" style="display:flex; gap:8px; align-items:end;">
                 {% csrf_token %}
@@ -449,7 +449,7 @@
         </div>
     </div>
 
-    <!-- ================== جدول سایزبندی (سانتی‌متر) ================== -->
+    <!-- ================== Size chart (centimetres) ================== -->
     <div class="glass-card" style="margin-top:16px;">
         <div class="card-header"><h2>جدول سایزبندی (سانتی‌متر)</h2></div>
 
@@ -520,7 +520,7 @@
 <div class="overlay" id="overlay"></div>
 <script src="{% static 'dashboard/js/script.js' %}"></script>
 <script>
-    // اسلاگ خودکار از نام
+    // Auto slug from the name
     document.getElementById('nameInput').addEventListener('input', function() {
         const slug = this.value
             .toLowerCase()
@@ -531,7 +531,7 @@
         document.getElementById('slugInput').value = slug;
     });
 
-    // پیش‌نمایش تخفیف
+    // Discount preview
     function updateDiscount() {
         const price = parseFloat(document.querySelector('[name="price"]').value) || 0;
         const original = parseFloat(document.querySelector('[name="original_price"]').value) || 0;
@@ -549,7 +549,7 @@
     document.querySelector('[name="price"]').addEventListener('input', updateDiscount);
     document.querySelector('[name="original_price"]').addEventListener('input', updateDiscount);
 
-    // پیش‌نمایش تصاویر
+    // Image previews
     document.getElementById('imageInput').addEventListener('change', function() {
         const preview = document.getElementById('imagePreview');
         preview.innerHTML = '';
@@ -617,7 +617,7 @@ Array.from(this.files).forEach((file, index) => {
             </div>
         `;
         div.addEventListener('click', () => {
-            // reset همه
+            // Reset all
             document.querySelectorAll('#imagePreview img').forEach(img => {
                 img.style.border = '3px solid #ddd';
             });
@@ -625,7 +625,7 @@ Array.from(this.files).forEach((file, index) => {
                 b.style.background = 'transparent';
                 b.textContent = '';
             });
-            // انتخاب جدید
+            // New selection
             document.getElementById(`preview-img-${index}`).style.border = '3px solid #007AFF';
             document.getElementById(`main-badge-${index}`).style.background = '#007AFF';
             document.getElementById(`main-badge-${index}`).textContent = 'اصلی';

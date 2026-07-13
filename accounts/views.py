@@ -42,12 +42,12 @@ class LoginView(View):
                             password=form.cleaned_data['password'])
 
         if user:
-            # کلید سشن قبل از login گرفته می‌شود تا سبد مهمان قابل ادغام باشد
+            # The session key is captured before login so the guest cart can be merged
             old_session_key = request.session.session_key
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             merge_guest_cart(user, old_session_key)
 
-            # فقط آدرس‌های داخلی سایت مجازند (جلوگیری از Open Redirect)
+            # Only internal site URLs are allowed (prevents open redirects)
             next_url = request.GET.get('next')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
                 return redirect(next_url)
@@ -71,7 +71,7 @@ class SignupView(View):
         if not _send_otp(mobile):
             return render(request, self.template_name, {'error': OTP_RATE_LIMIT_ERROR})
 
-        # رمز به صورت هش‌شده در سشن نگهداری می‌شود، نه متن خام
+        # The password is kept hashed in the session, never in plain text
         request.session['signup_data'] = {
             'mobile': mobile,
             'first_name': form.cleaned_data.get('first_name', ''),
@@ -155,7 +155,7 @@ class VerifyOTPView(View):
         code = request.POST.get('code')
         next_url = request.POST.get('next', '')
 
-        # محدودیت تعداد تلاش برای جلوگیری از حدس زدن کد
+        # Attempt limit to stop code guessing
         attempts_key = f'otp_verify_attempts:{mobile}'
         attempts = cache.get(attempts_key, 0)
         if attempts >= OTP_MAX_VERIFY_ATTEMPTS:
@@ -179,7 +179,7 @@ class VerifyOTPView(View):
                 mobile=mobile,
                 first_name=signup_data.get('first_name', ''),
                 last_name=signup_data.get('last_name', ''))
-            user.password = signup_data['password_hash']  # از قبل هش شده
+            user.password = signup_data['password_hash']  # already hashed
             user.save()
 
             del request.session['signup_data']
@@ -256,7 +256,7 @@ class ProfileInfoView(LoginRequiredMixin, View):
 
         user.save()
 
-        # جلوگیری از خروج کاربر بعد از تغییر رمز
+        # Keep the user logged in after the password change
         if password_changed:
             update_session_auth_hash(request, user)
 
@@ -277,14 +277,14 @@ class WishlistView(LoginRequiredMixin, View):
 
 
 class WishlistDrawerView(View):
-    """HTML دراپ‌داون علاقه‌مندی برای رفرش زنده"""
+    """Wishlist dropdown HTML for live refresh."""
 
     def get(self, request):
         return render(request, 'accounts/_wishlist_dropdown.html')
 
 
 class WishlistToggleView(View):
-    """افزودن/حذف با یک کلیک — قلب قرمز/خالی"""
+    """One-click add/remove - filled/empty heart."""
 
     def post(self, request):
         if not request.user.is_authenticated:

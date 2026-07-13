@@ -51,18 +51,18 @@
                 </nav>
             </div>
 
-            <!-- فیلتر و مرتب‌سازی -->
+            <!-- Filter and sort -->
             <div class="col-xl-9 col-lg-8 col-md-7 col-sm-12">
                 <div class="d-flex align-items-center justify-content-end gap-3">
 
-                    <!-- تعداد نتایج -->
+                    <!-- Result count -->
                     <span class="text-muted small">
                         {{ products.count }} محصول
                     </span>
 
-                    <!-- مرتب‌سازی -->
+                    <!-- Sorting -->
                     <form method="GET" id="sortForm">
-                        <!-- حفظ فیلترهای قبلی -->
+                        <!-- Preserve previous filters -->
                         {% if current_category %}
                         <input type="hidden" name="category" value="{{ current_category }}">
                         {% endif %}
@@ -90,7 +90,7 @@
                         </select>
                     </form>
 
-                    <!-- دکمه فیلتر -->
+                    <!-- Filter button -->
                     <button class="btn btn-sm btn-outline-dark" type="button"
                             data-bs-toggle="collapse" data-bs-target="#filterBox">
                         <i class="lni lni-funnel me-1"></i>فیلتر
@@ -101,7 +101,7 @@
 
         </div>
 
-        <!-- باکس فیلتر -->
+        <!-- Filter box -->
         <div class="row align-items-center justify-content-center">
             <div class="col-xl-12 col-lg-12 col-md-12">
                 <div class="collapse {% if current_category or current_brand or request.GET.size or request.GET.color or request.GET.min_price %}show{% endif %}"
@@ -114,7 +114,7 @@
                             <input type="hidden" name="sort" value="{{ current_sort }}">
                             {% endif %}
 
-                            <!-- مجموعه‌ها -->
+                            <!-- Collections -->
                             <div class="d-flex flex-wrap gap-2 mb-3 pb-3 border-bottom align-items-center">
                                 <span class="small text-muted ft-medium ms-1">مجموعه:</span>
                                 {% for value, label in collections %}
@@ -129,7 +129,7 @@
 
                             <div class="row">
 
-                                <!-- دسته‌بندی -->
+                                <!-- Category -->
                                 <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                     <h6 class="ft-medium mb-2">دسته‌بندی</h6>
                                     {% for category in categories %}
@@ -145,7 +145,7 @@
                                     {% endfor %}
                                 </div>
 
-                                <!-- برند -->
+                                <!-- Brand -->
                                 <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
                                     <h6 class="ft-medium mb-2">برند</h6>
                                     {% for brand in brands %}
@@ -161,7 +161,7 @@
                                     {% endfor %}
                                 </div>
 
-                                <!-- جنسیت -->
+                                <!-- Gender -->
                                 <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12 mb-3">
                                     <h6 class="ft-medium mb-2">جنسیت</h6>
                                     <div class="form-check">
@@ -184,7 +184,7 @@
                                     </div>
                                 </div>
 
-                                <!-- قیمت -->
+                                <!-- Price -->
                                 <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-3">
                                     <h6 class="ft-medium mb-2">محدوده قیمت (تومان)</h6>
                                     <div class="d-flex gap-2 align-items-center">
@@ -198,7 +198,7 @@
 
                             </div>
 
-                            <!-- دکمه‌های فیلتر -->
+                            <!-- Filter buttons -->
                             <div class="d-flex gap-2 mt-2">
                                 <button type="submit" class="btn btn-dark btn-sm">
                                     اعمال فیلتر
@@ -217,11 +217,11 @@
     </div>
 </section>
 
-<!-- لیست محصولات -->
+<!-- Product list -->
 <section class="middle">
     <div class="container">
 
-        <!-- جستجو -->
+        <!-- Search -->
         {% if request.GET.q %}
             <div class="mb-4 p-3 rounded d-flex align-items-center justify-content-between flex-wrap gap-2"
                  style="background:#EAF9FB; border:1px solid #c9f0f6;">
@@ -266,7 +266,7 @@
 
         </div>
 
-        <!-- دکمه بارگذاری بیشتر (اختیاری - بعداً با pagination جایگزین میشه) -->
+        <!-- Load-more button (optional - to be replaced with pagination) -->
         {% if products.count > 12 %}
         <div class="row">
             <div class="col-xl-12 col-lg-12 col-md-12 text-center">
@@ -280,12 +280,10 @@
     </div>
 </section>
 
-<!-- ویژگی‌ها -->
+<!-- Features -->
 <section class="px-0 py-3 br-top">
     <div class="container">
-        <div class="row">
-            {% include 'catalog/features.html' %}
-        </div>
+        {% include 'catalog/features.html' %}
     </div>
 </section>
 

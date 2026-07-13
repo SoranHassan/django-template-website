@@ -26,7 +26,7 @@ class LoginTest(TestCase):
         self.assertTrue(response.context['error'])
 
     def test_external_next_rejected(self):
-        """جلوگیری از Open Redirect"""
+        """Prevent open redirects."""
         response = self.client.post(reverse('accounts:login') + '?next=https://evil.com',
                                     {'mobile': '09120000001', 'password': 'pass12345'})
         self.assertRedirects(response, reverse('catalog:index'), fetch_redirect_response=False)
@@ -50,7 +50,7 @@ class OTPTest(TestCase):
         self.assertEqual(over.status_code, 429)
 
     def test_verify_otp_attempts_limited(self):
-        """کد ۶ رقمی نباید قابل حدس زدن با تلاش نامحدود باشد"""
+        """The 6-digit code must not be guessable with unlimited attempts."""
         OTP.objects.create(mobile='09122222222', code='123456',
                            expires_at=timezone.now() + timedelta(minutes=2))
         url = reverse('accounts:verify_otp')

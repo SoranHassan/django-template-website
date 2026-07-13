@@ -47,19 +47,19 @@
     <div class="container-fluid px-4 px-lg-5">
         <div class="d-flex justify-content-between align-items-center py-3">
             
-            <!-- سمت راست: لوگو و منو -->
+            <!-- Right: logo and menu -->
             <div class="d-flex align-items-center gap-4">
                 <a class="nav-brand logo-shine" href="{% url 'catalog:index' %}">
                     <img src="{% static 'app/img/logo.svg' %}" style="max-height: 40px;" alt="Oram Shop">
                 </a>
                 
-                <!-- منوی دسکتاپ -->
+                <!-- Desktop menu -->
                 <ul class="navbar-nav d-none d-lg-flex flex-row gap-4 list-unstyled mb-0 align-items-center">
                     <li class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
                         <a class="nav-link px-0" href="{% url 'catalog:index' %}">خانه</a>
                     </li>
                     
-                    <!-- منوی کشویی محصولات (بدون زیر مجموعه) -->
+                    <!-- Products dropdown (no sub-levels) -->
                     <li class="nav-item dropdown">
                         <a class="nav-link px-0" href="{% url 'catalog:shop_style_1' %}">محصولات</a>
                         <ul class="dropdown-menu custom-dropdown">
@@ -69,7 +69,7 @@
                         </ul>
                     </li>
 
-                    <!-- منوی کشویی دسته بندی ها (مگامنو 6 ستونه) -->
+                    <!-- Categories dropdown (6-column mega menu) -->
                     <li class="nav-item dropdown">
                         <a class="nav-link px-0" href="{% url 'catalog:shop_style_1' %}">دسته بندی ها</a>
                         <div class="dropdown-menu mega-menu custom-dropdown">
@@ -90,13 +90,13 @@
                     </li>
                 </ul>
 
-                <!-- دکمه منوی موبایل -->
+                <!-- Mobile menu button -->
                 <button class="btn btn-dark btn-sm d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav" aria-controls="mobileNav">
                     <i class="lni lni-menu"></i>
                 </button>
             </div>
 
-            <!-- وسط: فرم جستجو -->
+            <!-- Middle: search form -->
             <div class="d-none d-lg-flex flex-grow-1 justify-content-center px-5">
                 <form action="{% url 'catalog:shop_style_1' %}" method="GET" class="w-100 position-relative" style="max-width: 450px;" autocomplete="off">
                     <div class="input-group">
@@ -107,11 +107,11 @@
                 </form>
             </div>
 
-            <!-- سمت چپ: احراز هویت و سبد خرید -->
+            <!-- Left: auth and cart -->
             <div class="d-flex align-items-center gap-3 nav-actions position-relative">
                 
                 {% if user.is_authenticated %}
-                    <!-- پروفایل کاربر -->
+                    <!-- User profile -->
                     <div class="dropdown">
                         <a href="#" class="d-flex align-items-center text-dark text-decoration-none" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
                             {% if user.avatar %}
@@ -148,13 +148,13 @@
                         </ul>
                     </div>
                 {% else %}
-                    <!-- ورود و ثبت‌نام ساده -->
+                    <!-- Simple login/signup -->
                     <a href="{% url 'accounts:login' %}" class="simple-nav-btn">ورود</a>
                     <span class="text-muted d-none d-md-inline">|</span>
                     <a href="{% url 'accounts:signup' %}" class="simple-nav-btn d-none d-md-inline">ثبت‌نام</a>
                 {% endif %}
 
-                <!-- ویشلیست (دراپ‌داون) -->
+                <!-- Wishlist (dropdown) -->
                 {% if user.is_authenticated %}
                 <div class="dropdown">
                     <a href="javascript:void(0);" class="position-relative text-dark fs-4 nav-icon-btn"
@@ -170,15 +170,15 @@
                 </div>
                 {% endif %}
 
-                <!-- سبد خرید - حالت Dropdown -->
-               <!-- سبد خرید - حالت Dropdown -->
+                <!-- Cart - dropdown mode -->
+               <!-- Cart - dropdown mode -->
 <div class="dropdown">
     <a href="javascript:void(0);" class="position-relative text-dark fs-4 nav-icon-btn" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" id="cartDropdown">
         <i class="lni lni-cart"></i>
         {% if cart_count > 0 %}<span class="cart-count dn-counter theme-bg">{{ cart_count }}</span>{% endif %}
     </a>
     <div class="dropdown-menu cart-dropdown" aria-labelledby="cartDropdown">
-        <!-- این بخش در لود اولیه پر می‌شود و base.js آن را آپدیت می‌کند -->
+        <!-- Filled on initial load and refreshed by base.js -->
         <div id="cart-content">
             {% include 'cart/_drawer_content.html' %}
         </div>
@@ -190,7 +190,7 @@
     </div>
 </header>
 
-<!-- منوی کشویی موبایل (Offcanvas) -->
+<!-- Mobile offcanvas menu -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" aria-labelledby="mobileNavLabel">
     <div class="offcanvas-header border-bottom">
         <h5 class="offcanvas-title" id="mobileNavLabel">منوی OramShop</h5>
@@ -231,9 +231,9 @@
 </div>
 
 <style>
-    /* منو دقیقاً زیر تریگر خودش (خنثی کردن جابه‌جایی popper) */
+    /* Menu exactly under its own trigger (neutralise popper offsets) */
     .user-dropdown, .cart-dropdown, .custom-dropdown, .wishlist-dropdown { transform: none !important; inset: auto !important; z-index: 2000 !important; }
-    /* منوهای آیکون‌های سمت چپ: نسبت به کل کلاستر باز شوند تا هرگز از صفحه بیرون نزنند */
+    /* Left icon menus open relative to the whole cluster so they never overflow the page */
     .nav-actions > .dropdown { position: static !important; }
     .nav-actions .user-dropdown, .nav-actions .cart-dropdown, .nav-actions .wishlist-dropdown {
         position: absolute !important; top: calc(100% + 14px) !important;
@@ -249,13 +249,13 @@
     .ticker-content:hover { animation-play-state: paused; }
     @keyframes ticker { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 
-    /* تضمین شناور شدن منوها */
+    /* Guarantee the menus float */
     .navbar-nav .nav-item.dropdown { position: relative; }
 
-    /* حذف فلش‌های کوچک */
+    /* Remove the small carets */
     .dropdown-toggle::after { display: none !important; }
 
-    /* باز شدن منوها با هاور */
+    /* Open menus on hover */
     @media (min-width: 992px) {
         .navbar-nav .nav-item.dropdown:hover > .dropdown-menu { display: block; }
         .navbar-nav .nav-item.dropdown > .dropdown-menu { margin-top: 0 !important; }
@@ -264,7 +264,7 @@
         }
     }
 
-    /* استایل لینک‌های منوی اصلی */
+    /* Main menu link styling */
     .nav-link {
         font-size: 1.05rem !important; font-weight: 400 !important;
         color: #333 !important; transition: color 0.2s;
@@ -272,14 +272,14 @@
     .nav-item.active > a, .nav-item > a.active { color: var(--os-cyan-dark) !important; }
     .nav-link:hover { color: var(--os-cyan-dark) !important; }
 
-    /* استایل دکمه‌های ساده ورود و ثبت‌نام */
+    /* Simple login/signup button styling */
     .simple-nav-btn {
         background: none; border: none; color: #333; font-size: 1rem; font-weight: 400;
         padding: 0 5px; text-decoration: none; cursor: pointer; transition: color 0.2s;
     }
     .simple-nav-btn:hover { color: var(--os-cyan-dark); }
 
-    /* استایل منوی کشویی اصلی */
+    /* Main dropdown styling */
     .custom-dropdown {
         position: absolute !important; top: 100% !important; right: 0 !important; left: auto !important;
         text-align: right !important; border: none !important; box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
@@ -292,21 +292,21 @@
         background-color: #f8f9fa; color: var(--os-cyan-dark); transform: translateX(-3px);
     }
 
-    /* استایل مگامنو دسته‌بندی‌ها (عرض بیشتر برای 6 ستون) */
+    /* Categories mega-menu styling (wider for 6 columns) */
     .mega-menu {
         min-width: 640px !important;
         max-width: 90vw;
     }
     .mega-menu .dropdown-item { white-space: normal; line-height: 1.6; }
 
-    /* آواتار کاربر */
+    /* User avatar */
     .user-avatar-nav {
         width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2);
         color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 400;
         cursor: pointer; border: 2px solid #eee;
     }
 
-    /* dropdown منوی داشبورد */
+    /* Dashboard menu dropdown */
     .user-dropdown {
         position: absolute !important; top: 100% !important; min-width: 250px; border: none !important;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important; border-radius: 14px !important; padding: 10px;
@@ -319,7 +319,7 @@
     }
     .user-dropdown .dropdown-item:hover { background: #f0f0f0; color: var(--os-cyan-dark); }
 
-    /* شمارنده آیکون‌ها */
+    /* Icon counters */
     .dn-counter {
         position: absolute; top: -8px; left: -10px; background: #00E6FF; color: #000; border-radius: 50%;
         width: 20px; height: 20px; font-size: 12px; display: flex; align-items: center; justify-content: center;
@@ -327,7 +327,7 @@
     }
     .theme-bg { background: #1A1A1A !important; color:#00E6FF !important; }
 
-    /* قلب فعال (داخل علاقه‌مندی) */
+    /* Active heart (in wishlist) */
     .wishlist-btn.in-wishlist i { color: #e63946 !important; }
     .wishlist-btn i { transition: color .15s ease; }
 
@@ -349,7 +349,7 @@
         overflow-y: auto;
         padding-left: 5px;
     }
-    /* اسکرول‌بار خوشگل */
+    /* Pretty scrollbar */
     .cart-items-list::-webkit-scrollbar { width: 5px; }
     .cart-items-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
     
@@ -395,7 +395,7 @@
 </script>
 
 <script>
-// toggle علاقه‌مندی — سراسری با delegation
+// Wishlist toggle - global via delegation
 document.addEventListener('click', function (e) {
     const btn = e.target.closest('.wishlist-btn');
     if (!btn) return;
@@ -429,14 +429,14 @@ document.addEventListener('click', function (e) {
                 el.textContent = data.count;
                 el.style.display = data.count > 0 ? 'flex' : 'none';
             });
-            // در صفحه علاقه‌مندی‌ها، حذف = رفرش
+            // On the wishlist page, removal = refresh
             if (!data.in_wishlist && window.location.pathname.includes('/wishlist')) location.reload();
         });
 }, true);
 </script>
 
 <script>
-// رفرش زنده دراورهای سبد و علاقه‌مندی بعد از هر تغییر (بدون رفرش صفحه)
+// Live-refresh the cart and wishlist drawers after each change (no page reload)
 window.refreshCartDrawer = function () {
     fetch('/cart/drawer/')
         .then(r => r.text())
@@ -454,7 +454,7 @@ window.refreshWishlistDrawer = function () {
         });
 };
 
-// حذف آیتم از دراور سبد نوبار (با delegation تا بعد از رفرش هم کار کند)
+// Remove an item from the navbar cart drawer (delegated so it works after refreshes)
 document.addEventListener('click', function (e) {
     const btn = e.target.closest('.close_cart_item');
     if (!btn) return;
@@ -476,9 +476,9 @@ document.addEventListener('click', function (e) {
         .catch(() => { btn.disabled = false; });
 }, true);
 
-// ============ افزودن سریع به سبد از روی کارت محصول ============
+// ============ Quick add-to-cart from the product card ============
 document.addEventListener('click', function (e) {
-    // باز/بستن پنل انتخاب
+    // Open/close the selection panel
     const addBtn = e.target.closest('.os-card-addbtn');
     if (addBtn) {
         e.preventDefault();
@@ -490,21 +490,21 @@ document.addEventListener('click', function (e) {
         }
         return;
     }
-    // انتخاب سایز
+    // Size selection
     const sizeBtn = e.target.closest('.qa-size');
     if (sizeBtn) {
         sizeBtn.parentElement.querySelectorAll('.qa-size').forEach(b => b.classList.remove('sel'));
         sizeBtn.classList.add('sel');
         return;
     }
-    // انتخاب رنگ
+    // Color selection
     const colorBtn = e.target.closest('.qa-color');
     if (colorBtn) {
         colorBtn.parentElement.querySelectorAll('.qa-color').forEach(b => b.classList.remove('sel'));
         colorBtn.classList.add('sel');
         return;
     }
-    // استپر تعداد
+    // Quantity stepper
     const qMinus = e.target.closest('.qa-minus');
     const qPlus = e.target.closest('.qa-plus');
     if (qMinus || qPlus) {
@@ -515,7 +515,7 @@ document.addEventListener('click', function (e) {
         input.value = v;
         return;
     }
-    // تأیید و افزودن
+    // Confirm and add
     const confirmBtn = e.target.closest('.qa-confirm');
     if (confirmBtn) {
         const card = confirmBtn.closest('.os-product-card');
