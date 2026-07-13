@@ -354,7 +354,10 @@
 <section class="py-4" style="background:#f5f6f8;">
     <div class="container">
         <div class="os-about-band">
-            <h4 class="ft-bold mb-2"><i class="lni lni-crown" style="color:var(--os-cyan-dark);"></i> دربارهٔ اُرام‌شاپ</h4>
+            <h4 class="ft-bold mb-2 d-flex align-items-center gap-2">
+                <img src="{% static 'app/img/logo.svg' %}" alt="OramShop" style="height:26px; width:auto;">
+                دربارهٔ اُرام‌شاپ
+            </h4>
             <p class="mb-0">{{ site_settings.about_home|linebreaksbr }}</p>
         </div>
     </div>

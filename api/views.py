@@ -14,8 +14,28 @@ from django.views.decorators.http import require_GET
 from catalog.models import Brand, Category, Product
 
 
+RATE_LIMIT_PER_MINUTE = 120
+
+
+def _rate_limited(request):
+    """Sliding one-minute counter per client IP (cache-based). True = over limit."""
+    from django.core.cache import cache
+
+    ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip() \
+        or request.META.get('REMOTE_ADDR', 'unknown')
+    key = f'api-rl:{ip}'
+    try:
+        count = cache.get_or_set(key, 0, 60)
+        cache.incr(key)
+    except ValueError:
+        # Key expired between get_or_set and incr
+        cache.set(key, 1, 60)
+        count = 0
+    return count >= RATE_LIMIT_PER_MINUTE
+
+
 def api_key_required(view):
-    """Reject requests without the correct X-API-Key header (401/503)."""
+    """Reject requests without the correct X-API-Key header (401/503/429)."""
 
     @wraps(view)
     def wrapper(request, *args, **kwargs):
@@ -25,6 +45,9 @@ def api_key_required(view):
                 {'error': 'API disabled: BOT_API_KEY is not configured'}, status=503)
         if request.headers.get('X-API-Key') != configured:
             return JsonResponse({'error': 'invalid or missing X-API-Key'}, status=401)
+        if _rate_limited(request):
+            return JsonResponse({'error': 'rate limit exceeded (120 requests/minute)'},
+                                status=429)
         return view(request, *args, **kwargs)
 
     return wrapper

@@ -103,3 +103,16 @@ class ApiProductTests(TestCase):
         self.assertEqual(cats[0]['slug'], 'shirts')
         brands = self.get('/api/v1/brands/').json()['results']
         self.assertEqual(brands[0]['slug'], 'nike')
+
+
+@override_settings(BOT_API_KEY=API_KEY)
+class ApiRateLimitTest(TestCase):
+    def test_429_after_limit(self):
+        from unittest.mock import patch
+        from django.core.cache import cache
+        cache.clear()
+        with patch('api.views.RATE_LIMIT_PER_MINUTE', 3):
+            codes = [self.client.get('/api/v1/categories/', HTTP_X_API_KEY=API_KEY).status_code
+                     for _ in range(5)]
+        self.assertEqual(codes[:3], [200, 200, 200])
+        self.assertIn(429, codes[3:])

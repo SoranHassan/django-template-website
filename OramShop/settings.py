@@ -152,6 +152,19 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Tehran'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
+# Initial periodic schedule (imported into the DatabaseScheduler on first beat run)
+CELERY_BEAT_SCHEDULE = {
+    'purge-old-site-visits': {
+        'task': 'core.tasks.purge_old_visits',
+        'schedule': 60 * 60 * 24,  # daily
+        'kwargs': {'days': 90},
+    },
+    'cleanup-expired-otps': {
+        'task': 'accounts.tasks.cleanup_expired_otps',
+        'schedule': 60 * 60,  # hourly
+    },
+}
+
 
 # AUTHENTICATION
 AUTH_USER_MODEL = 'accounts.CustomUser'

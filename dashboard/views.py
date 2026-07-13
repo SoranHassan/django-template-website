@@ -13,6 +13,7 @@ from reviews.models import Review
 from catalog.models import Product, Category, Brand, ProductImage, ProductVariant, Size, Color, SizeChart
 from django.utils.text import slugify
 from django.urls import reverse
+from core.utils import optimize_image
 
 
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -188,7 +189,8 @@ class DashboardProductCreateView(StaffRequiredMixin, View):
                 main_index = 0
 
             for index, image in enumerate(images):
-                ProductImage.objects.create(product=product, image=image, is_main=(index == main_index), order=index)
+                ProductImage.objects.create(product=product, image=optimize_image(image),
+                                            is_main=(index == main_index), order=index)
             return redirect('dashboard:product_edit', pk=product.pk)
 
         except Exception as e:
@@ -491,7 +493,8 @@ class DashboardProductEditView(StaffRequiredMixin, View):
 
             if images:
                 for index, image in enumerate(images):
-                    ProductImage.objects.create(product=product, image=image, is_main=(index == main_index), order=product.images.count() + index)
+                    ProductImage.objects.create(product=product, image=optimize_image(image),
+                                                is_main=(index == main_index), order=product.images.count() + index)
             return redirect('dashboard:product_edit', pk=product.pk)
 
         except Exception as e:
@@ -553,7 +556,7 @@ class DashboardCategorySaveView(StaffRequiredMixin, View):
         cat.parent_id = request.POST.get('parent') or None
         cat.is_active = 'is_active' in request.POST
         if request.FILES.get('image'):
-            cat.image = request.FILES['image']
+            cat.image = optimize_image(request.FILES['image'])
         cat.save()
         return redirect(f"{reverse('dashboard:category_edit', args=[cat.pk])}?saved=1")
 
@@ -595,7 +598,7 @@ class DashboardBrandSaveView(StaffRequiredMixin, View):
         brand.slug = request.POST.get('slug', '').strip() or brand.slug or slugify(name, allow_unicode=True)
         brand.is_active = 'is_active' in request.POST
         if request.FILES.get('logo'):
-            brand.logo = request.FILES['logo']
+            brand.logo = optimize_image(request.FILES['logo'])
         brand.save()
         return redirect(f"{reverse('dashboard:brand_edit', args=[brand.pk])}?saved=1")
 
@@ -902,7 +905,7 @@ class DashboardHeroSaveView(SuperuserRequiredMixin, View):
         slide.order = request.POST.get('order') or 0
         slide.is_active = 'is_active' in request.POST
         if request.FILES.get('image'):
-            slide.image = request.FILES['image']
+            slide.image = optimize_image(request.FILES['image'])
         if slide.title and (slide.image or pk):
             slide.save()
             return redirect(f"{reverse('dashboard:hero_edit', args=[slide.pk])}?saved=1")
@@ -959,7 +962,7 @@ class DashboardHomeCardSaveView(SuperuserRequiredMixin, View):
         card.order = request.POST.get('order') or 0
         card.is_active = 'is_active' in request.POST
         if request.FILES.get('image'):
-            card.image = request.FILES['image']
+            card.image = optimize_image(request.FILES['image'])
         if card.title:
             card.save()
             return redirect(f"{reverse('dashboard:home_card_edit', args=[card.pk])}?saved=1")
@@ -1009,7 +1012,7 @@ class DashboardBlogSaveView(StaffRequiredMixin, View):
         post.body = request.POST.get('body', '')
         post.is_published = 'is_published' in request.POST
         if request.FILES.get('image'):
-            post.image = request.FILES['image']
+            post.image = optimize_image(request.FILES['image'])
         if not (post.title and post.body):
             return redirect('dashboard:blog_list')
 
@@ -1216,11 +1219,11 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
             s.topbar_style = topbar
         # Shop banner + collection vectors
         if request.FILES.get('shop_banner'):
-            s.shop_banner = request.FILES['shop_banner']
+            s.shop_banner = optimize_image(request.FILES['shop_banner'])
         if request.FILES.get('men_vector'):
-            s.men_vector = request.FILES['men_vector']
+            s.men_vector = optimize_image(request.FILES['men_vector'])
         if request.FILES.get('women_vector'):
-            s.women_vector = request.FILES['women_vector']
+            s.women_vector = optimize_image(request.FILES['women_vector'])
         s.shop_banner_title = request.POST.get('shop_banner_title', '').strip()
         s.shop_banner_subtitle = request.POST.get('shop_banner_subtitle', '').strip()
         # About + footer

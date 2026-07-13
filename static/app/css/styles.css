@@ -6033,11 +6033,13 @@ a:hover { color: var(--os-cyan-dark); }
 .quantity-stepper .qty-btn i { font-size: 8px; margin-inline-end: 0 !important; }
 .quantity-stepper .qty-btn:hover { background: #fff3f4; color: #e63946; }
 .quantity-stepper .qty-btn:active { background: #e63946; color: #fff; }
+.quantity-stepper .qty-btn { flex: 0 0 auto; }
 .quantity-stepper .qty-value {
   border: 0 !important;
   border-radius: 0 !important;
   background: #fff !important;
-  width: 26px; min-width: 26px; height: 24px;
+  width: 26px !important; min-width: 26px; height: 24px;
+  flex: 0 0 auto !important;
   text-align: center; font-weight: 700; font-size: 11.5px; color: #1a1a1a;
   box-shadow: none !important; padding: 0;
 }
@@ -6164,12 +6166,16 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 
 /* ============ Footer: slightly larger text + compact newsletter ============ */
 .os-footer .small, .os-footer p, .os-footer li, .os-footer a { font-size: 15px; }
-/* Headings aligned on one baseline with the lists under them */
-.os-footer h6 { font-size: 16px; margin-bottom: 14px !important; line-height: 1.4; }
-.os-footer ul { margin-bottom: 0; }
-.os-footer ul li { line-height: 1.9; }
-/* Fixed icon column so contact texts line up under the heading */
-.os-footer ul li > .lni { width: 20px; text-align: center; margin-inline-end: 6px !important; }
+/* Headings sit exactly above their lists: kill the browser's RTL list indent
+   (UA gives ul padding-inline-start:40px; Bootstrap only resets padding-left) */
+.os-footer h6 { font-size: 16px; margin-bottom: 14px !important; line-height: 1.4; text-align: right; }
+.os-footer ul {
+  margin: 0; padding: 0 !important;
+  padding-inline-start: 0 !important; list-style: none;
+}
+.os-footer ul li { line-height: 1.9; text-align: right; }
+/* Icons hang consistently without pushing the text out of the heading line */
+.os-footer ul li > .lni { width: 20px; text-align: center; margin-inline-end: 6px !important; margin-inline-start: 0; }
 .footer-newsletter { max-width: 300px; }
 .footer-newsletter-form {
   display: flex; border-radius: 10px; overflow: hidden;
@@ -6496,6 +6502,18 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .qa-msg { font-size: 11px; min-height: 14px; }
 .qa-msg.ok { color: #16a34a; }
 .qa-msg.err { color: #e63946; }
+
+/* Shop pagination - on-brand pills */
+.os-pagination { gap: 6px; }
+.os-pagination .page-link {
+  border: 1px solid #e8e8e8; border-radius: 10px !important; color: #1a1a1a;
+  padding: 7px 14px; font-size: 13px; font-weight: 600; transition: all .15s ease;
+}
+.os-pagination .page-link:hover { border-color: var(--os-cyan-dark); color: var(--os-cyan-dark); background: #f2fbfd; }
+.os-pagination .page-item.active .page-link {
+  background: var(--os-cyan-dark); border-color: var(--os-cyan-dark); color: #fff;
+}
+.os-pagination .page-item.disabled .page-link { color: #bbb; }
 
 /* Shop page filter box - standard, uniform padding/margin */
 .os-filter-card {

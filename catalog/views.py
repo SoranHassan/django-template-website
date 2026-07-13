@@ -30,52 +30,63 @@ class SearchSuggestView(View):
         return JsonResponse({'results': results})
 
 
+HOME_CACHE_KEY = 'home_page_data_v1'
+HOME_CACHE_TTL = 300  # seconds - the heavy home queries run at most every 5 minutes
+
+
+def _build_home_data():
+    """All the heavy, user-independent home page queries, evaluated to lists."""
+    from .templatetags.catalog_extras import collection_queryset, rating_subquery
+    from core.models import HomeCategoryCard
+    from reviews.models import Review
+    from accounts.models import CustomUser
+    from django.db.models import Avg
+
+    base_qs = Product.objects.filter(is_active=True).prefetch_related(
+        'images', 'variants__size', 'variants__color').annotate(avg_rating=rating_subquery())
+
+    stats = {
+        'products': Product.objects.filter(is_active=True).count(),
+        'brands': Brand.objects.filter(is_active=True).count(),
+        'customers': CustomUser.objects.filter(is_active=True).count(),
+        'rating': round(Review.objects.filter(is_approved=True).aggregate(a=Avg('rating'))['a'] or 5, 1),
+    }
+
+    # Default home category cards (when none are defined in the panel) - linked to real categories
+    cat_specs = [
+        ('تیشرت', 'خنک و راحت', 'app/img/categories/tshirt.svg', ['تیشرت', 'تی‌شرت', 'تی شرت']),
+        ('هودی و سویشرت', 'گرم و اسپرت', 'app/img/categories/hoodie.svg', ['هودی و سویشرت', 'هودی', 'سویشرت']),
+        ('شلوار', 'جین و کتان', 'app/img/categories/pants.svg', ['شلوار']),
+        ('کفش', 'اسپرت و رسمی', 'app/img/categories/shoes.svg', ['کفش']),
+    ]
+    default_cats = []
+    for title, sub, img, names in cat_specs:
+        cat = Category.objects.filter(name__in=names, is_active=True).first()
+        link = f'/shop/?category={cat.slug}' if cat else '/shop/'
+        default_cats.append({'title': title, 'sub': sub, 'img': img, 'link': link})
+
+    return {
+        'products': list(collection_queryset('bestseller')[:8]),
+        'new_products': list(base_qs.order_by('-created_at')[:10]),
+        'men_products': list(base_qs.filter(gender__in=['men', 'unisex']).order_by('-created_at')[:10]),
+        'women_products': list(base_qs.filter(gender__in=['women', 'unisex']).order_by('-created_at')[:10]),
+        'brands': list(Brand.objects.filter(is_active=True)),
+        'home_cards': list(HomeCategoryCard.objects.filter(is_active=True)),
+        'recent_reviews': list(Review.objects.filter(is_approved=True).select_related(
+            'user', 'product').order_by('-created_at')[:6]),
+        'stats': stats,
+        'default_cats': default_cats,
+    }
+
+
 class HomeView(View):
     def get(self, request):
-        from .templatetags.catalog_extras import collection_queryset, rating_subquery
-        base_qs = Product.objects.filter(is_active=True).prefetch_related(
-            'images', 'variants__size', 'variants__color').annotate(avg_rating=rating_subquery())
+        from django.core.cache import cache
 
-        from core.models import HomeCategoryCard
-        from reviews.models import Review
-        from accounts.models import CustomUser
-        from django.db.models import Avg
-
-        recent_reviews = Review.objects.filter(is_approved=True).select_related(
-            'user', 'product').order_by('-created_at')[:6]
-
-        stats = {
-            'products': Product.objects.filter(is_active=True).count(),
-            'brands': Brand.objects.filter(is_active=True).count(),
-            'customers': CustomUser.objects.filter(is_active=True).count(),
-            'rating': round(Review.objects.filter(is_approved=True).aggregate(a=Avg('rating'))['a'] or 5, 1),
-        }
-
-        # Default home category cards (when none are defined in the panel) - linked to real categories
-        cat_specs = [
-            ('تیشرت', 'خنک و راحت', 'app/img/categories/tshirt.svg', ['تیشرت', 'تی‌شرت', 'تی شرت']),
-            ('هودی و سویشرت', 'گرم و اسپرت', 'app/img/categories/hoodie.svg', ['هودی و سویشرت', 'هودی', 'سویشرت']),
-            ('شلوار', 'جین و کتان', 'app/img/categories/pants.svg', ['شلوار']),
-            ('کفش', 'اسپرت و رسمی', 'app/img/categories/shoes.svg', ['کفش']),
-        ]
-        default_cats = []
-        for title, sub, img, names in cat_specs:
-            cat = Category.objects.filter(name__in=names, is_active=True).first()
-            link = f'/shop/?category={cat.slug}' if cat else '/shop/'
-            default_cats.append({'title': title, 'sub': sub, 'img': img, 'link': link})
-
-        return render(request, 'catalog/home.html', {
-            'hero_slides': HeroSlide.objects.filter(is_active=True),
-            'products': collection_queryset('bestseller')[:8],
-            'new_products': base_qs.order_by('-created_at')[:10],
-            'men_products': base_qs.filter(gender__in=['men', 'unisex']).order_by('-created_at')[:10],
-            'women_products': base_qs.filter(gender__in=['women', 'unisex']).order_by('-created_at')[:10],
-            'brands': Brand.objects.filter(is_active=True),
-            'home_cards': HomeCategoryCard.objects.filter(is_active=True),
-            'recent_reviews': recent_reviews,
-            'stats': stats,
-            'default_cats': default_cats,
-        })
+        data = cache.get_or_set(HOME_CACHE_KEY, _build_home_data, HOME_CACHE_TTL)
+        context = dict(data)
+        context['hero_slides'] = HeroSlide.objects.filter(is_active=True)
+        return render(request, 'catalog/home.html', context)
 
 
 class ProductListView(View):
@@ -138,11 +149,22 @@ class ProductListView(View):
 
         products = products.distinct()
 
+        # Real pagination - the full catalog never renders on one page
+        from django.core.paginator import Paginator
+        paginator = Paginator(products, 16)
+        page_obj = paginator.get_page(request.GET.get('page'))
+        params = request.GET.copy()
+        params.pop('page', None)
+        qs_prefix = params.urlencode()
+
         categories = Category.objects.filter(is_active=True)
         brands = Brand.objects.filter(is_active=True)
 
         return render(request, 'catalog/shop-style.html', {
-            'products': products,
+            'products': page_obj,
+            'page_obj': page_obj,
+            'total_count': paginator.count,
+            'qs_prefix': qs_prefix,
             'categories': categories,
             'brands': brands,
             'current_category': category_slug,

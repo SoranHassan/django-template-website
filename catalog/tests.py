@@ -127,3 +127,41 @@ class QuickAddToCartTest(TestCase):
         response = self.client.post('/cart/add/', {
             'variant_id': self.variant.pk, 'quantity': 99})
         self.assertNotEqual(response.json().get('status'), 'ok')
+
+
+class ShopPaginationTest(TestCase):
+    """The shop page paginates at 16 products per page, preserving filters."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from catalog.models import Product
+        for i in range(20):
+            Product.objects.create(name=f'محصول {i}', slug=f'p-{i}', price=1000)
+
+    def test_first_page_has_16_products(self):
+        response = self.client.get(reverse('catalog:shop_style_1'))
+        self.assertEqual(len(response.context['products']), 16)
+        self.assertEqual(response.context['total_count'], 20)
+
+    def test_second_page_has_the_rest(self):
+        response = self.client.get(reverse('catalog:shop_style_1'), {'page': 2})
+        self.assertEqual(len(response.context['products']), 4)
+
+    def test_out_of_range_page_falls_back(self):
+        response = self.client.get(reverse('catalog:shop_style_1'), {'page': 999})
+        self.assertEqual(response.status_code, 200)
+
+    def test_filters_preserved_in_pagination_links(self):
+        response = self.client.get(reverse('catalog:shop_style_1'), {'sort': 'price_low'})
+        self.assertContains(response, 'sort=price_low&page=2')
+
+
+class HomeCacheTest(TestCase):
+    """Home data is cached but invalidated when products change."""
+
+    def test_new_product_appears_after_signal_invalidation(self):
+        from catalog.models import Product
+        self.client.get(reverse('catalog:index'))  # warm the cache
+        Product.objects.create(name='کالای تازه', slug='fresh-item', price=5000)
+        response = self.client.get(reverse('catalog:index'))
+        self.assertContains(response, 'کالای تازه')

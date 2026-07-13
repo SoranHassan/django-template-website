@@ -57,7 +57,7 @@
 
                     <!-- Result count -->
                     <span class="text-muted small">
-                        {{ products.count }} محصول
+                        {{ total_count }} محصول
                     </span>
 
                     <!-- Sorting -->
@@ -266,15 +266,27 @@
 
         </div>
 
-        <!-- Load-more button (optional - to be replaced with pagination) -->
-        {% if products.count > 12 %}
-        <div class="row">
-            <div class="col-xl-12 col-lg-12 col-md-12 text-center">
-                <a href="#" class="btn stretched-links borders m-auto">
-                    <i class="lni lni-reload me-2"></i>بارگذاری بیشتر
-                </a>
-            </div>
-        </div>
+        <!-- Pagination (filters preserved via qs_prefix) -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="d-flex justify-content-center mt-2" aria-label="صفحه‌بندی">
+            <ul class="pagination os-pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?{{ qs_prefix }}{% if qs_prefix %}&{% endif %}page={{ page_obj.previous_page_number }}">&raquo; قبلی</a></li>
+                {% endif %}
+                {% for n in page_obj.paginator.page_range %}
+                    {% if n == page_obj.number %}
+                    <li class="page-item active"><span class="page-link">{{ n }}</span></li>
+                    {% elif n > page_obj.number|add:'-3' and n < page_obj.number|add:'3' or n == 1 or n == page_obj.paginator.num_pages %}
+                    <li class="page-item"><a class="page-link" href="?{{ qs_prefix }}{% if qs_prefix %}&{% endif %}page={{ n }}">{{ n }}</a></li>
+                    {% elif n == page_obj.number|add:'-3' or n == page_obj.number|add:'3' %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?{{ qs_prefix }}{% if qs_prefix %}&{% endif %}page={{ page_obj.next_page_number }}">بعدی &laquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
         {% endif %}
 
     </div>

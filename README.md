@@ -31,7 +31,12 @@ All storefront content is Persian (RTL); the codebase, comments and docs are Eng
 - **Upload-time image editor**: crop / resize / rotate / flip with Cropper.js;
   banner crops are locked to the exact on-site aspect ratio (WYSIWYG)
 - **Real visit analytics**: online-now, daily/monthly visits, unique visitors,
-  14-day trend chart and top pages (tracked by a middleware that ignores bots/static/AJAX)
+  14-day trend chart and top pages (tracked by a middleware that ignores bots/static/AJAX);
+  rows older than 90 days are purged daily by a Celery task
+- **Automatic image optimization**: every uploaded image is downscaled to max 1920px
+  and recompressed (JPEG/PNG) before storage
+- Shop page is paginated (16 products per page) and the home page data is cached
+  for 5 minutes with automatic invalidation on content changes
 - SEO report with an overall score and actionable suggestions
 - Newsletter composer (email + SMS)
 - **Permissions**: regular staff admins manage daily operations; site-critical sections
@@ -40,7 +45,8 @@ All storefront content is Persian (RTL); the codebase, comments and docs are Eng
 
 ### JSON API (Telegram bot)
 Lightweight, dependency-free JSON API under `/api/v1/`, authenticated with a static
-key sent as the `X-API-Key` header (configure `BOT_API_KEY` in `.env`; empty = disabled):
+key sent as the `X-API-Key` header (configure `BOT_API_KEY` in `.env`; empty = disabled).
+Rate limited to 120 requests/minute per client IP (429 on excess):
 
 | Endpoint | Description |
 |---|---|

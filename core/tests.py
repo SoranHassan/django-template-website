@@ -95,3 +95,46 @@ class HomePageStructureTest(TestCase):
         s.save()
         response = self.client.get('/')
         self.assertContains(response, 'UNIQUE-ABOUT-TEXT-123')
+
+
+class PurgeOldVisitsTest(TestCase):
+    def test_only_old_visits_are_deleted(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from core.models import SiteVisit
+        from core.tasks import purge_old_visits
+        old = SiteVisit.objects.create(session_key='old', path='/')
+        SiteVisit.objects.filter(pk=old.pk).update(
+            created_at=timezone.now() - timedelta(days=120))
+        SiteVisit.objects.create(session_key='new', path='/')
+        deleted = purge_old_visits(days=90)
+        self.assertEqual(deleted, 1)
+        self.assertEqual(SiteVisit.objects.count(), 1)
+        self.assertEqual(SiteVisit.objects.first().session_key, 'new')
+
+
+class OptimizeImageTest(TestCase):
+    def _big_jpeg(self):
+        import io
+        from PIL import Image
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        buf = io.BytesIO()
+        Image.effect_noise((3000, 2000), 60).convert('RGB').save(buf, format='JPEG', quality=98)
+        buf.seek(0)
+        return SimpleUploadedFile('big.jpg', buf.read(), content_type='image/jpeg')
+
+    def test_large_jpeg_is_downscaled_and_compressed(self):
+        from PIL import Image
+        from core.utils import optimize_image
+        up = self._big_jpeg()
+        out = optimize_image(up)
+        self.assertLess(out.size, up.size)
+        img = Image.open(out)
+        self.assertLessEqual(max(img.size), 1920)
+
+    def test_svg_passes_through_untouched(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from core.utils import optimize_image
+        svg = SimpleUploadedFile('logo.svg', b'<svg xmlns="http://www.w3.org/2000/svg"/>' * 20000,
+                                 content_type='image/svg+xml')
+        self.assertIs(optimize_image(svg), svg)
