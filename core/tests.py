@@ -193,3 +193,26 @@ class PanelEditablePeriodicTasksTest(TestCase):
     def test_no_hardcoded_beat_schedule(self):
         from django.conf import settings
         self.assertFalse(getattr(settings, 'CELERY_BEAT_SCHEDULE', {}))
+
+
+class GlobalAlertTest(TestCase):
+    """Panel-editable, non-dismissible site-wide alert."""
+
+    def test_hidden_when_empty(self):
+        response = self.client.get('/')
+        self.assertNotContains(response, 'os-global-alert')
+
+    def test_shown_on_all_pages_without_close_button(self):
+        from core.models import SiteSetting
+        s = SiteSetting.get()
+        s.global_alert = 'ارسال سفارش‌ها به دلیل تعطیلات با تأخیر انجام می‌شود'
+        s.global_alert_style = 'warning'
+        s.save()
+        for url in ['/', '/shop/', '/accounts/login/']:
+            response = self.client.get(url)
+            self.assertContains(response, 'os-global-alert-warning')
+            self.assertContains(response, 'با تأخیر انجام می‌شود')
+            # non-dismissible: no close control inside the alert
+            html = response.content.decode()
+            alert = html.split('os-global-alert', 1)[1].split('</div>', 1)[0]
+            self.assertNotIn('close', alert)

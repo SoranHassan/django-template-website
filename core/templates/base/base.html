@@ -51,6 +51,14 @@
 
 <div id="main-wrapper">
 
+    {% if site_settings.global_alert %}
+    <!-- Site-wide non-dismissible alert (edited from the panel) -->
+    <div class="os-global-alert os-global-alert-{{ site_settings.global_alert_style }}" role="alert">
+        <i class="lni {% if site_settings.global_alert_style == 'danger' %}lni-warning{% elif site_settings.global_alert_style == 'warning' %}lni-bullhorn{% else %}lni-information{% endif %}"></i>
+        <span>{{ site_settings.global_alert }}</span>
+    </div>
+    {% endif %}
+
     <main>
         {% block hero_content %}
         {{ hero_content}}

@@ -6503,6 +6503,31 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .qa-msg.ok { color: #16a34a; }
 .qa-msg.err { color: #e63946; }
 
+/* ============ Site-wide non-dismissible alert (panel-editable) ============ */
+.os-global-alert {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 11px 18px; text-align: center;
+  font-size: 13.5px; font-weight: 600; line-height: 1.9;
+}
+.os-global-alert .lni { font-size: 18px; flex-shrink: 0; margin-inline-end: 0; }
+.os-global-alert-info    { background: #e5f8fb; color: #076572; border-bottom: 1px solid #bfeaf1; }
+.os-global-alert-info .lni { color: var(--os-cyan-dark); }
+.os-global-alert-warning { background: #fff6e5; color: #8a5a00; border-bottom: 1px solid #f5e0b0; }
+.os-global-alert-warning .lni { color: #e59500; }
+.os-global-alert-danger  { background: #fdeef0; color: #a11624; border-bottom: 1px solid #f5c2c9; }
+.os-global-alert-danger .lni { color: #e63946; }
+
+/* ============ Compact address cards in the profile ============ */
+.os-address-card {
+  padding: 12px 14px !important; font-size: 12px;
+}
+.os-address-card h6 { font-size: 13px; margin-bottom: 6px !important; }
+.os-address-card p { font-size: 11.5px !important; margin-bottom: 3px !important; line-height: 1.9 !important; }
+.os-address-card .btn {
+  padding: 3px 12px !important; font-size: 11px !important;
+}
+.os-address-card .badge { font-size: 10px; padding: 4px 8px; }
+
 /* ============ Branded site dialog (logo + message + ok) ============ */
 .os-dialog-overlay {
   position: fixed; inset: 0; z-index: 3000;

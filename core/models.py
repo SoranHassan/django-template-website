@@ -124,6 +124,19 @@ class SiteSetting(models.Model):
         verbose_name='رنگ کالکشن زنانه',
         help_text='رنگ انتهای گرادینت بنر کالکشن زنانه در صفحه اصلی')
 
+    # ---------- Site-wide non-dismissible alert (empty = hidden) ----------
+    ALERT_STYLE_CHOICES = [
+        ('info', 'اطلاع‌رسانی (سایان)'),
+        ('warning', 'هشدار (نارنجی)'),
+        ('danger', 'مهم/بحرانی (قرمز)'),
+    ]
+    global_alert = models.TextField(
+        blank=True, default='', verbose_name='پیام سراسری سایت',
+        help_text='در بالای همهٔ صفحات نمایش داده می‌شود و کاربر نمی‌تواند آن را ببندد — خالی = مخفی')
+    global_alert_style = models.CharField(
+        max_length=10, choices=ALERT_STYLE_CHOICES, default='info',
+        verbose_name='رنگ پیام سراسری')
+
     # ---------- Runtime config (DB overrides the .env value; applies instantly, no restart) ----------
     zarinpal_merchant_id = models.CharField(
         max_length=64, blank=True, verbose_name='مرچنت‌کد زرین‌پال',

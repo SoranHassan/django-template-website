@@ -1184,6 +1184,12 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
         fields = [
             {'name': 'topbar_style', 'label': 'رنگ نوار اطلاعیه بالای سایت', 'type': 'select',
              'options': SiteSetting.TOPBAR_CHOICES, 'value': s.topbar_style},
+            # Site-wide non-dismissible alert
+            {'name': 'global_alert', 'label': 'پیام سراسری سایت (غیرقابل بستن)', 'type': 'textarea',
+             'full': True, 'value': s.global_alert,
+             'help': 'در بالای همهٔ صفحات نمایش داده می‌شود و کاربر نمی‌تواند آن را ببندد — خالی بگذارید تا مخفی شود'},
+            {'name': 'global_alert_style', 'label': 'رنگ پیام سراسری', 'type': 'select',
+             'options': SiteSetting.ALERT_STYLE_CHOICES, 'value': s.global_alert_style},
             # Shop page banner
             {'name': 'shop_banner', 'label': 'بنر صفحه محصولات', 'type': 'image',
              'value': s.shop_banner.url if s.shop_banner else '', 'full': True},
@@ -1238,6 +1244,10 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
         topbar = request.POST.get('topbar_style', 'black')
         if topbar in dict(SiteSetting.TOPBAR_CHOICES):
             s.topbar_style = topbar
+        s.global_alert = request.POST.get('global_alert', '').strip()
+        alert_style = request.POST.get('global_alert_style', 'info')
+        if alert_style in dict(SiteSetting.ALERT_STYLE_CHOICES):
+            s.global_alert_style = alert_style
         # Shop banner + collection vectors
         if request.FILES.get('shop_banner'):
             s.shop_banner = optimize_image(request.FILES['shop_banner'])

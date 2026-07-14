@@ -51,8 +51,8 @@
 
                 <div class="row g-3">
                     {% for address in addresses %}
-                    <div class="col-12 col-md-6">
-                        <div class="border rounded p-3 h-100 position-relative {% if address.is_default %}border-2{% endif %}"
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="border rounded h-100 position-relative os-address-card {% if address.is_default %}border-2{% endif %}"
                              {% if address.is_default %}style="border-color: var(--os-cyan-dark) !important;"{% endif %}>
                             {% if address.is_default %}
                             <span class="badge position-absolute" style="top:12px; left:12px; background:#00E6FF; color:#000;">پیش‌فرض</span>
@@ -66,7 +66,7 @@
                                 {% if address.address2 %}، {{ address.address2 }}{% endif %}
                             </p>
                             <p class="small text-muted mb-1">کد پستی: <span dir="ltr">{{ address.zip }}</span></p>
-                            <p class="small text-muted mb-3">تلفن: <span dir="ltr">{{ address.phone }}</span></p>
+                            <p class="small text-muted mb-2">تلفن: <span dir="ltr">{{ address.phone }}</span></p>
                             <div class="d-flex gap-2">
                                 <a href="{% url 'accounts:addresses_edit' address.pk %}" class="btn btn-sm btn-outline-dark px-3">
                                     <i class="lni lni-pencil me-1"></i>ویرایش
