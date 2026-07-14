@@ -142,7 +142,9 @@ else:
 # CELERY
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='memory://')
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='cache+memory://')
-if DEV_MODE:
+# CELERY_EAGER=False in .env lets you run a real worker even in DEV_MODE
+CELERY_EAGER = config('CELERY_EAGER', default=DEV_MODE, cast=bool)
+if CELERY_EAGER:
     # No worker: tasks run immediately in the same process
     CELERY_TASK_ALWAYS_EAGER = True
     CELERY_TASK_EAGER_PROPAGATES = False
