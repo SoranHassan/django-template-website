@@ -8,7 +8,7 @@ def auto_cancel_unpaid_orders():
     from .models import Order
     from datetime import timedelta
 
-    threshold = timezone.now() - timedelta(minutes=10)
+    threshold = timezone.now() - timedelta(minutes=30)
     cancelled_orders = Order.objects.filter(status='pending',created_at__lt=threshold)
     count = cancelled_orders.count()
     cancelled_orders.update(status='cancelled')

@@ -190,3 +190,23 @@ class CouponCaseInsensitiveTest(TestCase):
         response = self.client.post(reverse('orders:apply_coupon'), {'code': 'X'})
         self.assertEqual(response.status_code, 401)
         self.assertEqual(response.json()['status'], 'error')
+
+
+class AutoCancelThresholdTest(TestCase):
+    """Unpaid orders are cancelled only after 30 minutes (not 10)."""
+
+    def test_recent_unpaid_order_survives_old_one_cancelled(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from OramShop.test_utils import make_user
+        from orders.models import Order
+        from orders.tasks import auto_cancel_unpaid_orders
+        user = make_user(mobile='09121230000')
+        fresh = Order.objects.create(user=user, status='pending', total_price=1000)
+        stale = Order.objects.create(user=user, status='pending', total_price=1000)
+        Order.objects.filter(pk=fresh.pk).update(created_at=timezone.now() - timedelta(minutes=20))
+        Order.objects.filter(pk=stale.pk).update(created_at=timezone.now() - timedelta(minutes=40))
+        auto_cancel_unpaid_orders()
+        fresh.refresh_from_db(); stale.refresh_from_db()
+        self.assertEqual(fresh.status, 'pending')
+        self.assertEqual(stale.status, 'cancelled')

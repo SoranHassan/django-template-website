@@ -178,3 +178,18 @@ class CollectionColorTest(TestCase):
         response = self.client.get('/')
         self.assertContains(response, '#123456')
         self.assertContains(response, '#654321')
+
+
+class PanelEditablePeriodicTasksTest(TestCase):
+    """All periodic tasks are DB rows (django-celery-beat) editable from the panel."""
+
+    def test_default_periodic_tasks_seeded(self):
+        from django_celery_beat.models import PeriodicTask
+        names = set(PeriodicTask.objects.values_list('task', flat=True))
+        self.assertIn('accounts.tasks.cleanup_expired_otps', names)
+        self.assertIn('core.tasks.purge_old_visits', names)
+        self.assertIn('orders.tasks.auto_cancel_unpaid_orders', names)
+
+    def test_no_hardcoded_beat_schedule(self):
+        from django.conf import settings
+        self.assertFalse(getattr(settings, 'CELERY_BEAT_SCHEDULE', {}))
