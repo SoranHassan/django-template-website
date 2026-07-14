@@ -39,7 +39,8 @@ def api_key_required(view):
 
     @wraps(view)
     def wrapper(request, *args, **kwargs):
-        configured = getattr(settings, 'BOT_API_KEY', '')
+        from core.utils import runtime_config
+        configured = runtime_config('bot_api_key_override', 'BOT_API_KEY')
         if not configured:
             return JsonResponse(
                 {'error': 'API disabled: BOT_API_KEY is not configured'}, status=503)

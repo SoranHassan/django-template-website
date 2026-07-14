@@ -61,3 +61,20 @@ def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY):
         except Exception:
             pass
         return uploaded
+
+
+def runtime_config(field, env_setting):
+    """DB-first runtime config: SiteSetting.<field> when set, else settings.<env_setting>.
+
+    DB changes apply instantly (no restart); .env changes still need a restart.
+    Never raises - falls back to the env value before migrations exist.
+    """
+    from django.conf import settings as dj_settings
+
+    env_value = getattr(dj_settings, env_setting, '')
+    try:
+        from .models import SiteSetting
+        db_value = getattr(SiteSetting.get(), field, '') or ''
+        return db_value.strip() or env_value
+    except Exception:
+        return env_value

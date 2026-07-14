@@ -1,0 +1,49 @@
+{% comment %} Branded HTML newsletter email - inline styles for email-client compatibility {% endcomment %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head><meta charset="utf-8"></head>
+<body style="margin:0; padding:0; background:#f2f4f6; font-family:Tahoma, Arial, sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f4f6; padding:24px 0;">
+    <tr><td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0"
+               style="max-width:600px; width:100%; background:#ffffff; border-radius:16px; overflow:hidden; direction:rtl;">
+            <!-- Header -->
+            <tr>
+                <td style="background:#1A1A1A; padding:22px 30px; text-align:center;">
+                    <span style="font-size:24px; font-weight:bold; color:#ffffff; letter-spacing:1px;">ORAM<span style="color:#00E6FF;">SHOP</span></span>
+                    <div style="color:#9aa5aa; font-size:11px; margin-top:4px;">فروشگاه پوشاک و اکسسوری اُرام‌شاپ</div>
+                </td>
+            </tr>
+            <!-- Subject -->
+            <tr>
+                <td style="padding:26px 30px 6px; text-align:right;">
+                    <h1 style="margin:0; font-size:18px; color:#1a1a1a;">{{ subject }}</h1>
+                </td>
+            </tr>
+            <!-- Body -->
+            <tr>
+                <td style="padding:10px 30px 26px; text-align:right;">
+                    <div style="font-size:14px; line-height:2.1; color:#444;">{{ body|linebreaksbr }}</div>
+                </td>
+            </tr>
+            <!-- CTA -->
+            <tr>
+                <td style="padding:0 30px 30px;" align="center">
+                    <a href="{{ site_url }}" style="display:inline-block; background:#00B8CC; color:#ffffff; text-decoration:none;
+                          padding:12px 40px; border-radius:10px; font-size:14px; font-weight:bold;">مشاهدهٔ فروشگاه</a>
+                </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+                <td style="background:#f7f9fa; padding:16px 30px; text-align:center; border-top:1px solid #eef1f3;">
+                    <div style="font-size:11px; color:#8a959b; line-height:1.9;">
+                        این ایمیل چون در خبرنامهٔ اُرام‌شاپ عضو هستید برای شما ارسال شده است.<br>
+                        © اُرام‌شاپ — تمامی حقوق محفوظ است.
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </td></tr>
+</table>
+</body>
+</html>

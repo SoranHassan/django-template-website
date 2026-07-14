@@ -1,0 +1,10 @@
+# Place at: /etc/systemd/system/oramshop.socket
+[Unit]
+Description=OramShop gunicorn socket
+
+[Socket]
+ListenStream=/run/oramshop/gunicorn.sock
+SocketUser=www-data
+
+[Install]
+WantedBy=sockets.target

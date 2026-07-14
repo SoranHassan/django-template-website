@@ -27,6 +27,12 @@ DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memor
 CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}}
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
+# Celery: fully in-process during tests (no broker/redis)
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = False
+CELERY_BROKER_URL = 'memory://'
+CELERY_RESULT_BACKEND = 'cache+memory://'
+
 # Not needed in the test environment
 AXES_ENABLED = False
 SECURE_SSL_REDIRECT = False

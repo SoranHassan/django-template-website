@@ -138,3 +138,43 @@ class OptimizeImageTest(TestCase):
         svg = SimpleUploadedFile('logo.svg', b'<svg xmlns="http://www.w3.org/2000/svg"/>' * 20000,
                                  content_type='image/svg+xml')
         self.assertIs(optimize_image(svg), svg)
+
+
+class RuntimeConfigTest(TestCase):
+    """DB value (site settings) overrides .env; empty DB falls back to .env."""
+
+    def test_fallback_to_env(self):
+        from core.utils import runtime_config
+        with self.settings(GOFTINO_ID='env-id'):
+            self.assertEqual(runtime_config('goftino_id_override', 'GOFTINO_ID'), 'env-id')
+
+    def test_db_overrides_env(self):
+        from core.models import SiteSetting
+        from core.utils import runtime_config
+        s = SiteSetting.get()
+        s.goftino_id_override = 'db-id'
+        s.zarinpal_merchant_id = 'db-merchant'
+        s.save()
+        with self.settings(GOFTINO_ID='env-id', ZARINPAL_MERCHANT_ID='env-merchant'):
+            self.assertEqual(runtime_config('goftino_id_override', 'GOFTINO_ID'), 'db-id')
+            self.assertEqual(runtime_config('zarinpal_merchant_id', 'ZARINPAL_MERCHANT_ID'), 'db-merchant')
+
+    def test_zarinpal_uses_runtime_merchant(self):
+        from core.models import SiteSetting
+        from orders.zarinpal import get_merchant_id
+        s = SiteSetting.get()
+        s.zarinpal_merchant_id = 'panel-merchant-id'
+        s.save()
+        self.assertEqual(get_merchant_id(), 'panel-merchant-id')
+
+
+class CollectionColorTest(TestCase):
+    def test_custom_colors_render_on_home(self):
+        from core.models import SiteSetting
+        s = SiteSetting.get()
+        s.men_collection_color = '#123456'
+        s.women_collection_color = '#654321'
+        s.save()
+        response = self.client.get('/')
+        self.assertContains(response, '#123456')
+        self.assertContains(response, '#654321')

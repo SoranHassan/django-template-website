@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static humanize %}
+{% load static humanize catalog_extras %}
 
 {% block title %}تسویه حساب - OramShop{% endblock %}
 
@@ -265,6 +265,8 @@
 
     </div>
 </section>
+
+{% product_row 'bestseller' 'پرفروش‌ترین‌ها' 8 %}
 
 <section class="px-0 py-3 br-top">
     <div class="container">

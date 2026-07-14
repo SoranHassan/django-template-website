@@ -153,7 +153,8 @@
     <div class="container">
         <div class="row g-3">
             <div class="col-md-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="promo-banner promo-men">
+                <a href="{% url 'catalog:shop_style_1' %}?gender=men" class="promo-banner promo-men"
+                   {% if site_settings.men_collection_color %}style="background: linear-gradient(120deg, #1a222e 0%, {{ site_settings.men_collection_color }} 100%);"{% endif %}>
                     <img src="{% if site_settings.men_vector %}{{ site_settings.men_vector.url }}{% else %}{% static 'app/img/collections/man-vector.svg' %}{% endif %}" alt="کالکشن مردانه" class="promo-vector" loading="lazy">
                     <div class="promo-content">
                         <span class="promo-sub">کالکشن مردانه</span>
@@ -163,7 +164,8 @@
                 </a>
             </div>
             <div class="col-md-6">
-                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="promo-banner promo-women">
+                <a href="{% url 'catalog:shop_style_1' %}?gender=women" class="promo-banner promo-women"
+                   {% if site_settings.women_collection_color %}style="background: linear-gradient(120deg, #241b26 0%, {{ site_settings.women_collection_color }} 100%);"{% endif %}>
                     <img src="{% if site_settings.women_vector %}{{ site_settings.women_vector.url }}{% else %}{% static 'app/img/collections/woman-vector.svg' %}{% endif %}" alt="کالکشن زنانه" class="promo-vector" loading="lazy">
                     <div class="promo-content">
                         <span class="promo-sub">کالکشن زنانه</span>

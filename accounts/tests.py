@@ -119,3 +119,40 @@ class ProfileTest(TestCase):
         self.assertContains(response, 'موفقیت')
         check = self.client.get(reverse('accounts:profile_info'))
         self.assertEqual(check.status_code, 200)
+
+
+class PasswordResetOtpFlowTest(TestCase):
+    """Full OTP-based password recovery: mobile -> OTP -> new password."""
+
+    @patch('accounts.views.send_otp_sms')
+    def test_full_reset_flow(self, mock_sms):
+        from OramShop.test_utils import make_user
+        from accounts.models import OTP
+        user = make_user(mobile='09123334444', password='OldPass123')
+
+        # step 1: request the code
+        response = self.client.post('/accounts/forgot-password/', {'mobile': '09123334444'})
+        self.assertEqual(response.status_code, 302)
+        otp = OTP.objects.filter(mobile='09123334444').latest('created_at')
+
+        # step 2: verify the code
+        response = self.client.post('/accounts/verify-otp/',
+                                    {'mobile': '09123334444', 'code': otp.code})
+        self.assertEqual(response.status_code, 302)
+
+        # step 3: set the new password
+        response = self.client.post('/accounts/reset-password/', {
+            'password': 'NewSecret456', 'confirm_password': 'NewSecret456'})
+        self.assertEqual(response.status_code, 302)
+        user.refresh_from_db()
+        self.assertTrue(user.check_password('NewSecret456'))
+
+
+class RelatedRowsOnPagesTest(TestCase):
+    """Every page shows a related-products slider above the features strip."""
+
+    def test_login_page_has_product_row(self):
+        from OramShop.test_utils import make_product
+        make_product(slug='row-check')
+        response = self.client.get('/accounts/login/')
+        self.assertContains(response, 'products-row-slider')

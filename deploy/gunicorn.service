@@ -1,0 +1,21 @@
+# OramShop gunicorn systemd service
+# Place at: /etc/systemd/system/oramshop.service
+# Then:     sudo systemctl daemon-reload && sudo systemctl enable --now oramshop
+[Unit]
+Description=OramShop gunicorn daemon
+Requires=oramshop.socket
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/srv/oramshop
+EnvironmentFile=/srv/oramshop/.env
+ExecStart=/srv/oramshop/.venv/bin/gunicorn \
+          --workers 3 \
+          --bind unix:/run/oramshop/gunicorn.sock \
+          OramShop.wsgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

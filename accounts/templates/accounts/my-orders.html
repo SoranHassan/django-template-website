@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static humanize jalali %}
+{% load static humanize jalali catalog_extras %}
 
 {% block title %}سفارش‌های من - OramShop{% endblock %}
 
@@ -218,6 +218,8 @@
         </div>
     </div>
 </section>
+
+{% product_row 'bestseller' 'پرفروش‌ترین‌ها' 8 %}
 
 <section class="px-0 py-3 br-top">
     <div class="container">

@@ -1077,14 +1077,20 @@ class DashboardNewsletterView(SuperuserRequiredMixin, View):
         from_email = getattr(dj_settings, 'DEFAULT_FROM_EMAIL', None) or 'no-reply@oramshop.com'
         sent = 0
 
-        # Email
+        # Email - plain text + branded HTML alternative
         if emails:
             try:
+                from django.template.loader import render_to_string
+                html = render_to_string('emails/newsletter.html', {
+                    'subject': subject, 'body': body,
+                    'site_url': request.build_absolute_uri('/'),
+                })
                 connection = get_connection(fail_silently=True)
-                messages = [
-                    EmailMultiAlternatives(subject, body, from_email, [e], connection=connection)
-                    for e in emails
-                ]
+                messages = []
+                for e in emails:
+                    msg = EmailMultiAlternatives(subject, body, from_email, [e], connection=connection)
+                    msg.attach_alternative(html, 'text/html')
+                    messages.append(msg)
                 connection.send_messages(messages)
                 sent += len(emails)
             except Exception:
@@ -1188,9 +1194,20 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
             {'name': 'women_vector', 'label': 'وکتور کالکشن زنانه', 'type': 'image',
              'value': s.women_vector.url if s.women_vector else '',
              'help': 'اگر خالی بماند وکتور پیش‌فرض استفاده می‌شود — PNG/SVG با پس‌زمینه شفاف'},
+            {'name': 'men_collection_color', 'label': 'رنگ کالکشن مردانه (صفحه اصلی)', 'type': 'color',
+             'value': s.men_collection_color},
+            {'name': 'women_collection_color', 'label': 'رنگ کالکشن زنانه (صفحه اصلی)', 'type': 'color',
+             'value': s.women_collection_color},
             # About-us band before the footer
             {'name': 'about_home', 'label': 'متن دربارهٔ ما (قبل از فوتر صفحه اصلی)', 'type': 'textarea',
              'full': True, 'value': s.about_home},
+            # Runtime config (DB overrides .env - applies instantly, no restart)
+            {'name': 'zarinpal_merchant_id', 'label': 'مرچنت‌کد زرین‌پال', 'type': 'text',
+             'value': s.zarinpal_merchant_id, 'help': 'خالی = استفاده از مقدار .env — تغییر اینجا بدون ری‌استارت اعمال می‌شود'},
+            {'name': 'goftino_id_override', 'label': 'کد ویجت گفتینو', 'type': 'text',
+             'value': s.goftino_id_override, 'help': 'خالی = استفاده از مقدار .env'},
+            {'name': 'bot_api_key_override', 'label': 'کلید API ربات تلگرام', 'type': 'text',
+             'value': s.bot_api_key_override, 'help': 'خالی = استفاده از مقدار .env'},
             {'name': 'shop_banner_title', 'label': 'عنوان بنر محصولات', 'type': 'text', 'value': s.shop_banner_title},
             {'name': 'shop_banner_subtitle', 'label': 'زیرعنوان بنر محصولات', 'type': 'text', 'value': s.shop_banner_subtitle},
             # Footer info
@@ -1230,6 +1247,11 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
             s.women_vector = optimize_image(request.FILES['women_vector'])
         s.shop_banner_title = request.POST.get('shop_banner_title', '').strip()
         s.shop_banner_subtitle = request.POST.get('shop_banner_subtitle', '').strip()
+        s.men_collection_color = request.POST.get('men_collection_color', '').strip()
+        s.women_collection_color = request.POST.get('women_collection_color', '').strip()
+        s.zarinpal_merchant_id = request.POST.get('zarinpal_merchant_id', '').strip()
+        s.goftino_id_override = request.POST.get('goftino_id_override', '').strip()
+        s.bot_api_key_override = request.POST.get('bot_api_key_override', '').strip()
         # About + footer
         s.about_home = request.POST.get('about_home', '').strip()
         s.footer_about = request.POST.get('footer_about', '').strip()

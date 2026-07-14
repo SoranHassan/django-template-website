@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static catalog_extras %}
 
 {% block hero_content %}
 
@@ -129,6 +129,8 @@
         </div>
     </div>
 </section>
+
+{% product_row 'bestseller' 'پرفروش‌ترین‌ها' 8 %}
 
 <section class="px-0 py-3 br-top">
     <div class="container">

@@ -1,6 +1,13 @@
 import requests
 from django.conf import settings
 
+from core.utils import runtime_config
+
+
+def get_merchant_id():
+    """Merchant id editable from the panel (site settings), .env as fallback."""
+    return runtime_config('zarinpal_merchant_id', 'ZARINPAL_MERCHANT_ID')
+
 
 ZARINPAL_API_URL = 'https://api.zarinpal.com/pg/v4/payment/'
 ZARINPAL_SANDBOX_URL = 'https://sandbox.zarinpal.com/pg/v4/payment/'
@@ -26,7 +33,7 @@ def request_payment(amount, description, callback_url, mobile=None, email=None):
     url = get_api_url() + 'request.json'
 
     data = {
-        'merchant_id': settings.ZARINPAL_MERCHANT_ID,
+        'merchant_id': get_merchant_id(),
         'amount': int(amount) * 10,  # convert toman to rial
         'description': description,
         'callback_url': callback_url}
@@ -62,7 +69,7 @@ def verify_payment(amount, authority):
     """Verify the payment."""
     url = get_api_url() + 'verify.json'
     data = {
-        'merchant_id': settings.ZARINPAL_MERCHANT_ID,
+        'merchant_id': get_merchant_id(),
         'amount': int(amount) * 10,
         'authority': authority,}
 

@@ -115,6 +115,25 @@ class SiteSetting(models.Model):
     women_vector = models.ImageField(upload_to='collections/', blank=True, null=True,
                                      verbose_name='وکتور کالکشن زنانه',
                                      help_text='اگر خالی باشد وکتور پیش‌فرض نمایش داده می‌شود')
+    men_collection_color = models.CharField(
+        max_length=20, blank=True, default='#2c5364',
+        verbose_name='رنگ کالکشن مردانه',
+        help_text='رنگ انتهای گرادینت بنر کالکشن مردانه در صفحه اصلی')
+    women_collection_color = models.CharField(
+        max_length=20, blank=True, default='#7a4a63',
+        verbose_name='رنگ کالکشن زنانه',
+        help_text='رنگ انتهای گرادینت بنر کالکشن زنانه در صفحه اصلی')
+
+    # ---------- Runtime config (DB overrides the .env value; applies instantly, no restart) ----------
+    zarinpal_merchant_id = models.CharField(
+        max_length=64, blank=True, verbose_name='مرچنت‌کد زرین‌پال',
+        help_text='اگر خالی باشد مقدار ZARINPAL_MERCHANT_ID از .env استفاده می‌شود')
+    goftino_id_override = models.CharField(
+        max_length=16, blank=True, verbose_name='کد ویجت گفتینو',
+        help_text='اگر خالی باشد مقدار GOFTINO_ID از .env استفاده می‌شود')
+    bot_api_key_override = models.CharField(
+        max_length=128, blank=True, verbose_name='کلید API ربات تلگرام',
+        help_text='اگر خالی باشد مقدار BOT_API_KEY از .env استفاده می‌شود')
 
     # ---------- About-us text shown right before the footer on the home page ----------
     about_home = models.TextField(

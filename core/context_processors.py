@@ -12,7 +12,8 @@ def site_settings_context(request):
     """Site appearance settings + third-party widget ids for all pages."""
     from django.conf import settings as dj_settings
     from .models import SiteSetting
-    ctx = {'goftino_id': getattr(dj_settings, 'GOFTINO_ID', '')}
+    from .utils import runtime_config
+    ctx = {'goftino_id': runtime_config('goftino_id_override', 'GOFTINO_ID')}
     try:
         ctx['site_settings'] = SiteSetting.get()
     except Exception:
