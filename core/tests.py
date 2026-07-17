@@ -263,3 +263,32 @@ class WholesaleNavbarTest(TestCase):
         response = self.client.get('/')
         self.assertContains(response, 'محصولات عمده')
         self.assertContains(response, 'collection=wholesale')
+
+
+class NameHintMappingTest(TestCase):
+    """Images named mens/womens/childrens/accessories map to the right cards."""
+
+    def test_user_filenames_map_correctly(self):
+        import io, os, tempfile
+        from PIL import Image
+        from django.core.management import call_command
+        from django.test import override_settings
+        from core.models import HomeCategoryCard
+
+        with tempfile.TemporaryDirectory() as media_root:
+            os.makedirs(os.path.join(media_root, 'banners'))
+            for name in ['1741280144494.jpg', 'accessoris.jpg', 'childrens.jpg',
+                         'mens.jpg', 'womens.jpg']:
+                Image.new('RGB', (1600, 1280), (90, 90, 90)).save(
+                    os.path.join(media_root, 'banners', name))
+            with override_settings(MEDIA_ROOT=media_root):
+                out = io.StringIO()
+                call_command('set_home_category_images', stdout=out)
+        titles = set(HomeCategoryCard.objects.values_list('title', flat=True))
+        self.assertEqual(titles, {'مردانه', 'زنانه', 'بچگانه', 'اکسسوری'})
+        # womens.jpg must NOT land on the men card ('men' is a substring of 'womens')
+        men = HomeCategoryCard.objects.get(title='مردانه')
+        self.assertIn('mens', men.image.name)
+        women = HomeCategoryCard.objects.get(title='زنانه')
+        self.assertIn('womens', women.image.name)
+        self.assertIn('قابل تشخیص نیست', out.getvalue())  # stray file skipped

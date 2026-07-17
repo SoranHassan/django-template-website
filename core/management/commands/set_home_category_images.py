@@ -20,12 +20,36 @@ from django.core.management.base import BaseCommand
 
 IMAGE_EXTS = ('.jpg', '.jpeg', '.png', '.webp')
 
+# Filename hints -> card definition (title, subtitle, link builder)
+# Recognized names like mens.jpg / womens.jpg / childrens.jpg / accessories.jpg
+# NOTE: 'women' must be checked BEFORE 'men' ('men' is a substring of 'womens')
+NAME_HINTS = [
+    (('women', 'woman', 'zanane', 'ladies'), ('زنانه', 'پوشاک بانوان', '/shop/?gender=women', [])),
+    (('men', 'man', 'mardane'), ('مردانه', 'پوشاک آقایان', '/shop/?gender=men', [])),
+    (('child', 'kid', 'bache'), ('بچگانه', 'پوشاک کودکان', '/shop/?gender=kids', [])),
+    (('access', 'aksesor'), ('اکسسوری', 'کیف، کلاه و مکمل استایل', '', ['اکسسوری', 'اکسسوری‌ها'])),
+    (('tshirt', 'tishert', 'shirt'), ('تیشرت', 'خنک و راحت', '', ['تیشرت', 'تی‌شرت', 'تی شرت'])),
+    (('hood', 'sweat'), ('هودی و سویشرت', 'گرم و اسپرت', '', ['هودی و سویشرت', 'هودی', 'سویشرت'])),
+    (('pant', 'shalvar', 'jean'), ('شلوار', 'جین و کتان', '', ['شلوار'])),
+    (('shoe', 'kafsh', 'sneaker'), ('کفش', 'اسپرت و رسمی', '', ['کفش'])),
+]
+
+# Fallback when no filename matches any hint: first four images by name
 CARD_SPECS = [
     ('تیشرت', 'خنک و راحت', ['تیشرت', 'تی‌شرت', 'تی شرت']),
     ('هودی و سویشرت', 'گرم و اسپرت', ['هودی و سویشرت', 'هودی', 'سویشرت']),
     ('شلوار', 'جین و کتان', ['شلوار']),
     ('کفش', 'اسپرت و رسمی', ['کفش']),
 ]
+
+
+def match_hint(filename):
+    """Return the card spec matching this filename, or None."""
+    stem = os.path.splitext(filename)[0].lower()
+    for keys, spec in NAME_HINTS:
+        if any(k in stem for k in keys):
+            return spec
+    return None
 
 
 class Command(BaseCommand):
@@ -72,19 +96,40 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('\n--dry-run: تغییری اعمال نشد'))
             return
 
-        if len(images) < 4:
+        # Prefer filename hints (mens/womens/childrens/accessories/...);
+        # unrecognized files are skipped so a stray image never lands on a card.
+        assignments = []
+        hinted = [(name, match_hint(name)) for name in images]
+        if any(spec for _, spec in hinted):
+            skipped = []
+            for name, spec in hinted:
+                if spec:
+                    assignments.append((name, spec))
+                else:
+                    skipped.append(name)
+            for name in skipped:
+                self.stdout.write(self.style.WARNING(
+                    f'  ! {name}: از روی نام قابل تشخیص نیست — رد شد'))
+        else:
+            for (title, subtitle, cat_names), name in zip(CARD_SPECS, images):
+                assignments.append((name, (title, subtitle, '', cat_names)))
+
+        if len(assignments) < 4:
             self.stdout.write(self.style.WARNING(
-                f'\nفقط {len(images)} عکس هست؛ همان تعداد کارت به‌روزرسانی می‌شود'))
+                f'\n{len(assignments)} کارت به‌روزرسانی می‌شود'))
 
         self.stdout.write('')
-        for (title, subtitle, cat_names), name in zip(CARD_SPECS, images):
-            cat = Category.objects.filter(name__in=cat_names, is_active=True).first()
-            link = f'/shop/?category={cat.slug}' if cat else '/shop/'
+        for order, (name, (title, subtitle, fixed_link, cat_names)) in enumerate(assignments):
+            link = fixed_link
+            if not link:
+                cat = Category.objects.filter(name__in=cat_names, is_active=True).first()
+                link = f'/shop/?category={cat.slug}' if cat else '/shop/'
             card, _ = HomeCategoryCard.objects.get_or_create(
                 title=title, defaults={'subtitle': subtitle, 'link': link,
-                                       'order': CARD_SPECS.index((title, subtitle, cat_names)),
-                                       'is_active': True})
+                                       'order': order, 'is_active': True})
             card.link = link
+            card.subtitle = card.subtitle or subtitle
+            card.order = order
             card.is_active = True
             path = os.path.join(folder, name)
             with open(path, 'rb') as fh:
@@ -98,5 +143,5 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(
             '\nتمام شد — کارت‌های صفحه اصلی حالا از این عکس‌ها استفاده می‌کنند.\n'
-            'ترتیب نسبت‌دادن بر اساس حروف الفبای نام فایل است؛ اگر جابه‌جا بود،\n'
+            'نگاشت از روی نام فایل انجام شد؛ اگر چیزی جابه‌جا بود،\n'
             'از پنل ← «کارت‌های صفحه اصلی» عکس هر کارت را عوض کنید.'))
