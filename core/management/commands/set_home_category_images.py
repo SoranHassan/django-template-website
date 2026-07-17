@@ -137,7 +137,8 @@ class Command(BaseCommand):
                 uploaded.size = os.path.getsize(path)
                 big = max(Image.open(path).size) > 1200 or uploaded.size > 300 * 1024
                 optimized = optimize_image(uploaded, max_side=1200, force=big)
-                card.image.save(name, optimized, save=False)
+                # use the optimizer's name so the .webp extension matches the content
+                card.image.save(getattr(optimized, 'name', name) or name, optimized, save=False)
             card.save()
             self.stdout.write(self.style.SUCCESS(f'  ✓ {name} ← کارت «{title}» ({link})'))
 

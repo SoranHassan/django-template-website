@@ -15,8 +15,7 @@ def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY, force=Fals
 
     SVGs, GIFs and small files pass through untouched (unless force=True,
     which skips the byte-size shortcut so oversized-but-light images still
-    get downscaled). PNGs with transparency stay PNG; everything else becomes
-    an optimized JPEG. Never raises - on any problem the original upload is
+    get downscaled). Output is WebP (transparency preserved; ~30% smaller than JPEG). Never raises - on any problem the original upload is
     returned unchanged.
     """
     try:
@@ -24,7 +23,7 @@ def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY, force=Fals
 
         name = getattr(uploaded, 'name', '') or ''
         ext = os.path.splitext(name)[1].lower()
-        if ext in ('.svg', '.gif', '.webp'):
+        if ext in ('.svg', '.gif'):
             return uploaded
         if not force and uploaded.size < OPTIMIZE_THRESHOLD_BYTES:
             return uploaded
@@ -36,17 +35,20 @@ def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY, force=Fals
         if max(img.size) > max_side:
             img.thumbnail((max_side, max_side), Image.LANCZOS)
 
+        # WebP for everything (supports transparency, ~30% smaller than JPEG,
+        # supported by all modern browsers)
         has_alpha = img.mode in ('RGBA', 'LA') or (
             img.mode == 'P' and 'transparency' in img.info)
         buf = io.BytesIO()
         if has_alpha:
-            img.save(buf, format='PNG', optimize=True)
-            out_ext, ctype = '.png', 'image/png'
+            if img.mode != 'RGBA':
+                img = img.convert('RGBA')
+            img.save(buf, format='WEBP', quality=quality, method=4)
         else:
             if img.mode != 'RGB':
                 img = img.convert('RGB')
-            img.save(buf, format='JPEG', quality=quality, optimize=True, progressive=True)
-            out_ext, ctype = '.jpg', 'image/jpeg'
+            img.save(buf, format='WEBP', quality=quality, method=4)
+        out_ext, ctype = '.webp', 'image/webp'
 
         # Keep the original when optimization would not actually shrink it
         # (unless we were forced to downscale oversized dimensions)
