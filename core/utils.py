@@ -10,12 +10,14 @@ MAX_SIDE = 1920
 JPEG_QUALITY = 82
 
 
-def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY):
+def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY, force=False):
     """Downscale/compress an uploaded raster image; returns the (possibly new) file.
 
-    SVGs, GIFs and small files pass through untouched. PNGs with transparency
-    stay PNG; everything else becomes an optimized JPEG. Never raises - on any
-    problem the original upload is returned unchanged.
+    SVGs, GIFs and small files pass through untouched (unless force=True,
+    which skips the byte-size shortcut so oversized-but-light images still
+    get downscaled). PNGs with transparency stay PNG; everything else becomes
+    an optimized JPEG. Never raises - on any problem the original upload is
+    returned unchanged.
     """
     try:
         from PIL import Image
@@ -24,7 +26,7 @@ def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY):
         ext = os.path.splitext(name)[1].lower()
         if ext in ('.svg', '.gif', '.webp'):
             return uploaded
-        if uploaded.size < OPTIMIZE_THRESHOLD_BYTES:
+        if not force and uploaded.size < OPTIMIZE_THRESHOLD_BYTES:
             return uploaded
 
         uploaded.seek(0)
@@ -47,7 +49,8 @@ def optimize_image(uploaded, max_side=MAX_SIDE, quality=JPEG_QUALITY):
             out_ext, ctype = '.jpg', 'image/jpeg'
 
         # Keep the original when optimization would not actually shrink it
-        if buf.getbuffer().nbytes >= uploaded.size:
+        # (unless we were forced to downscale oversized dimensions)
+        if not force and buf.getbuffer().nbytes >= uploaded.size:
             uploaded.seek(0)
             return uploaded
 

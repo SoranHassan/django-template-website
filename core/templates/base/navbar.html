@@ -85,6 +85,10 @@
                         </div>
                     </li>
 
+                    <li class="nav-item {% if request.GET.collection == 'wholesale' %}active{% endif %}">
+                        <a class="nav-link px-0" href="{% url 'catalog:shop_style_1' %}?collection=wholesale">محصولات عمده</a>
+                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link px-0" href="{% url 'blog:list' %}">بلاگ</a>
                     </li>
@@ -225,6 +229,7 @@
                     </ul>
                 </div>
             </li>
+            <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'catalog:shop_style_1' %}?collection=wholesale">محصولات عمده</a></li>
             <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'blog:list' %}">بلاگ</a></li>
         </ul>
     </div>

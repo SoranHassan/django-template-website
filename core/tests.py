@@ -216,3 +216,50 @@ class GlobalAlertTest(TestCase):
             html = response.content.decode()
             alert = html.split('os-global-alert', 1)[1].split('</div>', 1)[0]
             self.assertNotIn('close', alert)
+
+
+class SetHomeCategoryImagesCommandTest(TestCase):
+    """The management command wires media/banners images to the 4 home cards."""
+
+    def test_command_assigns_and_downscales(self):
+        import io, os, tempfile
+        from PIL import Image
+        from django.core.management import call_command
+        from django.test import override_settings
+        from core.models import HomeCategoryCard
+
+        with tempfile.TemporaryDirectory() as media_root:
+            os.makedirs(os.path.join(media_root, 'banners'))
+            for name, size in [('a.jpg', (2400, 1600)), ('b.jpg', (900, 900)),
+                               ('c.jpg', (800, 600)), ('d.jpg', (700, 700))]:
+                Image.new('RGB', size, (90, 120, 150)).save(
+                    os.path.join(media_root, 'banners', name))
+            with override_settings(MEDIA_ROOT=media_root):
+                out = io.StringIO()
+                call_command('set_home_category_images', stdout=out)
+                cards = HomeCategoryCard.objects.filter(is_active=True)
+                self.assertEqual(cards.count(), 4)
+                big_card = HomeCategoryCard.objects.get(title='تیشرت')
+                with Image.open(big_card.image.path) as im:
+                    self.assertLessEqual(max(im.size), 1200)
+
+    def test_dry_run_changes_nothing(self):
+        import io, os, tempfile
+        from PIL import Image
+        from django.core.management import call_command
+        from django.test import override_settings
+        from core.models import HomeCategoryCard
+
+        with tempfile.TemporaryDirectory() as media_root:
+            os.makedirs(os.path.join(media_root, 'banners'))
+            Image.new('RGB', (500, 500)).save(os.path.join(media_root, 'banners', 'x.jpg'))
+            with override_settings(MEDIA_ROOT=media_root):
+                call_command('set_home_category_images', '--dry-run', stdout=io.StringIO())
+        self.assertEqual(HomeCategoryCard.objects.count(), 0)
+
+
+class WholesaleNavbarTest(TestCase):
+    def test_navbar_has_wholesale_link(self):
+        response = self.client.get('/')
+        self.assertContains(response, 'محصولات عمده')
+        self.assertContains(response, 'collection=wholesale')
