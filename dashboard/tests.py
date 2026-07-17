@@ -115,3 +115,32 @@ class ReviewApproveTest(TestCase):
         response = self.client.get(reverse('dashboard:reviews_list'))
         self.assertContains(response, 'data-url=')
         self.assertContains(response, "method: 'POST'")
+
+
+class BlogFormSaveTest(TestCase):
+    """Blog save was broken: hidden required textarea blocked submit silently."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.staff = make_user(mobile='09127777776', is_staff=True)
+
+    def setUp(self):
+        self.client.force_login(self.staff)
+
+    def test_richtext_textarea_has_no_required_attribute(self):
+        response = self.client.get(reverse('dashboard:blog_create'))
+        html = response.content.decode()
+        body_field = html.split('id="id_body"', 1)[0].rsplit('<textarea', 1)[1]
+        self.assertNotIn('required', body_field)
+
+    def test_editor_sync_script_present(self):
+        response = self.client.get(reverse('dashboard:blog_create'))
+        self.assertContains(response, 'pair.el.value = pair.editor.getData()')
+
+    def test_blog_post_saves(self):
+        from blog.models import Post
+        response = self.client.post(reverse('dashboard:blog_create'), {
+            'title': 'نوشتهٔ تست', 'body': '<p>متن تست</p>', 'excerpt': ''})
+        post = Post.objects.get(title='نوشتهٔ تست')
+        self.assertIn('/edit/', response.url)
+        self.assertEqual(post.body, '<p>متن تست</p>')

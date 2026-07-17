@@ -38,7 +38,8 @@
                 <textarea name="{{ f.name }}" rows="4" {% if f.required %}required{% endif %} class="dash-input">{{ f.value|default_if_none:'' }}</textarea>
 
                 {% elif f.type == 'richtext' %}
-                <textarea name="{{ f.name }}" id="id_{{ f.name }}" rows="10" {% if f.required %}required{% endif %} class="dash-input dash-richtext">{{ f.value|default_if_none:'' }}</textarea>
+                {# no `required` attribute here: CKEditor hides the textarea and the browser would silently block submit #}
+                <textarea name="{{ f.name }}" id="id_{{ f.name }}" rows="10" class="dash-input dash-richtext">{{ f.value|default_if_none:'' }}</textarea>
 
                 {% elif f.type == 'select' %}
                 <select name="{{ f.name }}" class="dash-input">
@@ -285,13 +286,21 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof window.ClassicEditor === 'undefined') return;
+    var editors = [];
     document.querySelectorAll('textarea.dash-richtext').forEach(function (el) {
         window.ClassicEditor.create(el, {
             licenseKey: 'GPL',
             language: 'fa',
             toolbar: ['heading','|','bold','italic','link','bulletedList','numberedList','|',
                       'blockQuote','insertTable','|','undo','redo']
+        }).then(function (editor) {
+            editors.push({el: el, editor: editor});
         }).catch(function (e) { console.error('CKEditor:', e); });
+    });
+    // CKEditor does not sync back to the textarea by itself - do it on submit
+    var form = document.querySelector('form.dash-form');
+    if (form) form.addEventListener('submit', function () {
+        editors.forEach(function (pair) { pair.el.value = pair.editor.getData(); });
     });
 });
 </script>
