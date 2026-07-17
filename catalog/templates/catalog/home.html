@@ -50,19 +50,24 @@
             {% for card in home_cards %}
             <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 col-6">
                 <a href="{{ card.link }}" class="text-decoration-none">
-                    <div class="category-card home-cat-card text-center p-4 rounded-3">
-                        {% if card.image %}
-                        <div class="home-cat-img mx-auto mb-3">
-                            <img src="{{ card.image.url }}" alt="{{ card.title }}" loading="lazy">
+                    {% if card.image %}
+                    <!-- Image fills the whole card (no circle) with the title over a bottom gradient -->
+                    <div class="category-card home-cat-graphic rounded-3">
+                        <img src="{{ card.image.url }}" alt="{{ card.title }}" loading="lazy">
+                        <div class="home-cat-graphic-cap">
+                            <h5 class="ft-bold mb-0">{{ card.title }}</h5>
+                            {% if card.subtitle %}<span class="home-cat-sub">{{ card.subtitle }}</span>{% endif %}
                         </div>
-                        {% else %}
+                    </div>
+                    {% else %}
+                    <div class="category-card home-cat-card text-center p-4 rounded-3">
                         <div class="home-cat-icon mx-auto mb-3" style="color: {{ card.color }};">
                             <i class="{{ card.icon_class }}"></i>
                         </div>
-                        {% endif %}
                         <h5 class="ft-bold mb-1">{{ card.title }}</h5>
                         {% if card.subtitle %}<span class="home-cat-sub">{{ card.subtitle }}</span>{% endif %}
                     </div>
+                    {% endif %}
                 </a>
             </div>
 
