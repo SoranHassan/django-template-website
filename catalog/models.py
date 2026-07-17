@@ -77,6 +77,9 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=0, verbose_name='قیمت')
     original_price = models.DecimalField(max_digits=12, decimal_places=0, null=True, blank=True, verbose_name='قیمت قبل از تخفیف')
     is_active = models.BooleanField(default=True, verbose_name='فعال')
+    is_wholesale = models.BooleanField(
+        default=False, verbose_name='محصول عمده',
+        help_text='قیمت فقط برای مشتریان عمدهٔ تأییدشده نمایش داده می‌شود')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='تاریخ بروزرسانی')
     sku = models.CharField(max_length=50, blank=True, null=True, default=None, verbose_name='کد محصول (SKU)') # unique=True must be Add

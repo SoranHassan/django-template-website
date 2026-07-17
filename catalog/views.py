@@ -20,10 +20,11 @@ class SearchSuggestView(View):
             is_active=True,
         ).prefetch_related('images')[:6]
 
+        can_see_wholesale = request.user.is_authenticated and request.user.is_wholesale
         results = [{
             'name': p.name,
             'url': p.get_absolute_url(),
-            'price': f'{p.price:,.0f}',
+            'price': 'قیمت عمده' if (p.is_wholesale and not can_see_wholesale) else f'{p.price:,.0f}',
             'image': p.main_image.image.url if p.main_image else '',
         } for p in products]
 
@@ -42,7 +43,7 @@ def _build_home_data():
     from accounts.models import CustomUser
     from django.db.models import Avg
 
-    base_qs = Product.objects.filter(is_active=True).prefetch_related(
+    base_qs = Product.objects.filter(is_active=True, is_wholesale=False).prefetch_related(
         'images', 'variants__size', 'variants__color').annotate(avg_rating=rating_subquery())
 
     stats = {
@@ -67,6 +68,7 @@ def _build_home_data():
 
     return {
         'products': list(collection_queryset('bestseller')[:8]),
+        'wholesale_products': list(collection_queryset('wholesale')[:10]),
         'new_products': list(base_qs.order_by('-created_at')[:10]),
         'men_products': list(base_qs.filter(gender__in=['men', 'unisex']).order_by('-created_at')[:10]),
         'women_products': list(base_qs.filter(gender__in=['women', 'unisex']).order_by('-created_at')[:10]),
@@ -94,6 +96,14 @@ class ProductListView(View):
         from .templatetags.catalog_extras import rating_subquery
         products = Product.objects.filter(is_active=True).prefetch_related(
             'images', 'variants__size', 'variants__color').annotate(avg_rating=rating_subquery())
+
+        # Wholesale products live in their own collection; everything else hides them
+        collection = request.GET.get('collection', '')
+        if collection == 'wholesale':
+            products = products.filter(is_wholesale=True)
+        else:
+            products = products.filter(is_wholesale=False)
+
         category_slug = request.GET.get('category')
         if category_slug:
             products = products.filter(category__slug=category_slug)
@@ -131,7 +141,6 @@ class ProductListView(View):
 
         # Collections: newest / discounted / bestseller
         from django.db.models import F, Sum
-        collection = request.GET.get('collection', '')
         if collection == 'discount':
             products = products.filter(original_price__isnull=False, original_price__gt=F('price'))
         elif collection == 'bestseller':
@@ -172,7 +181,7 @@ class ProductListView(View):
             'current_gender': gender,
             'current_sort': sort,
             'current_collection': collection,
-            'collections': [('', 'همه'), ('new', 'جدیدترین'), ('discount', 'تخفیف‌دار'), ('bestseller', 'پرفروش')],
+            'collections': [('', 'همه'), ('new', 'جدیدترین'), ('discount', 'تخفیف‌دار'), ('bestseller', 'پرفروش'), ('wholesale', 'عمده')],
         })
 
 

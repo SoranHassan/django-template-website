@@ -309,6 +309,30 @@
 </section>
 {% endif %}
 
+<!-- Wholesale products - visible to everyone, prices only for approved accounts -->
+{% if wholesale_products %}
+<section class="middle home-band home-band-wholesale">
+    <div class="container">
+        <div class="row justify-content-center mb-2">
+            <div class="col-xl-12 d-flex align-items-center gap-3 sec-accent">
+                <h3 class="ft-bold mb-0">محصولات عمده</h3>
+                <a href="{% url 'catalog:shop_style_1' %}?collection=wholesale" class="small view-all-link">مشاهده همه ←</a>
+                {% if not user.is_wholesale %}
+                <span class="os-wholesale-hint"><i class="lni lni-lock-alt"></i> قیمت‌ها مخصوص مشتریان عمدهٔ تأییدشده</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="home-band-inner">
+        <div class="products-row-slider" dir="rtl">
+            {% for product in wholesale_products %}
+            <div class="px-2">{% include 'catalog/_product_card.html' %}</div>
+            {% endfor %}
+        </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
 {% product_row 'discount' 'تخفیف‌دارها' 10 %}
 
 <!-- Store features - right above customer reviews -->

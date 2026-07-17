@@ -25,6 +25,7 @@ class SignupForm(forms.Form):
     last_name = forms.CharField(max_length=50, required=False)
     password = forms.CharField()
     confirm_password = forms.CharField()
+    is_wholesale_request = forms.BooleanField(required=False)  # 'I am a wholesale customer'
 
     def clean_mobile(self):
         mobile = self.cleaned_data['mobile']

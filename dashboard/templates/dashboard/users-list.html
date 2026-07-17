@@ -141,9 +141,26 @@
                             {% else %}
                             <span class="status cancelled">غیرفعال</span>
                             {% endif %}
+                            {% if user.is_wholesale %}
+                            <span class="status" style="background: rgba(0,184,204,0.15); color: #00919f; border: 0.5px solid #00B8CC;">عمده ✓</span>
+                            {% elif user.wholesale_requested %}
+                            <span class="status pending" title="کاربر هنگام ثبت‌نام درخواست حساب عمده داده">درخواست عمده</span>
+                            {% endif %}
                         </td>
                         <td>
                             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                {% if user != request.user %}
+                                <!-- Wholesale approve/revoke: any staff admin -->
+                                <form method="POST" action="{% url 'dashboard:user_toggle' user.pk %}" style="display:inline;"
+                                      {% if not user.is_wholesale %}data-confirm="حساب عمدهٔ این کاربر تأیید شود؟ او قیمت محصولات عمده را خواهد دید."{% endif %}>
+                                    {% csrf_token %}<input type="hidden" name="field" value="is_wholesale">
+                                    <button type="submit" class="btn-secondary"
+                                            style="padding:6px 10px; font-size:11px; {% if user.wholesale_requested and not user.is_wholesale %}background: rgba(255,149,0,0.15); color:#b36b00;{% endif %}"
+                                            title="{% if user.is_wholesale %}لغو حساب عمده{% else %}تأیید حساب عمده{% endif %}">
+                                        <i class="fas {% if user.is_wholesale %}fa-box-open{% else %}fa-boxes{% endif %}"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
                                 {% if request.user.is_superuser and user != request.user %}
                                 <form method="POST" action="{% url 'dashboard:user_toggle' user.pk %}" style="display:inline;">
                                     {% csrf_token %}<input type="hidden" name="field" value="is_active">

@@ -116,3 +116,14 @@ class ApiRateLimitTest(TestCase):
                      for _ in range(5)]
         self.assertEqual(codes[:3], [200, 200, 200])
         self.assertIn(429, codes[3:])
+
+
+@override_settings(BOT_API_KEY=API_KEY)
+class ApiWholesaleMaskTest(TestCase):
+    def test_wholesale_price_is_null_in_api(self):
+        p = make_product('Bulk Jacket', 900000)
+        p.is_wholesale = True
+        p.save()
+        resp = self.client.get(f'/api/v1/products/{p.pk}/', HTTP_X_API_KEY=API_KEY).json()
+        self.assertTrue(resp['is_wholesale'])
+        self.assertIsNone(resp['price'])

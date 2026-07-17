@@ -37,6 +37,11 @@
                         <div class="dash_caption">
                             <h4 class="fs-md ft-medium mb-0 lh-1">{{ request.user.get_full_name }}</h4>
                             <span class="text-muted smalls">{{ request.user.mobile }}</span>
+                            {% if request.user.is_wholesale %}
+                            <div class="mt-2"><span class="badge rounded-pill" style="background:#00B8CC; color:#fff; font-size:11px; padding:5px 12px;">مشتری عمدهٔ تأییدشده ✓</span></div>
+                            {% elif request.user.wholesale_requested %}
+                            <div class="mt-2"><span class="badge rounded-pill" style="background:#fff6e5; color:#8a5a00; border:1px solid #f5e0b0; font-size:11px; padding:5px 12px;">حساب عمده: در انتظار تأیید مدیر</span></div>
+                            {% endif %}
                         </div>
                     </div>
                     {% include 'accounts/_account_sidebar.html' with active_tab='profile' %}

@@ -51,6 +51,14 @@ class CartAddView(View):
             return JsonResponse({'status': 'error', 'message': 'تعداد نامعتبر است'}, status=400)
         variant = get_object_or_404(ProductVariant, pk=variant_id)
 
+        # Wholesale products: only approved wholesale customers may buy
+        if variant.product.is_wholesale and not (
+                request.user.is_authenticated and request.user.is_wholesale):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'خرید محصولات عمده فقط برای مشتریان عمدهٔ تأییدشده امکان‌پذیر است'
+            }, status=403)
+
         if not variant.is_available:
             return JsonResponse({
                 'status': 'error',

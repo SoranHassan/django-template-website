@@ -1,10 +1,15 @@
 {% load static humanize %}
+{% if product.is_wholesale and not user.is_wholesale %}{% firstof '' as card_price %}{% else %}{% firstof product.price '' as card_price %}{% endif %}
 <div class="product_grid card b-0 mb-4 os-product-card" data-product="{{ product.pk }}"
-     data-name="{{ product.name }}" data-price="{{ product.price }}"
+     data-name="{{ product.name }}" data-price="{{ card_price }}"
      data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
      data-slug="{{ product.slug }}">
 
-    {% if product.discount_percent %}
+    {% if product.is_wholesale %}
+    <div class="position-absolute ab-left os-badge-wrap">
+        <span class="badge os-wholesale-badge"><i class="lni lni-package"></i> عمده</span>
+    </div>
+    {% elif product.discount_percent %}
     <div class="position-absolute ab-left os-badge-wrap">
         <span class="badge os-discount-badge">{{ product.discount_percent }}٪ تخفیف</span>
     </div>
@@ -13,7 +18,7 @@
     <button class="btn btn_love position-absolute ab-right theme-cl wishlist-btn{% if product.pk|stringformat:'s' in wishlist_ids %} in-wishlist{% endif %}"
             data-id="{{ product.pk }}"
             data-title="{{ product.name }}"
-            data-price="{{ product.price }}"
+            data-price="{{ card_price }}"
             data-image="{% if product.main_image %}{{ product.main_image.image.url }}{% endif %}"
             data-slug="{{ product.slug }}">
         <i class="lni {% if product.pk|stringformat:'s' in wishlist_ids %}lni-heart-filled{% else %}lni-heart{% endif %}"></i>
@@ -48,6 +53,17 @@
             {% if product.brand %}
             <span class="os-card-brand">{{ product.brand.name }}</span>
             {% endif %}
+            {% if product.is_wholesale and not user.is_wholesale %}
+            <!-- Wholesale product: price hidden until the account is approved -->
+            <div class="os-wholesale-lock">
+                <i class="lni lni-lock-alt"></i>
+                <span>قیمت ویژهٔ مشتریان عمده</span>
+            </div>
+            <a href="{% url 'catalog:product_detail' product.pk %}" class="os-card-addbtn os-card-detailsbtn">
+                <i class="lni lni-eye"></i> مشاهدهٔ شرایط و جزئیات
+            </a>
+        </div>
+            {% else %}
             <div class="os-card-prices">
                 <span class="os-final-price">{{ product.price|intcomma }} تومان</span>
                 {% if product.original_price %}
@@ -106,6 +122,7 @@
             </div>
             {% endwith %}
         </div>
+        {% endif %}
     </div>
 
 </div>

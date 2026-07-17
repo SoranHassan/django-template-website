@@ -77,6 +77,7 @@ class SignupView(View):
             'first_name': form.cleaned_data.get('first_name', ''),
             'last_name': form.cleaned_data.get('last_name', ''),
             'password_hash': make_password(form.cleaned_data['password']),
+            'wholesale_requested': form.cleaned_data.get('is_wholesale_request', False),
         }
 
         return redirect('accounts:verify_otp')
@@ -178,7 +179,8 @@ class VerifyOTPView(View):
             user = CustomUser(
                 mobile=mobile,
                 first_name=signup_data.get('first_name', ''),
-                last_name=signup_data.get('last_name', ''))
+                last_name=signup_data.get('last_name', ''),
+                wholesale_requested=signup_data.get('wholesale_requested', False))
             user.password = signup_data['password_hash']  # already hashed
             user.save()
 

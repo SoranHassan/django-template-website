@@ -6503,6 +6503,40 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .qa-msg.ok { color: #16a34a; }
 .qa-msg.err { color: #e63946; }
 
+/* ============ Wholesale products (hidden prices for regular users) ============ */
+.os-wholesale-badge {
+  background: #10353c !important; color: var(--os-cyan) !important;
+  font-size: 11px; padding: 5px 9px; border-radius: 8px; font-weight: 700;
+}
+.os-wholesale-badge .lni { margin-inline-end: 4px; font-size: 11px; }
+.os-wholesale-lock {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 10px; min-height: 24px;
+  color: #6d8288; font-size: 12px; font-weight: 600;
+}
+.os-wholesale-lock .lni { color: var(--os-cyan-dark); font-size: 15px; margin-inline-end: 0; }
+.os-wholesale-lock-lg { font-size: 14px; padding: 10px 0; }
+.os-card-detailsbtn { text-decoration: none !important; }
+.os-wholesale-hint {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11.5px; color: #6d8288; background: #eef6f8;
+  border: 1px solid #d8eaee; border-radius: 999px; padding: 4px 12px;
+}
+.os-wholesale-hint .lni { margin-inline-end: 0; color: var(--os-cyan-dark); }
+.home-band-wholesale .home-band-inner { background: linear-gradient(150deg,#eef6f8 0%,#e2eef1 100%); }
+.os-wholesale-cta {
+  display: flex; gap: 12px; align-items: flex-start;
+  background: #eef6f8; border: 1px solid #d8eaee; border-radius: 14px; padding: 16px 18px;
+}
+.os-wholesale-cta > .lni { font-size: 26px; color: var(--os-cyan-dark); margin-top: 2px; }
+.os-wholesale-cta p { color: #55707a; line-height: 2; }
+.os-wholesale-check {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; cursor: pointer;
+  border: 1px dashed #cfe3e8; border-radius: 12px; padding: 12px 14px; background: #f7fbfc;
+}
+.os-wholesale-check input { width: 17px; height: 17px; accent-color: var(--os-cyan-dark); }
+.os-wholesale-check span { font-weight: 700; font-size: 13.5px; }
+.os-wholesale-check small { flex-basis: 100%; color: #8aa0a8; font-size: 11.5px; line-height: 1.9; }
+
 /* ============ Site-wide non-dismissible alert (panel-editable) ============ */
 .os-global-alert {
   display: flex; align-items: center; justify-content: center; gap: 10px;

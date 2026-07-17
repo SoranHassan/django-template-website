@@ -60,12 +60,15 @@ def _abs(request, url):
 
 
 def _product_summary(request, p):
+    # Wholesale prices never leak through the public bot API
+    masked = p.is_wholesale
     return {
         'id': p.pk,
         'name': p.name,
         'slug': p.slug,
-        'price': int(p.price),
-        'original_price': int(p.original_price) if p.original_price else None,
+        'is_wholesale': p.is_wholesale,
+        'price': None if masked else int(p.price),
+        'original_price': None if masked or not p.original_price else int(p.original_price),
         'discount_percent': p.discount_percent or 0,
         'brand': p.brand.name if p.brand else None,
         'category': p.category.name if p.category else None,
@@ -142,7 +145,7 @@ def product_detail(request, pk):
             'color': v.color.name if v.color else None,
             'color_hex': v.color.hex_code if v.color else None,
             'stock': v.stock,
-            'price': int(v.final_price),
+            'price': None if p.is_wholesale else int(v.final_price),
         } for v in p.variants.all()],
     })
     return JsonResponse(data)

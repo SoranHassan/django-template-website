@@ -13,6 +13,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     bio = models.TextField(blank=True, verbose_name='درباره من')
     is_active = models.BooleanField(default=True, verbose_name='فعال')
     is_staff = models.BooleanField(default=False, verbose_name='کارمند')
+    # Wholesale customer flow: user requests at signup, admin approves
+    wholesale_requested = models.BooleanField(default=False, verbose_name='درخواست حساب عمده')
+    is_wholesale = models.BooleanField(
+        default=False, verbose_name='مشتری عمده (تأییدشده)',
+        help_text='فقط مشتریان تأییدشده قیمت محصولات عمده را می‌بینند')
     date_joined = models.DateTimeField(default=timezone.now,verbose_name='تاریخ عضویت')
 
     objects = CustomUserManager()

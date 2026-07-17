@@ -30,19 +30,23 @@ class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return self.request.user.is_superuser
 
 
-class DashboardUserToggleView(SuperuserRequiredMixin, View):
-    """Toggle a user active/staff - superuser only."""
+class DashboardUserToggleView(StaffRequiredMixin, View):
+    """Toggle user flags. Wholesale approval: any staff admin;
+    active/staff toggles: superuser only."""
 
     def post(self, request, pk):
         user = get_object_or_404(CustomUser, pk=pk)
         field = request.POST.get('field')
-        # A superuser must not lock themselves out
+        # Nobody may toggle their own account
         if user == request.user:
             return redirect('dashboard:users_list')
-        if field == 'is_active':
+        if field == 'is_wholesale':
+            user.is_wholesale = not user.is_wholesale
+            user.save(update_fields=['is_wholesale'])
+        elif field == 'is_active' and request.user.is_superuser:
             user.is_active = not user.is_active
             user.save(update_fields=['is_active'])
-        elif field == 'is_staff':
+        elif field == 'is_staff' and request.user.is_superuser:
             user.is_staff = not user.is_staff
             user.save(update_fields=['is_staff'])
         return redirect('dashboard:users_list')
@@ -93,7 +97,10 @@ class DashboardUsersListView(StaffRequiredMixin, View):
         _mark_seen(request, 'seen_users_at')
         users = CustomUser.objects.all().order_by('-date_joined')
         staff_count = users.filter(is_staff=True).count()
-        return render(request, 'dashboard/users-list.html', {'users': users, 'staff_count': staff_count, 'active_nav': 'users'})
+        wholesale_pending = users.filter(wholesale_requested=True, is_wholesale=False).count()
+        return render(request, 'dashboard/users-list.html', {
+            'users': users, 'staff_count': staff_count,
+            'wholesale_pending': wholesale_pending, 'active_nav': 'users'})
 
 class DashboardProductsListView(StaffRequiredMixin, View):
     def get(self, request):
@@ -179,6 +186,7 @@ class DashboardProductCreateView(StaffRequiredMixin, View):
                 gender=request.POST.get('gender', 'unisex'),
                 category_type=request.POST.get('category_type', ''),
                 is_active='is_active' in request.POST,
+                is_wholesale='is_wholesale' in request.POST,
                 category_id=request.POST.get('category') or None,
                 brand_id=request.POST.get('brand') or None)
 
@@ -485,6 +493,7 @@ class DashboardProductEditView(StaffRequiredMixin, View):
             product.gender = request.POST.get('gender', 'unisex')
             product.category_type = request.POST.get('category_type', '')
             product.is_active = 'is_active' in request.POST
+            product.is_wholesale = 'is_wholesale' in request.POST
             product.category_id = request.POST.get('category') or None
             product.brand_id = request.POST.get('brand') or None
             product.save()

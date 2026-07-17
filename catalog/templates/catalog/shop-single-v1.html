@@ -2,7 +2,7 @@
 {% load static humanize %}
 
 {% block title %}خرید {{ product.name }} | OramShop{% endblock %}
-{% block meta_description %}خرید اینترنتی {{ product.name }}{% if product.brand %} از برند {{ product.brand.name }}{% endif %} با قیمت {{ product.price|floatformat:0|intcomma }} تومان — {{ product.description|striptags|truncatechars:120 }}{% endblock %}
+{% block meta_description %}خرید اینترنتی {{ product.name }}{% if product.brand %} از برند {{ product.brand.name }}{% endif %}{% if not product.is_wholesale %} با قیمت {{ product.price|floatformat:0|intcomma }} تومان{% endif %} — {{ product.description|striptags|truncatechars:120 }}{% endblock %}
 {% block og_type %}product{% endblock %}
 {% block og_title %}{{ product.name }} | OramShop{% endblock %}
 {% block og_description %}{{ product.description|striptags|truncatechars:200|default:product.name }}{% endblock %}
@@ -23,7 +23,7 @@
     "@type": "Offer",
     "url": "{{ request.scheme }}://{{ request.get_host }}{{ request.path }}",
     "priceCurrency": "IRT",
-    "price": "{{ product.price|floatformat:0 }}",
+    {% if not product.is_wholesale %}"price": "{{ product.price|floatformat:0 }}",{% endif %}
     "availability": "https://schema.org/InStock"
   }
 }
@@ -126,7 +126,13 @@
                                 {% endfor %}
                                 <span class="small">({{ reviews.count }} نظر)</span>
                             </div>
-                            <!-- Price -->
+                            <!-- Price (hidden on wholesale products until the account is approved) -->
+                            {% if product.is_wholesale and not user.is_wholesale %}
+                            <div class="os-wholesale-lock os-wholesale-lock-lg">
+                                <i class="lni lni-lock-alt"></i>
+                                <span>قیمت ویژهٔ مشتریان عمده — پس از تأیید حساب عمدهٔ شما نمایش داده می‌شود</span>
+                            </div>
+                            {% else %}
                             <div class="elis_rty">
                                 {% if product.original_price %}
                                 <span class="ft-medium text-muted line-through fs-md me-2">
@@ -137,6 +143,7 @@
                                     {{ product.price|intcomma }} تومان
                                 </span>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -173,6 +180,26 @@
 
                     <!-- Variant selection and add to cart -->
                     <div class="prt_05 mb-4">
+                        {% if product.is_wholesale and not user.is_wholesale %}
+                        <div class="os-wholesale-cta">
+                            <i class="lni lni-package"></i>
+                            <div>
+                                <strong>این محصول مخصوص فروش عمده است.</strong>
+                                <p class="mb-0 small">
+                                    شرایط و جزئیات را در توضیحات همین صفحه ببینید.
+                                    {% if user.is_authenticated %}
+                                        {% if user.wholesale_requested %}
+                                        درخواست حساب عمدهٔ شما ثبت شده و در انتظار تأیید مدیر است.
+                                        {% else %}
+                                        برای خرید، از پشتیبانی درخواست فعال‌سازی حساب عمده بدهید.
+                                        {% endif %}
+                                    {% else %}
+                                        برای خرید، هنگام <a href="{% url 'accounts:signup' %}">ثبت‌نام</a> گزینهٔ «مشتری عمده هستم» را بزنید.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% else %}
                         <form method="POST" action="{% url 'cart:add' %}" id="addToCartForm">
                             {% csrf_token %}
                             <input type="hidden" name="variant_id" id="selected_variant_id" value="">
@@ -259,6 +286,7 @@
 
                         <!-- Success/error message -->
                         <div id="cart-message" class="mt-2 d-none"></div>
+                        {% endif %}
                     </div>
 
                     <!-- Share -->
@@ -579,6 +607,7 @@
         const stockCount = document.getElementById('stock-count');
         const variantInput = document.getElementById('selected_variant_id');
         const addBtn = document.getElementById('add-to-cart-btn');
+        if (!variantInput || !addBtn) return; // buy area hidden (wholesale masking)
 
         if (variant) {
             variantInput.value = variant.id;
@@ -599,7 +628,8 @@
     }
 
     // Submit the form via AJAX
-    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+    var _atcForm = document.getElementById('addToCartForm');
+    if (_atcForm) _atcForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
         const variantId = document.getElementById('selected_variant_id').value;

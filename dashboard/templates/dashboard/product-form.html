@@ -307,6 +307,23 @@
                             </label>
                         </div>
 
+                        <!-- Wholesale product toggle -->
+                        <div style="display: flex; align-items: center; justify-content: space-between;
+                                        padding: 12px; background: #eef6f8;
+                                        border-radius: 12px; margin-bottom: 12px;">
+                            <div>
+                                <div style="font-weight: 600; font-size: 14px;">محصول عمده</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">
+                                    قیمت فقط برای مشتریان عمدهٔ تأییدشده
+                                </div>
+                            </div>
+                            <label class="os-toggle">
+                                <input type="checkbox" name="is_wholesale"
+                                       {% if product.is_wholesale %}checked{% endif %}>
+                                <span class="os-toggle-slider"></span>
+                            </label>
+                        </div>
+
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <button type="submit" name="action" value="save"
                                     style="width: 100%; padding: 12px; background: #007AFF;

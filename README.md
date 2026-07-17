@@ -22,6 +22,10 @@ All storefront content is Persian (RTL); the codebase, comments and docs are Eng
 - 🔎 SEO: sitemap.xml, robots.txt, OG meta tags, Schema.org product markup
 - 💬 Goftino live-chat widget (enabled via the `GOFTINO_ID` env variable)
 - 🌐 Every asset is self-hosted (fonts, icons, Chart.js, Cropper.js) for national-internet compatibility
+- 📦 **Wholesale section**: users request a wholesale account at signup, an admin
+  approves it from the panel; wholesale products show their conditions to everyone
+  but prices (and purchasing) only to approved accounts - masked everywhere
+  including cards, detail pages, search suggestions, SEO meta tags and the bot API
 
 ### Management dashboard (no Django admin needed)
 - Products with variants (size/color/stock/price), size charts (cm), image galleries
