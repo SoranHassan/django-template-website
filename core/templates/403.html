@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% load catalog_extras %}
+
+{% block title %}دسترسی غیرمجاز | OramShop{% endblock %}
+{% block meta_robots %}noindex, follow{% endblock %}
+
+{% block hero_content %}
+
+{% include 'base/navbar.html' %}
+<div class="gray py-3">
+    <div class="container">
+        <div class="row">
+            <div class="colxl-12 col-lg-12 col-md-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">دسترسی غیرمجاز</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="middle">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8 col-xl-6 text-center">
+                <div class="os-404-code mb-2">۴۰۳</div>
+                <h2 class="mb-2 ft-bold">دسترسی به این صفحه مجاز نیست</h2>
+                <p class="ft-regular fs-md text-muted mb-4">
+                    شما اجازه دیدن این بخش را ندارید.
+                    اگر فکر می‌کنید اشتباهی رخ داده، با پشتیبانی تماس بگیرید یا با حساب دیگری وارد شوید.
+                </p>
+                <div class="d-flex justify-content-center gap-2 mb-5">
+                    <a class="btn btn-os px-4" href="{% url 'catalog:index' %}">
+                        <i class="lni lni-home me-1"></i>صفحه اصلی
+                    </a>
+                    <a class="btn btn-outline-dark px-4" href="{% url 'accounts:login' %}">
+                        <i class="lni lni-user me-1"></i>ورود به حساب
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% product_row 'bestseller' 'محصولات محبوب' 8 %}
+
+<section class="px-0 py-3 br-top">
+    <div class="container">
+        {% include 'base/_features.html' %}
+    </div>
+</section>
+
+{% include 'catalog/_quickview.html' %}
+{% include 'catalog/_search_drawer.html' %}
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+
+{% endblock %}

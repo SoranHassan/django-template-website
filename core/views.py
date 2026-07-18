@@ -9,6 +9,16 @@ def error_404(request, exception=None):
     return render(request, '404.html', status=404)
 
 
+def error_403(request, exception=None):
+    return render(request, '403.html', status=403)
+
+
+def error_500(request):
+    # 500.html is fully standalone (no DB/context processors) because the
+    # database or cache may be the very thing that just failed
+    return render(request, '500.html', status=500)
+
+
 def _normalize_mobile(value):
     """Convert Persian/Arabic digits to English and normalise Iranian mobile numbers."""
     trans = str.maketrans('۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', '01234567890123456789')

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!-- Served directly by nginx when the app (gunicorn) is down or restarting:
+     error_page 502 503 504. Static assets still work because nginx serves
+     /static/ itself, without touching the app. -->
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>سایت در دسترس نیست | OramShop</title>
+    <link rel="icon" href="/static/app/img/favicon.svg" type="image/svg+xml">
+    <style>
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/static/app/css/fonts/Vazirmatn-Regular.woff2') format('woff2');
+            font-weight: 400; font-display: swap;
+        }
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/static/app/css/fonts/Vazirmatn-Bold.woff2') format('woff2');
+            font-weight: 700; font-display: swap;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Vazirmatn', Tahoma, sans-serif; background: #fff; color: #1A1A1A;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 24px;
+        }
+        .code {
+            font-size: 90px; font-weight: 700; line-height: 1.2;
+            background: linear-gradient(135deg, #1A1A1A 30%, #00B8CC);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        h1 { font-size: 26px; margin: 8px 0 12px; }
+        p  { color: #666; line-height: 2; margin-bottom: 28px; }
+        a.btn {
+            display: inline-block; padding: 12px 34px; border-radius: 6px;
+            background: #00B8CC; color: #fff; text-decoration: none; font-weight: 700;
+        }
+        a.btn:hover { background: #009cad; }
+        .logo { font-size: 22px; font-weight: 700; letter-spacing: 1px; margin-bottom: 28px; }
+        .logo b { color: #00B8CC; }
+    </style>
+</head>
+<body>
+<div>
+    <div class="logo">ORAM<b>SHOP</b></div>
+    <div class="code">در حال به‌روزرسانی</div>
+    <h1>سایت موقتاً در دسترس نیست</h1>
+    <p>در حال انجام تغییرات هستیم و تا چند لحظه دیگر برمی‌گردیم.<br>لطفاً کمی بعد دوباره سر بزنید.</p>
+    <a class="btn" href="/">تلاش دوباره</a>
+</div>
+</body>
+</html>

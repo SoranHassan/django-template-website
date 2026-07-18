@@ -26,5 +26,7 @@ urlpatterns = [
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# Custom 404 handler
+# Custom error pages (403/404 branded like the site, 500 standalone)
+handler403 = 'core.views.error_403'
 handler404 = 'core.views.error_404'
+handler500 = 'core.views.error_500'
