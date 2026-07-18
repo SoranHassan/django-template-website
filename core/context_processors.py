@@ -13,7 +13,8 @@ def site_settings_context(request):
     from django.conf import settings as dj_settings
     from .models import SiteSetting
     from .utils import runtime_config
-    ctx = {'goftino_id': runtime_config('goftino_id_override', 'GOFTINO_ID')}
+    ctx = {'goftino_id': runtime_config('goftino_id_override', 'GOFTINO_ID'),
+           'asset_version': getattr(dj_settings, 'ASSET_VERSION', '1')}
     try:
         ctx['site_settings'] = SiteSetting.get()
     except Exception:

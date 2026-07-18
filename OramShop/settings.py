@@ -15,6 +15,10 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 # Setting DEV_MODE=True in .env is enough - sqlite database and in-memory cache.
 DEV_MODE = config('DEV_MODE', default=False, cast=bool)
 
+# Bumped on each release: appended to the stylesheet URL so browsers never
+# serve a stale cached styles.css after an update
+ASSET_VERSION = '26'
+
 # Goftino live-chat widget id (loaded in the base template when set)
 GOFTINO_ID = config('GOFTINO_ID', default='')
 
