@@ -273,6 +273,13 @@ class MyOrdersView(LoginRequiredMixin, View):
 
 # Wishlist
 class WishlistView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        from django.http import Http404
+        from core.utils import feature_enabled
+        if not feature_enabled('feature_wishlist'):
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self, request):
         wishlist = request.session.get('wishlist', [])
         return render(request, 'accounts/wishlist.html', {'wishlist': wishlist})

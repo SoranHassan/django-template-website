@@ -98,7 +98,12 @@ class ProductListView(View):
             'images', 'variants__size', 'variants__color').annotate(avg_rating=rating_subquery())
 
         # Wholesale products live in their own collection; everything else hides them
+        from core.utils import feature_enabled
+        wholesale_on = feature_enabled('feature_wholesale')
         collection = request.GET.get('collection', '')
+        if collection == 'wholesale' and not wholesale_on:
+            from django.http import Http404
+            raise Http404
         if collection == 'wholesale':
             products = products.filter(is_wholesale=True)
         else:
@@ -181,7 +186,7 @@ class ProductListView(View):
             'current_gender': gender,
             'current_sort': sort,
             'current_collection': collection,
-            'collections': [('', 'همه'), ('new', 'جدیدترین'), ('discount', 'تخفیف‌دار'), ('bestseller', 'پرفروش'), ('wholesale', 'عمده')],
+            'collections': [('', 'همه'), ('new', 'جدیدترین'), ('discount', 'تخفیف‌دار'), ('bestseller', 'پرفروش')] + ([('wholesale', 'عمده')] if wholesale_on else []),
         })
 
 

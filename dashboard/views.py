@@ -1191,6 +1191,12 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
         from core.models import SiteSetting
         s = SiteSetting.get()
         fields = [
+            # Feature flags: modules toggle off with a checkbox instead of code removal
+            {'name': 'feature_blog', 'label': 'بلاگ فعال باشد', 'type': 'checkbox', 'value': s.feature_blog},
+            {'name': 'feature_wholesale', 'label': 'بخش عمده‌فروشی فعال باشد', 'type': 'checkbox', 'value': s.feature_wholesale},
+            {'name': 'feature_wishlist', 'label': 'علاقه‌مندی‌ها فعال باشد', 'type': 'checkbox', 'value': s.feature_wishlist},
+            {'name': 'feature_reviews', 'label': 'نظرات محصول فعال باشد', 'type': 'checkbox', 'value': s.feature_reviews},
+            {'name': 'feature_newsletter', 'label': 'خبرنامه فعال باشد', 'type': 'checkbox', 'value': s.feature_newsletter},
             {'name': 'topbar_style', 'label': 'رنگ نوار اطلاعیه بالای سایت', 'type': 'select',
              'options': SiteSetting.TOPBAR_CHOICES, 'value': s.topbar_style},
             # Site-wide non-dismissible alert
@@ -1261,6 +1267,10 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
     def post(self, request):
         from core.models import SiteSetting
         s = SiteSetting.get()
+        # Feature flags (unchecked checkboxes are absent from POST)
+        for flag in ('feature_blog', 'feature_wholesale', 'feature_wishlist',
+                     'feature_reviews', 'feature_newsletter'):
+            setattr(s, flag, request.POST.get(flag) == 'on')
         topbar = request.POST.get('topbar_style', 'black')
         if topbar in dict(SiteSetting.TOPBAR_CHOICES):
             s.topbar_style = topbar

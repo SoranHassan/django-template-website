@@ -25,7 +25,7 @@
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'catalog:shop_style_1' %}?gender=women">پوشاک زنانه</a></li>
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'catalog:shop_style_1' %}?gender=kids">پوشاک بچگانه</a></li>
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'catalog:shop_style_1' %}?sort=newest">جدیدترین‌ها</a></li>
-                    <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'blog:list' %}">بلاگ</a></li>
+                    {% if site_settings.feature_blog %}<li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'blog:list' %}">بلاگ</a></li>{% endif %}
                 </ul>
             </div>
 
@@ -35,7 +35,7 @@
                 <ul class="list-unstyled small">
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'accounts:profile_info' %}">پروفایل من</a></li>
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'accounts:my_orders' %}">پیگیری سفارش</a></li>
-                    <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'accounts:wishlist' %}">علاقه‌مندی‌ها</a></li>
+                    {% if site_settings.feature_wishlist %}<li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'accounts:wishlist' %}">علاقه‌مندی‌ها</a></li>{% endif %}
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'cart:cart' %}">سبد خرید</a></li>
                 </ul>
             </div>
@@ -50,6 +50,7 @@
                     {% if site_settings.footer_address %}<li class="mb-2"><i class="lni lni-map-marker me-2" style="color:#00E6FF;"></i>{{ site_settings.footer_address }}</li>{% endif %}
                 </ul>
                 <!-- Newsletter signup - compact -->
+                {% if site_settings.feature_newsletter %}
                 <div class="footer-newsletter mt-3">
                     <h6 class="text-white ft-medium mb-2" style="font-size:13px;">
                         <i class="lni lni-envelope" style="color:#00E6FF;"></i> عضویت در خبرنامه
@@ -61,6 +62,7 @@
                     </form>
                     <div id="footerNewsletterMsg" style="display:none; font-size:11.5px; margin-top:6px;"></div>
                 </div>
+                {% endif %}
 
                 <!-- Trust badges: image + link editable from the panel (site settings) -->
                 <div class="d-flex gap-2 mt-3">

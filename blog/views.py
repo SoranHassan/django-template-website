@@ -1,6 +1,9 @@
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.views import View
+
+from core.utils import feature_enabled
 
 from catalog.models import Brand, Product
 from .models import Post
@@ -30,6 +33,8 @@ def _related_products(post, limit=8):
 
 class PostListView(View):
     def get(self, request):
+        if not feature_enabled('feature_blog'):
+            raise Http404
         posts = Post.objects.filter(is_published=True)
         page = Paginator(posts, 9).get_page(request.GET.get('page'))
         return render(request, 'blog/list.html', {'page': page})
@@ -37,6 +42,8 @@ class PostListView(View):
 
 class PostDetailView(View):
     def get(self, request, slug):
+        if not feature_enabled('feature_blog'):
+            raise Http404
         post = get_object_or_404(Post, slug=slug, is_published=True)
         others = Post.objects.filter(is_published=True).exclude(pk=post.pk)[:4]
         related, related_title = _related_products(post)

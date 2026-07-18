@@ -15,6 +15,7 @@
     </div>
     {% endif %}
 
+    {% if site_settings.feature_wishlist %}
     <button class="btn btn_love position-absolute ab-right theme-cl wishlist-btn{% if product.pk|stringformat:'s' in wishlist_ids %} in-wishlist{% endif %}"
             data-id="{{ product.pk }}"
             data-title="{{ product.name }}"
@@ -23,6 +24,7 @@
             data-slug="{{ product.slug }}">
         <i class="lni {% if product.pk|stringformat:'s' in wishlist_ids %}lni-heart-filled{% else %}lni-heart{% endif %}"></i>
     </button>
+    {% endif %}
 
     <div class="card-body p-0">
         <div class="shop_thumb position-relative os-thumb">

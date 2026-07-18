@@ -7,6 +7,13 @@ from .models import Review
 
 
 class ReviewCreateView(LoginRequiredMixin, View):
+    def dispatch(self, request, *args, **kwargs):
+        from django.http import Http404
+        from core.utils import feature_enabled
+        if not feature_enabled('feature_reviews'):
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
     def _respond(self, request, product, payload, status=200):
         """JSON for AJAX; redirect back to the product page otherwise
         (so a plain POST never shows raw JSON in the browser)."""

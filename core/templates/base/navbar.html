@@ -85,13 +85,17 @@
                         </div>
                     </li>
 
+                    {% if site_settings.feature_wholesale %}
                     <li class="nav-item {% if request.GET.collection == 'wholesale' %}active{% endif %}">
                         <a class="nav-link px-0" href="{% url 'catalog:shop_style_1' %}?collection=wholesale">محصولات عمده</a>
                     </li>
+                    {% endif %}
 
+                    {% if site_settings.feature_blog %}
                     <li class="nav-item">
                         <a class="nav-link px-0" href="{% url 'blog:list' %}">بلاگ</a>
                     </li>
+                    {% endif %}
                 </ul>
 
                 <!-- Mobile menu button -->
@@ -141,7 +145,7 @@
                             <li><hr class="dropdown-divider my-1"></li>
                             <li><a class="dropdown-item" href="{% url 'accounts:profile_info' %}"><i class="lni lni-user me-2 text-muted"></i>پروفایل من</a></li>
                             <li><a class="dropdown-item" href="{% url 'accounts:my_orders' %}"><i class="lni lni-package me-2 text-muted"></i>سفارش‌های من</a></li>
-                            <li><a class="dropdown-item" href="{% url 'accounts:wishlist' %}"><i class="lni lni-heart me-2 text-muted"></i>علاقه‌مندی‌ها</a></li>
+                            {% if site_settings.feature_wishlist %}<li><a class="dropdown-item" href="{% url 'accounts:wishlist' %}"><i class="lni lni-heart me-2 text-muted"></i>علاقه‌مندی‌ها</a></li>{% endif %}
                             <li><a class="dropdown-item" href="{% url 'accounts:addresses' %}"><i class="lni lni-map-marker me-2 text-muted"></i>آدرس‌های من</a></li>
                             {% if user.is_staff %}
                             <li><hr class="dropdown-divider my-1"></li>
@@ -159,7 +163,7 @@
                 {% endif %}
 
                 <!-- Wishlist (dropdown) -->
-                {% if user.is_authenticated %}
+                {% if user.is_authenticated and site_settings.feature_wishlist %}
                 <div class="dropdown">
                     <a href="javascript:void(0);" class="position-relative text-dark fs-4 nav-icon-btn"
                        data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
@@ -229,8 +233,8 @@
                     </ul>
                 </div>
             </li>
-            <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'catalog:shop_style_1' %}?collection=wholesale">محصولات عمده</a></li>
-            <li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'blog:list' %}">بلاگ</a></li>
+            {% if site_settings.feature_wholesale %}<li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'catalog:shop_style_1' %}?collection=wholesale">محصولات عمده</a></li>{% endif %}
+            {% if site_settings.feature_blog %}<li class="mb-3"><a class="text-dark text-decoration-none fs-5" href="{% url 'blog:list' %}">بلاگ</a></li>{% endif %}
         </ul>
     </div>
 </div>

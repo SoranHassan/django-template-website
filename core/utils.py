@@ -83,3 +83,13 @@ def runtime_config(field, env_setting):
         return db_value.strip() or env_value
     except Exception:
         return env_value
+
+
+def feature_enabled(flag):
+    """True when the given SiteSetting feature flag (e.g. 'feature_blog') is on.
+    Fails open so a missing table (pre-migrate) never breaks a page."""
+    from core.models import SiteSetting
+    try:
+        return bool(getattr(SiteSetting.get(), flag, True))
+    except Exception:
+        return True

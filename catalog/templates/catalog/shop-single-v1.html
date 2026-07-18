@@ -124,7 +124,7 @@
                                 <i class="fas fa-star"></i>
                                 {% endif %}
                                 {% endfor %}
-                                <span class="small">({{ reviews.count }} نظر)</span>
+                                {% if site_settings.feature_reviews %}<span class="small">({{ reviews.count }} نظر)</span>{% endif %}
                             </div>
                             <!-- Price (hidden on wholesale products until the account is approved) -->
                             {% if product.is_wholesale and not user.is_wholesale %}
@@ -270,6 +270,7 @@
                                 </div>
 
                                 <!-- Wishlist -->
+                                {% if site_settings.feature_wishlist %}
                                 <div class="col-12 col-md-6 col-lg-3">
                                     <button type="button"
                                             class="btn custom-height btn-default btn-block mb-2 text-dark w-100 wishlist-btn{% if product.pk|stringformat:'s' in wishlist_ids %} in-wishlist{% endif %}"
@@ -281,6 +282,7 @@
                                         <i class="lni lni-heart me-2"></i><span class="wishlist-label">علاقه‌مندی</span>
                                     </button>
                                 </div>
+                                {% endif %}
                             </div>
                         </form>
 
@@ -333,12 +335,14 @@
                         <a class="nav-link" href="#information-tab" id="information-tab"
                            data-bs-toggle="tab" data-bs-target="#information" role="tab">اطلاعات تکمیلی</a>
                     </li>
+                    {% if site_settings.feature_reviews %}
                     <li class="nav-item" role="presentation">
                         <a class="nav-link" href="#reviews-tab" id="reviews-tab"
                            data-bs-toggle="tab" data-bs-target="#reviews" role="tab">
                             نظرات ({{ reviews.count }})
                         </a>
                     </li>
+                    {% endif %}
                 </ul>
 
                 <div class="tab-content" id="myTabContent">
@@ -385,6 +389,7 @@
                     </div>
 
                     <!-- Reviews -->
+                    {% if site_settings.feature_reviews %}
                     <div class="tab-pane fade" id="reviews" role="tabpanel">
                         <div class="reviews_info">
                             {% include 'reviews/reviews.html' %}
@@ -465,6 +470,7 @@
                         </div>
                         {% endif %}
                     </div>
+                    {% endif %}
 
                 </div>
             </div>

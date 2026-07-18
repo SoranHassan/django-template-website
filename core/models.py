@@ -113,6 +113,25 @@ class SiteSetting(models.Model):
         max_length=500, blank=True, verbose_name='لینک نماد زرین‌پال',
         help_text='لینک صفحه تأیید درگاه شما در zarinpal.com')
 
+    # ---------- Feature flags ----------
+    # The project doubles as a base for future sites: modules are switched
+    # off here instead of being deleted, so re-enabling is a checkbox away.
+    feature_blog = models.BooleanField(
+        default=True, verbose_name='بلاگ فعال باشد',
+        help_text='خاموش: لینک‌های بلاگ حذف و صفحات بلاگ ۴۰۴ می‌شوند')
+    feature_wholesale = models.BooleanField(
+        default=True, verbose_name='بخش عمده‌فروشی فعال باشد',
+        help_text='خاموش: منوی محصولات عمده، نوار صفحه اصلی و فیلتر عمده مخفی می‌شوند')
+    feature_wishlist = models.BooleanField(
+        default=True, verbose_name='علاقه‌مندی‌ها فعال باشد',
+        help_text='خاموش: قلب‌ها، منوی علاقه‌مندی و صفحه آن مخفی می‌شوند')
+    feature_reviews = models.BooleanField(
+        default=True, verbose_name='نظرات محصول فعال باشد',
+        help_text='خاموش: بخش نظرات و فرم ثبت نظر در صفحه محصول مخفی می‌شود')
+    feature_newsletter = models.BooleanField(
+        default=True, verbose_name='خبرنامه فعال باشد',
+        help_text='خاموش: فرم عضویت خبرنامه در فوتر مخفی می‌شود')
+
     # ---------- Search rank (entered from Google Search Console) ----------
     search_rank = models.PositiveIntegerField(
         default=0, verbose_name='رتبهٔ فعلی در جستجوی گوگل',

@@ -33,6 +33,13 @@ def _normalize_mobile(value):
 class NewsletterSubscribeView(View):
     """Register an email or mobile number for the newsletter (footer form, AJAX)."""
 
+    def dispatch(self, request, *args, **kwargs):
+        from django.http import Http404
+        from core.utils import feature_enabled
+        if not feature_enabled('feature_newsletter'):
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request):
         import re
         from .models import NewsletterSubscriber

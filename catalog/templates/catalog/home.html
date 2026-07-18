@@ -315,7 +315,7 @@
 {% endif %}
 
 <!-- Wholesale products - visible to everyone, prices only for approved accounts -->
-{% if wholesale_products %}
+{% if wholesale_products and site_settings.feature_wholesale %}
 <section class="middle home-band home-band-wholesale">
     <div class="container">
         <div class="row justify-content-center mb-2">

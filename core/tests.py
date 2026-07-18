@@ -292,3 +292,44 @@ class NameHintMappingTest(TestCase):
         women = HomeCategoryCard.objects.get(title='زنانه')
         self.assertIn('womens', women.image.name)
         self.assertIn('قابل تشخیص نیست', out.getvalue())  # stray file skipped
+
+
+class FeatureFlagTest(TestCase):
+    """Modules must disappear (UI + endpoint) when their panel flag is off."""
+
+    def _flags(self, value):
+        from core.models import SiteSetting
+        s = SiteSetting.get()
+        for f in ('feature_blog', 'feature_wholesale', 'feature_wishlist',
+                  'feature_reviews', 'feature_newsletter'):
+            setattr(s, f, value)
+        s.save()
+
+    def test_flags_on_by_default(self):
+        from core.models import SiteSetting
+        s = SiteSetting.get()
+        self.assertTrue(s.feature_blog and s.feature_wholesale and s.feature_wishlist
+                        and s.feature_reviews and s.feature_newsletter)
+
+    def test_disabled_blog_returns_404(self):
+        self._flags(False)
+        self.assertEqual(self.client.get('/blog/').status_code, 404)
+
+    def test_disabled_wholesale_collection_returns_404(self):
+        self._flags(False)
+        self.assertEqual(self.client.get('/shop/?collection=wholesale').status_code, 404)
+
+    def test_disabled_newsletter_returns_404(self):
+        self._flags(False)
+        r = self.client.post('/newsletter/subscribe/', {'email': 'x@example.com'})
+        self.assertEqual(r.status_code, 404)
+
+    def test_disabled_flags_hide_home_links(self):
+        self._flags(False)
+        html = self.client.get('/').content.decode()
+        self.assertNotIn('بلاگ', html.split('<footer')[0].split('</nav>')[0] if '</nav>' in html else html)
+        self.assertNotIn('عضویت در خبرنامه', html)
+
+    def test_enabled_blog_returns_200(self):
+        self._flags(True)
+        self.assertEqual(self.client.get('/blog/').status_code, 200)
