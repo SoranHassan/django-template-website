@@ -279,7 +279,9 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
 
 # PRODUCTION SECURITY
-if not DEBUG:
+# DEV_MODE is excluded so DEBUG=False can be tested locally (e.g. the real
+# 404 page) without being redirected to https
+if not DEBUG and not DEV_MODE:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
