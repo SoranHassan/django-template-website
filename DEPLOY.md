@@ -383,10 +383,17 @@ sudo rm -f /etc/nginx/sites-enabled/default
 
 ### ۹.۲. گرفتن گواهی رایگان Let's Encrypt
 
-**بعد از** ست شدن DNS:
+**بعد از** ست شدن DNS. اگر فقط دامنه .ir دارید:
 
 ```bash
 sudo certbot --nginx -d oramshop.ir -d www.oramshop.ir
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+اگر **هر دو دامنه .ir و .com** را دارید، هر ۴ نام در یک گواهی (اول DNS هر دو دامنه را طبق مرحله ۱۰ ست کنید):
+
+```bash
+sudo certbot --nginx -d oramshop.ir -d www.oramshop.ir -d oramshop.com -d www.oramshop.com
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
@@ -412,13 +419,26 @@ sudo certbot renew --dry-run
 | A | `@` | `<IP-سرور>` | 3600 |
 | A | `www` | `<IP-سرور>` | 3600 |
 
+### اگر دامنه .com هم دارید
+
+در پنل دامنه oramshop.com هم **دقیقاً همین دو رکورد** را با همان IP بسازید.
+هیچ چیز دیگری لازم نیست — کانفیگ nginx پروژه از قبل طوری نوشته شده که
+oramshop.com و همه‌ی wwwها را با ری‌دایرکت دائمی (301) به آدرس اصلی
+oramshop.ir بفرستد. این یعنی:
+
+- هر کس oramshop.com را تایپ کند خودکار به oramshop.ir می‌رسد؛
+- گوگل فقط یک آدرس رسمی می‌بیند و اعتبار سئو بین دو دامنه تقسیم نمی‌شود؛
+- در `ALLOWED_HOSTS` و `CSRF_TRUSTED_ORIGINS` هم لازم نیست .com را اضافه کنید،
+  چون ری‌دایرکت در nginx انجام می‌شود و درخواستِ .com اصلاً به جنگو نمی‌رسد.
+
 انتشار DNS از چند دقیقه تا چند ساعت طول می‌کشد. تست:
 
 ```bash
 ping oramshop.ir
+ping oramshop.com   # اگر .com دارید
 ```
 
-وقتی IP سرور را برگرداند، مرحله ۹.۲ (certbot) را اجرا کنید. **حالا سایت بالاست ✅**
+وقتی IP سرور را برگرداند، مرحله ۹.۲ (certbot) را اجرا کنید — با دو دامنه، دستور ۴نامه‌ی همان مرحله را بزنید. **حالا سایت بالاست ✅**
 
 ---
 
