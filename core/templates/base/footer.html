@@ -62,12 +62,28 @@
                     <div id="footerNewsletterMsg" style="display:none; font-size:11.5px; margin-top:6px;"></div>
                 </div>
 
-                <!-- Placeholder for the e-trust badge -->
+                <!-- Trust badges: image + link editable from the panel (site settings) -->
                 <div class="d-flex gap-2 mt-3">
-                    <div class="bg-white rounded d-flex align-items-center justify-content-center"
-                         style="width:72px; height:72px; opacity:.9;" title="نماد اعتماد الکترونیکی — به‌زودی">
-                        <span class="text-muted" style="font-size:10px; text-align:center;">نماد اعتماد<br>(به‌زودی)</span>
+                    {% if site_settings.enamad_image %}
+                    <a class="os-trust-badge" title="نماد اعتماد الکترونیکی" referrerpolicy="origin"
+                       {% if site_settings.enamad_link %}href="{{ site_settings.enamad_link }}" target="_blank" rel="noopener"{% endif %}>
+                        <img src="{{ site_settings.enamad_image.url }}" alt="نماد اعتماد الکترونیکی" referrerpolicy="origin">
+                    </a>
+                    {% else %}
+                    <div class="os-trust-badge" title="نماد اعتماد الکترونیکی — به‌زودی">
+                        <span>نماد اعتماد<br>(به‌زودی)</span>
                     </div>
+                    {% endif %}
+                    {% if site_settings.zarinpal_badge_image %}
+                    <a class="os-trust-badge" title="درگاه پرداخت زرین‌پال"
+                       {% if site_settings.zarinpal_badge_link %}href="{{ site_settings.zarinpal_badge_link }}" target="_blank" rel="noopener"{% endif %}>
+                        <img src="{{ site_settings.zarinpal_badge_image.url }}" alt="درگاه پرداخت امن زرین‌پال">
+                    </a>
+                    {% else %}
+                    <div class="os-trust-badge" title="درگاه پرداخت امن زرین‌پال">
+                        <span>پرداخت امن<br>زرین‌پال</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 

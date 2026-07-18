@@ -1237,6 +1237,17 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
             # Site credit
             {'name': 'credit_text', 'label': 'متن سازندهٔ سایت (پایین صفحه)', 'type': 'text', 'value': s.credit_text},
             {'name': 'credit_url', 'label': 'لینک سازنده', 'type': 'text', 'value': s.credit_url},
+            # Footer trust badges
+            {'name': 'enamad_image', 'label': 'تصویر نماد اعتماد (ای‌نماد)', 'type': 'image',
+             'value': s.enamad_image.url if s.enamad_image else '',
+             'help': 'تصویر نماد را از پنل enamad.ir دانلود و اینجا آپلود کنید'},
+            {'name': 'enamad_link', 'label': 'لینک نماد اعتماد', 'type': 'text', 'value': s.enamad_link,
+             'help': 'لینک صفحه تأیید (trustseal.enamad.ir/...)'},
+            {'name': 'zarinpal_badge_image', 'label': 'تصویر نماد زرین‌پال', 'type': 'image',
+             'value': s.zarinpal_badge_image.url if s.zarinpal_badge_image else '',
+             'help': 'لوگوی اعتماد زرین‌پال از پنل زرین‌پال'},
+            {'name': 'zarinpal_badge_link', 'label': 'لینک نماد زرین‌پال', 'type': 'text', 'value': s.zarinpal_badge_link,
+             'help': 'لینک صفحه تأیید درگاه شما در zarinpal.com'},
             # Search rank
             {'name': 'search_rank', 'label': 'رتبهٔ فعلی در گوگل (از سرچ‌کنسول)', 'type': 'number',
              'value': s.search_rank, 'help': 'اگر ۱ تا ۱۰ باشد، در داشبورد آلرت تبریک نمایش داده می‌شود'},
@@ -1283,6 +1294,13 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
         s.whatsapp_url = request.POST.get('whatsapp_url', '').strip()
         s.credit_text = request.POST.get('credit_text', '').strip()
         s.credit_url = request.POST.get('credit_url', '').strip()
+        # Trust badges
+        if request.FILES.get('enamad_image'):
+            s.enamad_image = optimize_image(request.FILES['enamad_image'])
+        if request.FILES.get('zarinpal_badge_image'):
+            s.zarinpal_badge_image = optimize_image(request.FILES['zarinpal_badge_image'])
+        s.enamad_link = request.POST.get('enamad_link', '').strip()
+        s.zarinpal_badge_link = request.POST.get('zarinpal_badge_link', '').strip()
         try:
             s.search_rank = int(request.POST.get('search_rank') or 0)
         except (TypeError, ValueError):

@@ -97,6 +97,22 @@ class SiteSetting(models.Model):
                                    verbose_name='متن سازندهٔ سایت')
     credit_url = models.CharField(max_length=200, blank=True, verbose_name='لینک سازنده')
 
+    # ---------- Footer trust badges (e-Namad + Zarinpal) ----------
+    enamad_image = models.ImageField(
+        upload_to='badges/', blank=True, null=True,
+        verbose_name='تصویر نماد اعتماد (ای‌نماد)',
+        help_text='تصویر نماد را از پنل enamad.ir دانلود و اینجا آپلود کنید')
+    enamad_link = models.CharField(
+        max_length=500, blank=True, verbose_name='لینک نماد اعتماد',
+        help_text='لینک صفحه تأیید (trustseal.enamad.ir/...) از پنل ای‌نماد')
+    zarinpal_badge_image = models.ImageField(
+        upload_to='badges/', blank=True, null=True,
+        verbose_name='تصویر نماد زرین‌پال',
+        help_text='لوگوی اعتماد زرین‌پال را از پنل زرین‌پال بگیرید')
+    zarinpal_badge_link = models.CharField(
+        max_length=500, blank=True, verbose_name='لینک نماد زرین‌پال',
+        help_text='لینک صفحه تأیید درگاه شما در zarinpal.com')
+
     # ---------- Search rank (entered from Google Search Console) ----------
     search_rank = models.PositiveIntegerField(
         default=0, verbose_name='رتبهٔ فعلی در جستجوی گوگل',
