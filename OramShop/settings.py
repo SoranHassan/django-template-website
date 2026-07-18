@@ -193,13 +193,16 @@ AXES_RESET_ON_SUCCESS = True
 # The login form field is `mobile`, not the default `username`; without this
 # axes records every attempt as user=None and never groups them.
 AXES_USERNAME_FORM_FIELD = 'mobile'
-# Behind nginx the client IP arrives in X-Forwarded-For; without these axes
-# sees ip=None (proxy socket) and the failure counter never accumulates,
-# so brute-force lockout silently never fires. One proxy hop = nginx.
-AXES_IPWARE_PROXY_COUNT = 1
-AXES_IPWARE_META_PRECEDENCE_ORDER = ('HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR')
-# Lock when EITHER the IP or the targeted account crosses the limit
-AXES_LOCKOUT_PARAMETERS = [['ip_address'], ['username']]
+# Behind nginx the app talks over a unix socket, so REMOTE_ADDR has no IP and
+# django-ipware (used by axes by default) ignored X-Real-IP and bucketed every
+# attacker under one key -> a single attacker could lock out all users. Read the
+# nginx-set, un-spoofable X-Real-IP explicitly instead. See OramShop.security.
+AXES_CLIENT_IP_CALLABLE = 'OramShop.security.axes_client_ip'
+# Lock by IP only (the axes default). Locking by username too would let anyone
+# who knows a customer's mobile number lock that account out on purpose
+# (targeted denial of service), which is worse than the distributed-guess risk
+# it would prevent - especially since mobile numbers are semi-guessable.
+AXES_LOCKOUT_PARAMETERS = ['ip_address']
 
 
 
