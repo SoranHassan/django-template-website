@@ -556,6 +556,110 @@ free -h                                    # وضعیت RAM
 
 ---
 
+## ۱۵. مهاجرت به سرور جدید
+
+هر وقت خواستید سرور را عوض کنید (ارتقا، تغییر ارائه‌دهنده و...)، سایت فقط ۳ چیز
+جابه‌جاشدنی دارد: **دیتابیس + پوشه media + فایل .env**. بقیه با همین راهنما از نو نصب می‌شود.
+
+### روی سرور قدیم — گرفتن خروجی
+
+```bash
+sudo -u postgres pg_dump oramshop | gzip > /tmp/db.sql.gz
+tar -czf /tmp/media.tar.gz -C /srv/oramshop media
+cp /srv/oramshop/.env /tmp/env-backup
+```
+
+سه فایل را به لپ‌تاپ بیاورید:
+
+```bash
+scp soran@<IP-قدیم>:/tmp/db.sql.gz /tmp/media.tar.gz /tmp/env-backup ~/oramshop-migration/
+```
+
+### روی سرور جدید
+
+1. مراحل ۲ تا ۵ همین راهنما را کامل اجرا کنید (امن‌سازی، پیش‌نیازها، دیتابیس خالی، کد)
+2. سه فایل را بفرستید و برگردانید:
+
+```bash
+scp ~/oramshop-migration/* soran@<IP-جدید>:/tmp/
+# روی سرور جدید:
+cp /tmp/env-backup /srv/oramshop/.env && chmod 600 /srv/oramshop/.env
+gunzip -c /tmp/db.sql.gz | sudo -u postgres psql oramshop
+tar -xzf /tmp/media.tar.gz -C /srv/oramshop
+sudo chown -R www-data:www-data /srv/oramshop
+```
+
+3. مراحل ۷ و ۸ (migrate + collectstatic + سرویس‌ها) — createsuperuser لازم نیست، کاربران داخل دیتابیس آمده‌اند
+4. **DNS**: در پنل DNS (آروان) فقط مقدار دو رکورد A را به IP جدید تغییر دهید — چند دقیقه بعد ترافیک به سرور جدید می‌رود
+5. certbot را روی سرور جدید دوباره بگیرید (مرحله ۹.۲)
+6. سرور قدیم را ۲–۳ روز روشن نگه دارید (تا انتشار کامل DNS)، بعد لغوش کنید
+
+> نکته: رمز دیتابیس در .env قدیمی است؛ موقع ساخت دیتابیس روی سرور جدید همان رمز قبلی را بدهید تا .env بدون تغییر کار کند.
+
+---
+
+## ۱۶. افزودن دامنه جدید به همین سایت
+
+مثلاً می‌خواهید oramshop.shop هم داشته باشید:
+
+1. **DNS**: در پنل DNS دامنه جدید، دو رکورد A (`@` و `www`) به IP سرور
+2. **nginx**: در `/etc/nginx/sites-available/oramshop` دامنه جدید را به `server_name` بلوک ری‌دایرکت اضافه کنید (که مثل .com به دامنه اصلی ۳۰۱ شود)
+3. **گواهی**: certbot را با همه نام‌ها گسترش دهید:
+
+```bash
+sudo certbot --nginx --expand -d oramshop.ir -d www.oramshop.ir -d oramshop.shop -d www.oramshop.shop
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+4. چون دامنه جدید فقط ری‌دایرکت است، `ALLOWED_HOSTS` و `CSRF_TRUSTED_ORIGINS` نیازی به تغییر ندارند.
+
+اگر بخواهید دامنه جدید **خودش سایت اصلی باشد** (نه ری‌دایرکت): جای آن را با oramshop.ir در همه‌جای کانفیگ nginx عوض کنید و در .env هم `ALLOWED_HOSTS` و `CSRF_TRUSTED_ORIGINS` را به‌روز کنید و سرویس‌ها را ری‌استارت.
+
+---
+
+## ۱۷. تنظیمات تکمیلی (اختیاری ولی مفید)
+
+### تغییر پورت SSH (اگر ISP شما روی پورت ۲۲ اختلال دارد)
+
+```bash
+sudo sed -i 's/^#\?Port .*/Port 2222/' /etc/ssh/sshd_config
+sudo ufw allow 2222/tcp
+sudo systemctl restart ssh
+# تست از لپ‌تاپ (قبل از بستن پورت قبلی!):  ssh -p 2222 soran@IP
+sudo ufw delete allow OpenSSH
+```
+
+### آپدیت خودکار امنیتی اوبونتو
+
+```bash
+sudo apt install -y unattended-upgrades
+sudo dpkg-reconfigure -plow unattended-upgrades   # گزینه Yes
+```
+
+### مانیتور ترافیک ماهانه
+
+```bash
+sudo apt install -y vnstat && vnstat -m
+```
+
+### فشرده‌سازی پاسخ‌ها در nginx (سرعت بیشتر)
+
+در بلوک server اصلی این را اضافه کنید:
+
+```nginx
+gzip on;
+gzip_types text/css application/javascript application/json image/svg+xml;
+gzip_min_length 1024;
+```
+
+### هشدار پر شدن دیسک (کرون ساده)
+
+```bash
+echo '0 8 * * * root df -h / | awk "NR==2 {gsub(/%/,\"\",\$5); if (\$5 > 80) print \"دیسک سرور در حال پر شدن است: \" \$5 \"%\"}"' | sudo tee /etc/cron.d/disk-alert
+```
+
+---
+
 ## نقشه کلی (که بدانید چه چیزی کجاست)
 
 ```
