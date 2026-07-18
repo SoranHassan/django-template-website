@@ -190,6 +190,16 @@ AXES_COOLOFF_TIME = config('DJANGO_AXES_COOLOFF_TIME', default=1, cast=int)
 AXES_LOCK_OUT_AT_FAILURE = True
 AXES_USER_AGENT = True
 AXES_RESET_ON_SUCCESS = True
+# The login form field is `mobile`, not the default `username`; without this
+# axes records every attempt as user=None and never groups them.
+AXES_USERNAME_FORM_FIELD = 'mobile'
+# Behind nginx the client IP arrives in X-Forwarded-For; without these axes
+# sees ip=None (proxy socket) and the failure counter never accumulates,
+# so brute-force lockout silently never fires. One proxy hop = nginx.
+AXES_IPWARE_PROXY_COUNT = 1
+AXES_IPWARE_META_PRECEDENCE_ORDER = ('HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR')
+# Lock when EITHER the IP or the targeted account crosses the limit
+AXES_LOCKOUT_PARAMETERS = [['ip_address'], ['username']]
 
 
 
