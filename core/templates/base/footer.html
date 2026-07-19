@@ -37,6 +37,7 @@
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'accounts:my_orders' %}">پیگیری سفارش</a></li>
                     {% if site_settings.feature_wishlist %}<li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'accounts:wishlist' %}">علاقه‌مندی‌ها</a></li>{% endif %}
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'cart:cart' %}">سبد خرید</a></li>
+                    <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{% url 'contact' %}">تماس با ما</a></li>
                     {% for pg in footer_pages %}
                     <li class="mb-2"><a class="text-white-50 text-decoration-none" href="{{ pg.get_absolute_url }}">{{ pg.title }}</a></li>
                     {% endfor %}

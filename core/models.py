@@ -296,3 +296,22 @@ class StaticPage(models.Model):
 
     def get_absolute_url(self):
         return f'/page/{self.slug}/'
+
+
+class ContactMessage(models.Model):
+    """A message sent through the public contact form (viewable in the panel)."""
+
+    name = models.CharField(max_length=100, verbose_name='نام')
+    contact = models.CharField(max_length=120, verbose_name='ایمیل یا شماره تماس')
+    subject = models.CharField(max_length=150, blank=True, verbose_name='موضوع')
+    message = models.TextField(verbose_name='پیام')
+    is_read = models.BooleanField(default=False, verbose_name='خوانده شده')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='زمان ارسال')
+
+    class Meta:
+        verbose_name = 'پیام تماس'
+        verbose_name_plural = 'پیام‌های تماس'
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f'{self.name} — {self.subject or self.message[:30]}'

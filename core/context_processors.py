@@ -101,11 +101,15 @@ def dashboard_context(request):
     new_users_count = _unseen_count(request, 'seen_users_at', CustomUser.objects.all(), 'date_joined')
     new_reviews_count = _unseen_count(request, 'seen_reviews_at', Review.objects.filter(is_approved=False), 'created_at')
 
+    from .models import ContactMessage
+    new_messages_count = ContactMessage.objects.filter(is_read=False).count()
+
     return {
         # Notification badges (clearable)
         'new_orders_count': new_orders_count,
         'new_users_count': new_users_count,
         'new_reviews_count': new_reviews_count,
+        'new_messages_count': new_messages_count,
         # Actionable counts for the dashboard page (never cleared)
         'pending_orders_count': Order.objects.filter(status='pending').count(),
         'pending_reviews_count': Review.objects.filter(is_approved=False).count(),

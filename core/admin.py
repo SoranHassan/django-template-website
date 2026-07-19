@@ -79,3 +79,14 @@ class StaticPageAdmin(admin.ModelAdmin):
     list_editable = ('show_in_footer', 'is_active', 'order')
     prepopulated_fields = {'slug': ('title',)}
     search_fields = ('title', 'slug')
+
+
+from .models import ContactMessage
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'contact', 'subject', 'is_read', 'created_at')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('name', 'contact', 'subject', 'message')
+    readonly_fields = ('name', 'contact', 'subject', 'message', 'created_at')

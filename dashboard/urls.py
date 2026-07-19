@@ -78,6 +78,10 @@ urlpatterns = [
     path('pages/<int:pk>/edit/', views.DashboardPageSaveView.as_view(), name='pages_edit'),
     path('pages/<int:pk>/delete/', views.DashboardPageDeleteView.as_view(), name='pages_delete'),
 
+    # Contact form messages
+    path('messages/', views.DashboardContactMessagesView.as_view(), name='contact_messages'),
+    path('messages/<int:pk>/delete/', views.DashboardContactMessageDeleteView.as_view(), name='contact_message_delete'),
+
     # Site settings (watermark + topbar color)
     path('site-settings/', views.DashboardSiteSettingsView.as_view(), name='site_settings'),
 

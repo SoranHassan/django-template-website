@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
 from django.urls import path, include
 
-from core.views import robots_txt, NewsletterSubscribeView, StaticPageView
+from core.views import robots_txt, NewsletterSubscribeView, StaticPageView, ContactView
 from .sitemaps import SITEMAPS
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
 
     # Editable content pages (terms, privacy, about...) - str slug allows Persian
     path('page/<str:slug>/', StaticPageView.as_view(), name='static_page'),
+    path('contact/', ContactView.as_view(), name='contact'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

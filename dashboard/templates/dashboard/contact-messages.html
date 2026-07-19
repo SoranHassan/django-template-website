@@ -1,0 +1,40 @@
+{% extends 'dashboard/_layout.html' %}
+{% load jalali %}
+
+{% block title %}پیام‌های تماس{% endblock %}
+{% block search_placeholder %}جستجو در پیام‌ها...{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>پیام‌های تماس</h1>
+    <p>پیام‌های ارسال‌شده از فرم «تماس با ما»</p>
+</div>
+
+<div class="glass-card">
+    <div class="card-header"><h2>همه پیام‌ها ({{ messages|length }})</h2></div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>نام</th><th>راه ارتباطی</th><th>موضوع</th><th>پیام</th><th>تاریخ</th><th></th></tr></thead>
+            <tbody>
+            {% for m in messages %}
+            <tr>
+                <td style="font-weight:600;">{{ m.name }}</td>
+                <td dir="ltr" style="text-align:right;">{{ m.contact }}</td>
+                <td>{{ m.subject|default:"—" }}</td>
+                <td style="max-width:320px; white-space:normal;">{{ m.message }}</td>
+                <td>{{ m.created_at|jalali }}</td>
+                <td>
+                    <form method="POST" action="{% url 'dashboard:contact_message_delete' m.pk %}" data-confirm="این پیام حذف شود؟" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary" style="padding:5px 10px; font-size:11px; color:#FF3B30;"><i class="fas fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center; padding:32px; color:#86868B;">پیامی دریافت نشده است</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

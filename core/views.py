@@ -18,6 +18,28 @@ class StaticPageView(View):
         return render(request, 'pages/static_page.html', {'page': page})
 
 
+class ContactView(View):
+    """Contact page: shows contact info (from site settings) and a message form."""
+
+    def get(self, request):
+        return render(request, 'pages/contact.html')
+
+    def post(self, request):
+        from .models import ContactMessage
+        name = (request.POST.get('name') or '').strip()
+        contact = (request.POST.get('contact') or '').strip()
+        subject = (request.POST.get('subject') or '').strip()
+        message = (request.POST.get('message') or '').strip()
+        if not (name and contact and message):
+            return render(request, 'pages/contact.html',
+                          {'error': 'لطفاً نام، راه ارتباطی و متن پیام را کامل کنید.',
+                           'old': {'name': name, 'contact': contact, 'subject': subject, 'message': message}})
+        ContactMessage.objects.create(
+            name=name[:100], contact=contact[:120], subject=subject[:150], message=message)
+        return render(request, 'pages/contact.html',
+                      {'sent': 'پیام شما با موفقیت ثبت شد. به‌زودی با شما تماس می‌گیریم.'})
+
+
 def error_403(request, exception=None):
     return render(request, '403.html', status=403)
 

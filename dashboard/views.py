@@ -1116,6 +1116,23 @@ class DashboardPageDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:pages_list')
 
 
+class DashboardContactMessagesView(StaffRequiredMixin, View):
+    def get(self, request):
+        from core.models import ContactMessage
+        msgs = ContactMessage.objects.all()
+        # mark all as read when the admin opens the list
+        ContactMessage.objects.filter(is_read=False).update(is_read=True)
+        return render(request, 'dashboard/contact-messages.html',
+                      {'messages': msgs, 'active_nav': 'contact_messages'})
+
+
+class DashboardContactMessageDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from core.models import ContactMessage
+        get_object_or_404(ContactMessage, pk=pk).delete()
+        return redirect('dashboard:contact_messages')
+
+
 class DashboardNewsletterView(SuperuserRequiredMixin, View):
     """Compose and send the newsletter to all subscribers in one click."""
 

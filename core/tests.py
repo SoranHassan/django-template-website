@@ -355,3 +355,26 @@ class StaticPageTest(TestCase):
         html = self.client.get('/').content.decode()
         self.assertIn('قوانین و مقررات', html)
         self.assertIn('/page/terms/', html)
+
+
+class ContactPageTest(TestCase):
+    def test_contact_page_renders(self):
+        self.assertEqual(self.client.get('/contact/').status_code, 200)
+
+    def test_valid_submission_saved(self):
+        from core.models import ContactMessage
+        r = self.client.post('/contact/', {
+            'name': 'علی', 'contact': '09120000000',
+            'subject': 'سوال', 'message': 'سلام این یک پیام است'})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, 'با موفقیت')
+        self.assertEqual(ContactMessage.objects.count(), 1)
+
+    def test_incomplete_submission_rejected(self):
+        from core.models import ContactMessage
+        self.client.post('/contact/', {'name': 'علی'})
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    def test_footer_has_contact_link(self):
+        html = self.client.get('/').content.decode()
+        self.assertIn('/contact/', html)

@@ -1,0 +1,125 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block title %}تماس با ما | OramShop{% endblock %}
+{% block meta_description %}راه‌های ارتباط با فروشگاه اُرام‌شاپ — تلفن، ایمیل، آدرس و فرم تماس{% endblock %}
+
+{% block hero_content %}
+{% include 'base/navbar.html' %}
+
+<div class="gray py-3">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'catalog:index' %}">خانه</a></li>
+                <li class="breadcrumb-item active" aria-current="page">تماس با ما</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<section class="middle">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="ft-bold mb-2">تماس با ما</h1>
+            <p class="text-muted">خوشحال می‌شویم صدای شما را بشنویم — از راه‌های زیر با ما در ارتباط باشید</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Contact info cards -->
+            <div class="col-12 col-lg-5">
+                <div class="os-contact-info">
+                    {% if site_settings.footer_phone %}
+                    <div class="os-contact-item">
+                        <div class="os-contact-icon"><i class="lni lni-phone"></i></div>
+                        <div>
+                            <span class="os-contact-label">تلفن پشتیبانی</span>
+                            <a href="tel:{{ site_settings.footer_phone }}" dir="ltr" class="os-contact-value">{{ site_settings.footer_phone }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if site_settings.footer_email %}
+                    <div class="os-contact-item">
+                        <div class="os-contact-icon"><i class="lni lni-envelope"></i></div>
+                        <div>
+                            <span class="os-contact-label">ایمیل</span>
+                            <a href="mailto:{{ site_settings.footer_email }}" dir="ltr" class="os-contact-value">{{ site_settings.footer_email }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if site_settings.footer_address %}
+                    <div class="os-contact-item">
+                        <div class="os-contact-icon"><i class="lni lni-map-marker"></i></div>
+                        <div>
+                            <span class="os-contact-label">آدرس</span>
+                            <span class="os-contact-value">{{ site_settings.footer_address }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if site_settings.footer_hours %}
+                    <div class="os-contact-item">
+                        <div class="os-contact-icon"><i class="lni lni-alarm-clock"></i></div>
+                        <div>
+                            <span class="os-contact-label">ساعات کاری</span>
+                            <span class="os-contact-value">{{ site_settings.footer_hours }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if site_settings.instagram_url or site_settings.telegram_url or site_settings.whatsapp_url %}
+                    <div class="os-contact-social">
+                        {% if site_settings.instagram_url %}<a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener" title="اینستاگرام"><i class="lni lni-instagram"></i></a>{% endif %}
+                        {% if site_settings.telegram_url %}<a href="{{ site_settings.telegram_url }}" target="_blank" rel="noopener" title="تلگرام"><i class="lni lni-telegram-original"></i></a>{% endif %}
+                        {% if site_settings.whatsapp_url %}<a href="{{ site_settings.whatsapp_url }}" target="_blank" rel="noopener" title="واتساپ"><i class="lni lni-whatsapp"></i></a>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Contact form -->
+            <div class="col-12 col-lg-7">
+                <div class="os-contact-form-card">
+                    <h5 class="ft-bold mb-3">ارسال پیام</h5>
+
+                    {% if sent %}
+                    <div class="alert alert-success">{{ sent }}</div>
+                    {% endif %}
+                    {% if error %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'contact' %}">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small">نام و نام خانوادگی <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="form-control" required value="{{ old.name|default:'' }}">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label small">ایمیل یا شماره تماس <span class="text-danger">*</span></label>
+                                <input type="text" name="contact" class="form-control" required value="{{ old.contact|default:'' }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small">موضوع</label>
+                                <input type="text" name="subject" class="form-control" value="{{ old.subject|default:'' }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small">پیام شما <span class="text-danger">*</span></label>
+                                <textarea name="message" rows="5" class="form-control" required>{{ old.message|default:'' }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-os px-5">
+                                    <i class="lni lni-telegram-original me-1"></i>ارسال پیام
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include 'cart/_cart_drawer.html' %}
+{% include 'base/footer.html' %}
+{% endblock %}
