@@ -99,10 +99,17 @@ class SiteSetting(models.Model):
     credit_url = models.CharField(max_length=200, blank=True, verbose_name='لینک سازنده')
 
     # ---------- Footer trust badges (e-Namad + Zarinpal) ----------
+    # Preferred: paste the full HTML snippet e-Namad gives you (logo + link +
+    # referrerpolicy). It only renders the logo on the verified domain. If this
+    # is set it wins over the image/link fields below.
+    enamad_code = models.TextField(
+        blank=True, verbose_name='کد کامل نماد اعتماد (ای‌نماد)',
+        help_text='کل کد <a><img></a> که پنل ای‌نماد می‌دهد را اینجا پیست کنید. '
+                  'لوگو فقط روی دامنهٔ تأییدشده نمایش داده می‌شود.')
     enamad_image = models.ImageField(
         upload_to='badges/', blank=True, null=True,
-        verbose_name='تصویر نماد اعتماد (ای‌نماد)',
-        help_text='تصویر نماد را از پنل enamad.ir دانلود و اینجا آپلود کنید')
+        verbose_name='تصویر نماد اعتماد (اگر کد کامل ندارید)',
+        help_text='اگر کد کامل بالا را دارید، این را خالی بگذارید')
     enamad_link = models.CharField(
         max_length=500, blank=True, verbose_name='لینک نماد اعتماد',
         help_text='لینک صفحه تأیید (trustseal.enamad.ir/...) از پنل ای‌نماد')

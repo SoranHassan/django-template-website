@@ -68,9 +68,11 @@
                 </div>
                 {% endif %}
 
-                <!-- Trust badges: image + link editable from the panel (site settings) -->
-                <div class="d-flex gap-2 mt-3">
-                    {% if site_settings.enamad_image %}
+                <!-- Trust badges: full e-Namad code (preferred) or image+link, editable from the panel -->
+                <div class="d-flex gap-2 mt-3 align-items-center os-trust-badges">
+                    {% if site_settings.enamad_code %}
+                    <div class="os-trust-badge os-trust-badge-code">{{ site_settings.enamad_code|safe }}</div>
+                    {% elif site_settings.enamad_image %}
                     <a class="os-trust-badge" title="نماد اعتماد الکترونیکی" referrerpolicy="origin"
                        {% if site_settings.enamad_link %}href="{{ site_settings.enamad_link }}" target="_blank" rel="noopener"{% endif %}>
                         <img src="{{ site_settings.enamad_image.url }}" alt="نماد اعتماد الکترونیکی" referrerpolicy="origin">

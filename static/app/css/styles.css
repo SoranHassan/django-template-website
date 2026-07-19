@@ -6614,6 +6614,9 @@ a.os-contact-value:hover { color: #00E6FF; }
 }
 a.os-trust-badge:hover { opacity: 1; transform: translateY(-2px); }
 .os-trust-badge img { max-width: 100%; max-height: 100%; object-fit: contain; }
+/* Pasted e-Namad snippet: white rounded box that fits its logo */
+.os-trust-badge-code { background: #fff; border-radius: 8px; padding: 4px; width: auto; height: 72px; }
+.os-trust-badge-code img { max-height: 64px; width: auto; }
 .os-trust-badge span { color: #888; font-size: 10px; text-align: center; line-height: 1.7; }
 
 /* ============ 404 page ============ */

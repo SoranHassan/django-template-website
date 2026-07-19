@@ -1321,9 +1321,12 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
             {'name': 'credit_text', 'label': 'متن سازندهٔ سایت (پایین صفحه)', 'type': 'text', 'value': s.credit_text},
             {'name': 'credit_url', 'label': 'لینک سازنده', 'type': 'text', 'value': s.credit_url},
             # Footer trust badges
-            {'name': 'enamad_image', 'label': 'تصویر نماد اعتماد (ای‌نماد)', 'type': 'image',
+            {'name': 'enamad_code', 'label': 'کد کامل نماد اعتماد (ای‌نماد)', 'type': 'textarea', 'full': True,
+             'value': s.enamad_code,
+             'help': 'کل کد <a><img></a> که پنل ای‌نماد می‌دهد را اینجا پیست کنید (بهترین روش). لوگو فقط روی دامنهٔ اصلی سایت نمایش داده می‌شود.'},
+            {'name': 'enamad_image', 'label': 'تصویر نماد اعتماد (اگر کد کامل ندارید)', 'type': 'image',
              'value': s.enamad_image.url if s.enamad_image else '',
-             'help': 'تصویر نماد را از پنل enamad.ir دانلود و اینجا آپلود کنید'},
+             'help': 'اگر کد کامل بالا را پیست کردید، این را خالی بگذارید'},
             {'name': 'enamad_link', 'label': 'لینک نماد اعتماد', 'type': 'text', 'value': s.enamad_link,
              'help': 'لینک صفحه تأیید (trustseal.enamad.ir/...)'},
             {'name': 'zarinpal_badge_image', 'label': 'تصویر نماد زرین‌پال', 'type': 'image',
@@ -1386,6 +1389,7 @@ class DashboardSiteSettingsView(SuperuserRequiredMixin, View):
             s.enamad_image = optimize_image(request.FILES['enamad_image'])
         if request.FILES.get('zarinpal_badge_image'):
             s.zarinpal_badge_image = optimize_image(request.FILES['zarinpal_badge_image'])
+        s.enamad_code = request.POST.get('enamad_code', '').strip()
         s.enamad_link = request.POST.get('enamad_link', '').strip()
         s.zarinpal_badge_link = request.POST.get('zarinpal_badge_link', '').strip()
         try:

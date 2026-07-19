@@ -17,7 +17,7 @@ DEV_MODE = config('DEV_MODE', default=False, cast=bool)
 
 # Bumped on each release: appended to the stylesheet URL so browsers never
 # serve a stale cached styles.css after an update
-ASSET_VERSION = '32'
+ASSET_VERSION = '33'
 
 # Goftino live-chat widget id (loaded in the base template when set)
 GOFTINO_ID = config('GOFTINO_ID', default='')
