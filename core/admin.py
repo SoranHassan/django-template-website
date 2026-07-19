@@ -68,3 +68,14 @@ class SiteVisitAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+from .models import StaticPage
+
+
+@admin.register(StaticPage)
+class StaticPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'show_in_footer', 'is_active', 'order', 'updated_at')
+    list_editable = ('show_in_footer', 'is_active', 'order')
+    prepopulated_fields = {'slug': ('title',)}
+    search_fields = ('title', 'slug')

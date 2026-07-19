@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 class SiteVisit(models.Model):
@@ -267,3 +268,31 @@ class HomeCategoryCard(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class StaticPage(models.Model):
+    """Editable content pages (terms, privacy, about, FAQ...).
+
+    Rich-text pages managed entirely from the dashboard - no code change to add
+    a new one. Required for e-Namad, which needs published terms & privacy pages.
+    """
+
+    title = models.CharField(max_length=120, verbose_name='عنوان صفحه')
+    slug = models.SlugField(max_length=140, unique=True, allow_unicode=False,
+                            verbose_name='اسلاگ (نام انگلیسی در URL)')
+    body = CKEditor5Field(verbose_name='متن صفحه', config_name='default')
+    show_in_footer = models.BooleanField(default=True, verbose_name='نمایش در فوتر')
+    order = models.PositiveIntegerField(default=0, verbose_name='ترتیب')
+    is_active = models.BooleanField(default=True, verbose_name='فعال')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'صفحه ثابت'
+        verbose_name_plural = 'صفحات ثابت'
+        ordering = ('order', 'title')
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return f'/page/{self.slug}/'

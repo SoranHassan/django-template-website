@@ -20,6 +20,12 @@ def site_settings_context(request):
     except Exception:
         # Table does not exist before migrations have run
         ctx['site_settings'] = None
+    try:
+        from .models import StaticPage
+        ctx['footer_pages'] = list(
+            StaticPage.objects.filter(is_active=True, show_in_footer=True))
+    except Exception:
+        ctx['footer_pages'] = []
     return ctx
 
 

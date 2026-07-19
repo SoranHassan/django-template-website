@@ -1,5 +1,5 @@
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -7,6 +7,15 @@ from django.core.exceptions import ValidationError
 
 def error_404(request, exception=None):
     return render(request, '404.html', status=404)
+
+
+class StaticPageView(View):
+    """Render an active content page (terms, privacy, about...) by slug."""
+
+    def get(self, request, slug):
+        from .models import StaticPage
+        page = get_object_or_404(StaticPage, slug=slug, is_active=True)
+        return render(request, 'pages/static_page.html', {'page': page})
 
 
 def error_403(request, exception=None):

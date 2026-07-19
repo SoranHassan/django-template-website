@@ -1056,6 +1056,66 @@ class DashboardBlogDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:blog_list')
 
 
+class DashboardPageListView(StaffRequiredMixin, View):
+    def get(self, request):
+        from core.models import StaticPage
+        return render(request, 'dashboard/pages-list.html',
+                      {'pages': StaticPage.objects.all(), 'active_nav': 'pages'})
+
+
+class DashboardPageSaveView(StaffRequiredMixin, View):
+    def get(self, request, pk=None):
+        from core.models import StaticPage
+        p = get_object_or_404(StaticPage, pk=pk) if pk else None
+        fields = [
+            {'name': 'title', 'label': 'عنوان صفحه', 'type': 'text', 'required': True, 'full': True,
+             'value': p.title if p else ''},
+            {'name': 'slug', 'label': 'اسلاگ (نام انگلیسی در URL)', 'type': 'text', 'value': p.slug if p else '',
+             'help': 'فقط انگلیسی/عدد/خط تیره؛ خالی بگذارید تا خودکار ساخته شود'},
+            {'name': 'body', 'label': 'متن صفحه', 'type': 'richtext', 'required': True, 'full': True,
+             'value': p.body if p else ''},
+            {'name': 'show_in_footer', 'label': 'نمایش لینک در فوتر', 'type': 'checkbox',
+             'value': p.show_in_footer if p else True},
+            {'name': 'order', 'label': 'ترتیب', 'type': 'number', 'value': p.order if p else 0},
+            {'name': 'is_active', 'label': 'فعال', 'type': 'checkbox', 'value': p.is_active if p else True},
+        ]
+        return render_form_page(
+            request, page_title='ویرایش صفحه' if pk else 'صفحه جدید',
+            fields=fields, action=request.path, cancel_url=reverse('dashboard:pages_list'),
+            has_richtext=True)
+
+    def post(self, request, pk=None):
+        from core.models import StaticPage
+        page = get_object_or_404(StaticPage, pk=pk) if pk else StaticPage()
+        page.title = request.POST.get('title', page.title or '').strip()
+        page.body = request.POST.get('body', '')
+        page.show_in_footer = 'show_in_footer' in request.POST
+        page.is_active = 'is_active' in request.POST
+        try:
+            page.order = int(request.POST.get('order') or 0)
+        except (TypeError, ValueError):
+            page.order = 0
+        if not (page.title and page.body):
+            return redirect('dashboard:pages_list')
+        requested = request.POST.get('slug', '').strip()
+        base = slugify(requested, allow_unicode=False) or slugify(page.title, allow_unicode=False) or 'page'
+        if not pk or requested:
+            slug, i = base, 2
+            qs = StaticPage.objects.exclude(pk=page.pk) if pk else StaticPage.objects.all()
+            while qs.filter(slug=slug).exists():
+                slug, i = f'{base}-{i}', i + 1
+            page.slug = slug
+        page.save()
+        return redirect(f"{reverse('dashboard:pages_edit', args=[page.pk])}?saved=1")
+
+
+class DashboardPageDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        from core.models import StaticPage
+        get_object_or_404(StaticPage, pk=pk).delete()
+        return redirect('dashboard:pages_list')
+
+
 class DashboardNewsletterView(SuperuserRequiredMixin, View):
     """Compose and send the newsletter to all subscribers in one click."""
 

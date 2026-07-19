@@ -72,6 +72,12 @@ urlpatterns = [
     path('blog-posts/<int:pk>/edit/', views.DashboardBlogSaveView.as_view(), name='blog_edit'),
     path('blog-posts/<int:pk>/delete/', views.DashboardBlogDeleteView.as_view(), name='blog_delete'),
 
+    # Static content pages (terms, privacy, about...)
+    path('pages/', views.DashboardPageListView.as_view(), name='pages_list'),
+    path('pages/create/', views.DashboardPageSaveView.as_view(), name='pages_create'),
+    path('pages/<int:pk>/edit/', views.DashboardPageSaveView.as_view(), name='pages_edit'),
+    path('pages/<int:pk>/delete/', views.DashboardPageDeleteView.as_view(), name='pages_delete'),
+
     # Site settings (watermark + topbar color)
     path('site-settings/', views.DashboardSiteSettingsView.as_view(), name='site_settings'),
 

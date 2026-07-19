@@ -333,3 +333,25 @@ class FeatureFlagTest(TestCase):
     def test_enabled_blog_returns_200(self):
         self._flags(True)
         self.assertEqual(self.client.get('/blog/').status_code, 200)
+
+
+class StaticPageTest(TestCase):
+    def test_seeded_pages_exist_and_render(self):
+        from core.models import StaticPage
+        self.assertTrue(StaticPage.objects.filter(slug='terms', is_active=True).exists())
+        self.assertTrue(StaticPage.objects.filter(slug='privacy', is_active=True).exists())
+        self.assertEqual(self.client.get('/page/terms/').status_code, 200)
+        self.assertEqual(self.client.get('/page/privacy/').status_code, 200)
+
+    def test_inactive_page_404(self):
+        from core.models import StaticPage
+        StaticPage.objects.create(title='مخفی', slug='hidden', body='x', is_active=False)
+        self.assertEqual(self.client.get('/page/hidden/').status_code, 404)
+
+    def test_unknown_page_404(self):
+        self.assertEqual(self.client.get('/page/does-not-exist/').status_code, 404)
+
+    def test_footer_lists_active_pages(self):
+        html = self.client.get('/').content.decode()
+        self.assertIn('قوانین و مقررات', html)
+        self.assertIn('/page/terms/', html)

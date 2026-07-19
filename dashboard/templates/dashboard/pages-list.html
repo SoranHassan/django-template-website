@@ -1,0 +1,43 @@
+{% extends 'dashboard/_layout.html' %}
+
+{% block title %}صفحات ثابت{% endblock %}
+{% block search_placeholder %}جستجو در صفحات...{% endblock %}
+
+{% block content %}
+<div class="page-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div>
+        <h1>صفحات ثابت</h1>
+        <p>قوانین و مقررات، حریم خصوصی، دربارهٔ ما و هر صفحهٔ محتوایی دیگر</p>
+    </div>
+    <a href="{% url 'dashboard:pages_create' %}" class="dash-add-btn"><i class="fas fa-plus"></i> صفحهٔ جدید</a>
+</div>
+
+<div class="glass-card">
+    <div class="card-header"><h2>همه صفحات ({{ pages|length }})</h2></div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>عنوان</th><th>آدرس</th><th>در فوتر</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+            <tbody>
+            {% for page in pages %}
+            <tr>
+                <td style="font-weight:600;">{{ page.title }}</td>
+                <td dir="ltr" style="text-align:right; color:#86868B; font-size:12px;">/page/{{ page.slug }}/</td>
+                <td>{% if page.show_in_footer %}<span class="status success">بله</span>{% else %}<span class="status pending">خیر</span>{% endif %}</td>
+                <td>{% if page.is_active %}<span class="status success">فعال</span>{% else %}<span class="status pending">غیرفعال</span>{% endif %}</td>
+                <td>
+                    <a href="{{ page.get_absolute_url }}" target="_blank" class="btn-secondary" style="padding:5px 10px; font-size:11px;"><i class="fas fa-eye"></i></a>
+                    <a href="{% url 'dashboard:pages_edit' page.pk %}" class="btn-secondary" style="padding:5px 12px; font-size:11px;"><i class="fas fa-edit"></i> ویرایش</a>
+                    <form method="POST" action="{% url 'dashboard:pages_delete' page.pk %}" data-confirm="این صفحه حذف شود؟" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary" style="padding:5px 10px; font-size:11px; color:#FF3B30;"><i class="fas fa-trash"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; padding:32px; color:#86868B;">صفحه‌ای ثبت نشده است</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

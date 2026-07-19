@@ -16,6 +16,7 @@
             <li {% if active_nav == 'shipping' %}class="active"{% endif %}><a href="{% url 'dashboard:shipping_list' %}"><i class="fas fa-truck"></i><span>روش‌های ارسال</span></a></li>
             <li {% if active_nav == 'reviews' %}class="active"{% endif %}><a href="{% url 'dashboard:reviews_list' %}"><i class="fas fa-star"></i><span>نظرات</span>{% if new_reviews_count %}<span class="badge">{{ new_reviews_count }}</span>{% endif %}</a></li>
             <li {% if active_nav == 'blog' %}class="active"{% endif %}><a href="{% url 'dashboard:blog_list' %}"><i class="fas fa-newspaper"></i><span>بلاگ</span></a></li>
+            <li {% if active_nav == 'pages' %}class="active"{% endif %}><a href="{% url 'dashboard:pages_list' %}"><i class="fas fa-file-alt"></i><span>صفحات ثابت</span></a></li>
             {% if request.user.is_superuser %}
             {# Site-critical settings: superuser only, hidden from regular admins #}
             <li {% if active_nav == 'hero' %}class="active"{% endif %}><a href="{% url 'dashboard:hero_list' %}"><i class="fas fa-images"></i><span>بنرهای سایت</span></a></li>
