@@ -6595,11 +6595,11 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 a.os-contact-value:hover { color: #00E6FF; }
 .os-contact-social { display: flex; gap: 12px; margin-top: 8px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.1); }
 .os-contact-social a {
-  width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.08);
-  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px;
-  transition: background .2s, color .2s;
+  width: 40px; height: 40px; background: transparent;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px;
+  transition: color .2s, transform .2s;
 }
-.os-contact-social a:hover { background: #00E6FF; color: #000; }
+.os-contact-social a:hover { background: transparent; color: #00E6FF; transform: translateY(-2px); }
 .os-contact-form-card {
   background: #fff; border: 1px solid #eee; border-radius: 14px;
   padding: 28px; box-shadow: 0 2px 14px rgba(0,0,0,.03);
