@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% load static %}
+{% load static jalali %}
 
 {% block title %}{{ page.title }} | OramShop{% endblock %}
 {% block meta_description %}{{ page.body|striptags|truncatechars:150 }}{% endblock %}
@@ -28,7 +28,7 @@
                         {{ page.body|safe }}
                     </div>
                     <p class="text-muted small mt-4 mb-0">
-                        آخرین به‌روزرسانی: {{ page.updated_at|date:"Y/m/d" }}
+                        آخرین به‌روزرسانی: {{ page.updated_at|jalali }}
                     </p>
                 </div>
             </div>
