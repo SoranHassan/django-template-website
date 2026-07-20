@@ -124,11 +124,106 @@ sudo ufw status
 
 > PostgreSQL و Redis پورت باز به بیرون **ندارند** و نباید داشته باشند — فقط localhost.
 
-### ۲.۶. Fail2ban (قفل خودکار IPهای مهاجم به SSH)
+### ۲.۶. Fail2ban (قفل خودکار IPهای مهاجم)
 
 ```bash
 sudo apt install -y fail2ban
 sudo systemctl enable --now fail2ban
+```
+
+به‌صورت پیش‌فرض fail2ban فقط از **SSH** محافظت می‌کند. برای محافظت از **وب‌سایت**
+هم یک jail مخصوص nginx اضافه کن. فایل `/etc/fail2ban/jail.local` را بساز:
+
+```bash
+sudo tee /etc/fail2ban/jail.local > /dev/null <<'EOF'
+[DEFAULT]
+bantime  = 3600
+findtime = 600
+maxretry = 5
+
+[sshd]
+enabled = true
+
+[nginx-limit-req]
+enabled  = true
+port     = http,https
+filter   = nginx-limit-req
+logpath  = /var/log/nginx/error.log
+maxretry = 10
+findtime = 60
+bantime  = 3600
+
+[nginx-botsearch]
+enabled  = true
+port     = http,https
+filter   = nginx-botsearch
+logpath  = /var/log/nginx/access.log
+maxretry = 20
+findtime = 60
+bantime  = 3600
+EOF
+sudo systemctl restart fail2ban
+```
+
+**چک‌کردن اینکه کار می‌کند:**
+
+```bash
+systemctl status fail2ban          # باید active (running) باشد
+sudo fail2ban-client status        # باید sshd, nginx-limit-req, nginx-botsearch را نشان دهد
+sudo fail2ban-client status nginx-limit-req   # IPهای بلاک‌شده
+sudo fail2ban-client set nginx-limit-req unbanip 1.2.3.4   # آزادکردن IP اشتباه
+```
+
+> jail مربوط به `nginx-limit-req` فقط وقتی IP بلاک می‌کند که در nginx محدودیت نرخ
+> (`limit_req`) فعال باشد — بخش بعدی.
+
+---
+
+### ۲.۷. جلوگیری از DDoS (سه لایه)
+
+یک VPS تنها نمی‌تواند جلوی حملهٔ **حجیم** DDoS را بگیرد؛ دفاع واقعی باید بالادست باشد.
+
+**لایهٔ ۱ — بالادست (مهم‌ترین): ابر آروان (ArvanCloud)**
+برای دامنهٔ `.ir` و هاست ایرانی بهترین گزینه است (Cloudflare با ایران مشکل تحریم دارد).
+پلن رایگانش CDN + سپر DDoS دارد. دامنه را در پنل آروان اضافه کن، رکوردهای NS را که
+می‌دهد در ثبت‌کنندهٔ دامنه جایگزین کن؛ از آن پس تمام ترافیک اول از آروان رد می‌شود و
+IP اصلی سرورت مخفی می‌ماند. حتماً «سپر ابری/Firewall» و حالت DDoS را در پنلش روشن کن.
+
+**لایهٔ ۲ — محدودیت نرخ در nginx**
+در فایل کانفیگ nginx (بلوک `http`) این را اضافه کن:
+
+```nginx
+# داخل http { ... }
+limit_req_zone  $binary_remote_addr  zone=oramshop:10m  rate=10r/s;
+limit_conn_zone $binary_remote_addr  zone=oramconn:10m;
+```
+
+و داخل `server { location / { ... } }`:
+
+```nginx
+limit_req  zone=oramshop burst=20 nodelay;
+limit_conn oramconn 20;
+```
+
+سپس تست و بارگذاری:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+هر IP که از سقف رد شود در `error.log` ثبت و توسط jail بالا خودکار بلاک می‌شود.
+
+**لایهٔ ۳ — فایروال (ufw) + fail2ban**
+که در بخش‌های ۲.۵ و ۲.۶ راه‌اندازی شد. برای بلاک دستی یک IP در لحظهٔ حمله:
+
+```bash
+sudo ufw deny from 1.2.3.4
+```
+
+**تشخیص حمله (پرتکرارترین IPها):**
+
+```bash
+awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -20
 ```
 
 ---
