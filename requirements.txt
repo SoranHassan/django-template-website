@@ -20,6 +20,7 @@ django-ckeditor-5==0.2.20
 django-storages==1.14.6
 django-timezone-field==7.2.1
 Django==6.0.4
+djangorestframework==3.17.1
 django_celery_results==2.6.0
 fonttools==4.63.0
 gunicorn==23.0.0

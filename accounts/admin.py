@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, OTP, Address
+from .models import CustomUser, OTP, Address, SmsLog
 
 
 @admin.register(CustomUser)
@@ -44,3 +44,12 @@ class AddressAdmin(admin.ModelAdmin):
     list_filter = ('city', 'is_default')
     search_fields = ( 'user__mobile', 'first_name', 'last_name', 'city', 'phone')
     ordering = ('user',)
+
+
+@admin.register(SmsLog)
+class SmsLogAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'kind', 'mobile', 'status', 'code', 'message')
+    list_filter = ('kind', 'status', 'created_at')
+    search_fields = ('mobile', 'message')
+    ordering = ('-created_at',)
+    readonly_fields = ('kind', 'mobile', 'status', 'code', 'message', 'created_at')

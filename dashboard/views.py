@@ -1133,6 +1133,30 @@ class DashboardContactMessageDeleteView(StaffRequiredMixin, View):
         return redirect('dashboard:contact_messages')
 
 
+class DashboardSmsLogsView(SuperuserRequiredMixin, View):
+    """Superuser SMS panel: live sms.ir credit + a Persian log of every send."""
+
+    def get(self, request):
+        from accounts.models import SmsLog
+        from accounts.sms_status import fetch_credit
+        from django.core.paginator import Paginator
+
+        credit, credit_error = fetch_credit()
+        logs = SmsLog.objects.all()
+        # simple stats
+        total = logs.count()
+        ok_count = logs.filter(status='ok').count()
+        err_count = total - ok_count
+
+        paginator = Paginator(logs, 40)
+        page = paginator.get_page(request.GET.get('page', 1))
+        return render(request, 'dashboard/sms-logs.html', {
+            'active_nav': 'sms_logs',
+            'credit': credit, 'credit_error': credit_error,
+            'logs': page, 'total': total, 'ok_count': ok_count, 'err_count': err_count,
+        })
+
+
 class DashboardNewsletterView(SuperuserRequiredMixin, View):
     """Compose and send the newsletter to all subscribers in one click."""
 

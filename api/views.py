@@ -1,20 +1,49 @@
-"""JSON API v1 - built for the OramShop Telegram bot (and other integrations).
+"""JSON API v1 — Django REST Framework class-based views.
 
-Plain Django JSON views (no DRF dependency). Authentication is a static
-key sent as the ``X-API-Key`` header and configured via the ``BOT_API_KEY``
-environment variable. When the variable is empty the whole API is disabled.
+Built for the OramShop Telegram bot (and any other external integration).
+
+Security model (unchanged from the original plain-Django version):
+
+* Authentication is a single static key sent in the ``X-API-Key`` header and
+  configured via the ``BOT_API_KEY`` environment variable — or overridden at
+  runtime from the dashboard (``bot_api_key_override``).
+* When no key is configured the whole API is disabled (HTTP 503).
+* A wrong/missing key is HTTP 401.
+* Each client IP is limited to ``RATE_LIMIT_PER_MINUTE`` requests per minute
+  (HTTP 429 once exceeded).
+
+The gate lives in :class:`BotApiView.initial` so every endpoint inherits it,
+and only ``GET`` handlers are defined, so any other method returns 405.
 """
-from functools import wraps
-
-from django.conf import settings
 from django.core.paginator import Paginator
-from django.http import JsonResponse
-from django.views.decorators.http import require_GET
+from rest_framework.exceptions import APIException, NotFound
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from catalog.models import Brand, Category, Product
+from .serializers import (BrandSerializer, CategorySerializer,
+                          ProductDetailSerializer, ProductSummarySerializer)
 
-
+# Requests per minute, per client IP. Tests patch this name — keep it here.
 RATE_LIMIT_PER_MINUTE = 120
+
+
+class ServiceDisabled(APIException):
+    status_code = 503
+    default_detail = 'API disabled: BOT_API_KEY is not configured'
+    default_code = 'service_disabled'
+
+
+class InvalidApiKey(APIException):
+    status_code = 401
+    default_detail = 'invalid or missing X-API-Key'
+    default_code = 'invalid_api_key'
+
+
+class RateLimited(APIException):
+    status_code = 429
+    default_detail = 'rate limit exceeded (120 requests/minute)'
+    default_code = 'rate_limited'
 
 
 def _rate_limited(request):
@@ -34,137 +63,100 @@ def _rate_limited(request):
     return count >= RATE_LIMIT_PER_MINUTE
 
 
-def api_key_required(view):
-    """Reject requests without the correct X-API-Key header (401/503/429)."""
+class BotApiView(APIView):
+    """Base view: X-API-Key gate (503/401) + per-IP rate limit (429).
 
-    @wraps(view)
-    def wrapper(request, *args, **kwargs):
+    DRF's own auth/permission layers are disabled (see ``REST_FRAMEWORK`` in
+    settings); the key check is done explicitly so we can return 503 vs 401.
+    """
+
+    authentication_classes = []
+    permission_classes = []
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
         from core.utils import runtime_config
         configured = runtime_config('bot_api_key_override', 'BOT_API_KEY')
         if not configured:
-            return JsonResponse(
-                {'error': 'API disabled: BOT_API_KEY is not configured'}, status=503)
+            raise ServiceDisabled()
         if request.headers.get('X-API-Key') != configured:
-            return JsonResponse({'error': 'invalid or missing X-API-Key'}, status=401)
+            raise InvalidApiKey()
         if _rate_limited(request):
-            return JsonResponse({'error': 'rate limit exceeded (120 requests/minute)'},
-                                status=429)
-        return view(request, *args, **kwargs)
-
-    return wrapper
+            raise RateLimited()
 
 
-def _abs(request, url):
-    """Absolute URL helper so the bot can use links/images directly."""
-    return request.build_absolute_uri(url) if url else None
-
-
-def _product_summary(request, p):
-    # Wholesale prices never leak through the public bot API
-    masked = p.is_wholesale
-    return {
-        'id': p.pk,
-        'name': p.name,
-        'slug': p.slug,
-        'is_wholesale': p.is_wholesale,
-        'price': None if masked else int(p.price),
-        'original_price': None if masked or not p.original_price else int(p.original_price),
-        'discount_percent': p.discount_percent or 0,
-        'brand': p.brand.name if p.brand else None,
-        'category': p.category.name if p.category else None,
-        'gender': p.gender,
-        'rating': float(p.avg_rating) if getattr(p, 'avg_rating', None) else None,
-        'in_stock': any(v.stock > 0 for v in p.variants.all()),
-        'image': _abs(request, p.main_image.image.url) if p.main_image else None,
-        'url': _abs(request, p.get_absolute_url()),
-    }
-
-
-@require_GET
-@api_key_required
-def product_list(request):
+class ProductListView(BotApiView):
     """GET /api/v1/products/?q=&category=&brand=&gender=&page=&page_size="""
-    from catalog.templatetags.catalog_extras import rating_subquery
-    from django.db.models import Q
 
-    qs = Product.objects.filter(is_active=True).select_related(
-        'brand', 'category').prefetch_related('images', 'variants').annotate(
-        avg_rating=rating_subquery()).order_by('-created_at')
+    def get(self, request):
+        from catalog.templatetags.catalog_extras import rating_subquery
+        from django.db.models import Q
 
-    q = request.GET.get('q', '').strip()
-    if q:
-        qs = qs.filter(Q(name__icontains=q) | Q(description__icontains=q) |
-                       Q(brand__name__icontains=q))
-    if request.GET.get('category'):
-        qs = qs.filter(category__slug=request.GET['category'])
-    if request.GET.get('brand'):
-        qs = qs.filter(brand__slug=request.GET['brand'])
-    if request.GET.get('gender'):
-        qs = qs.filter(gender=request.GET['gender'])
+        qs = Product.objects.filter(is_active=True).select_related(
+            'brand', 'category').prefetch_related('images', 'variants').annotate(
+            avg_rating=rating_subquery()).order_by('-created_at')
 
-    try:
-        page_size = min(max(int(request.GET.get('page_size', 10)), 1), 50)
-    except ValueError:
-        page_size = 10
-    paginator = Paginator(qs, page_size)
-    try:
-        page_num = max(int(request.GET.get('page', 1)), 1)
-    except ValueError:
-        page_num = 1
-    page = paginator.get_page(page_num)
+        q = request.GET.get('q', '').strip()
+        if q:
+            qs = qs.filter(Q(name__icontains=q) | Q(description__icontains=q) |
+                           Q(brand__name__icontains=q))
+        if request.GET.get('category'):
+            qs = qs.filter(category__slug=request.GET['category'])
+        if request.GET.get('brand'):
+            qs = qs.filter(brand__slug=request.GET['brand'])
+        if request.GET.get('gender'):
+            qs = qs.filter(gender=request.GET['gender'])
 
-    return JsonResponse({
-        'count': paginator.count,
-        'page': page.number,
-        'pages': paginator.num_pages,
-        'results': [_product_summary(request, p) for p in page.object_list],
-    })
+        try:
+            page_size = min(max(int(request.GET.get('page_size', 10)), 1), 50)
+        except ValueError:
+            page_size = 10
+        paginator = Paginator(qs, page_size)
+        try:
+            page_num = max(int(request.GET.get('page', 1)), 1)
+        except ValueError:
+            page_num = 1
+        page = paginator.get_page(page_num)
 
-
-@require_GET
-@api_key_required
-def product_detail(request, pk):
-    """GET /api/v1/products/<id>/ - full detail incl. variants and images."""
-    from catalog.templatetags.catalog_extras import rating_subquery
-
-    try:
-        p = Product.objects.select_related('brand', 'category').prefetch_related(
-            'images', 'variants__size', 'variants__color').annotate(
-            avg_rating=rating_subquery()).get(pk=pk, is_active=True)
-    except Product.DoesNotExist:
-        return JsonResponse({'error': 'product not found'}, status=404)
-
-    data = _product_summary(request, p)
-    data.update({
-        'description': p.description,
-        'sku': p.sku,
-        'images': [_abs(request, im.image.url) for im in p.images.all()],
-        'variants': [{
-            'id': v.pk,
-            'size': v.size.name if v.size else None,
-            'color': v.color.name if v.color else None,
-            'color_hex': v.color.hex_code if v.color else None,
-            'stock': v.stock,
-            'price': None if p.is_wholesale else int(v.final_price),
-        } for v in p.variants.all()],
-    })
-    return JsonResponse(data)
+        results = ProductSummarySerializer(
+            page.object_list, many=True, context={'request': request}).data
+        return Response({
+            'count': paginator.count,
+            'page': page.number,
+            'pages': paginator.num_pages,
+            'results': results,
+        })
 
 
-@require_GET
-@api_key_required
-def category_list(request):
+class ProductDetailView(BotApiView):
+    """GET /api/v1/products/<id>/ — full detail incl. variants and images."""
+
+    def get(self, request, pk):
+        from catalog.templatetags.catalog_extras import rating_subquery
+
+        try:
+            p = Product.objects.select_related('brand', 'category').prefetch_related(
+                'images', 'variants__size', 'variants__color').annotate(
+                avg_rating=rating_subquery()).get(pk=pk, is_active=True)
+        except Product.DoesNotExist:
+            raise NotFound('product not found')
+
+        return Response(ProductDetailSerializer(p, context={'request': request}).data)
+
+
+class CategoryListView(BotApiView):
     """GET /api/v1/categories/"""
-    cats = Category.objects.filter(is_active=True).order_by('name')
-    return JsonResponse({'results': [
-        {'id': c.pk, 'name': c.name, 'slug': c.slug} for c in cats]})
+
+    def get(self, request):
+        cats = Category.objects.filter(is_active=True).order_by('name')
+        return Response({'results': CategorySerializer(
+            cats, many=True, context={'request': request}).data})
 
 
-@require_GET
-@api_key_required
-def brand_list(request):
+class BrandListView(BotApiView):
     """GET /api/v1/brands/"""
-    brands = Brand.objects.filter(is_active=True).order_by('name')
-    return JsonResponse({'results': [
-        {'id': b.pk, 'name': b.name, 'slug': b.slug,
-         'logo': _abs(request, b.logo.url) if b.logo else None} for b in brands]})
+
+    def get(self, request):
+        brands = Brand.objects.filter(is_active=True).order_by('name')
+        return Response({'results': BrandSerializer(
+            brands, many=True, context={'request': request}).data})

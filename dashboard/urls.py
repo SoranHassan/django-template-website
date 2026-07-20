@@ -90,6 +90,7 @@ urlpatterns = [
 
     # Newsletter
     path('newsletter/', views.DashboardNewsletterView.as_view(), name='newsletter'),
+    path('sms-logs/', views.DashboardSmsLogsView.as_view(), name='sms_logs'),
 
     # Analytics
     path('analytics/', views.DashboardAnalyticsView.as_view(), name='analytics'),

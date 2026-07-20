@@ -1,0 +1,67 @@
+{% extends 'dashboard/_layout.html' %}
+{% load jalali %}
+
+{% block title %}لاگ پیامک‌ها{% endblock %}
+{% block search_placeholder %}جستجو در لاگ پیامک‌ها...{% endblock %}
+
+{% block content %}
+<div class="page-title">
+    <h1>لاگ پیامک‌ها</h1>
+    <p>وضعیت لحظه‌ای اعتبار و تاریخچهٔ کامل ارسال‌های sms.ir</p>
+</div>
+
+<!-- Stat tiles -->
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:20px;">
+    <div class="glass-card" style="padding:18px;">
+        <div style="color:#86868B; font-size:12px;">اعتبار باقی‌مانده</div>
+        <div style="font-size:22px; font-weight:700; margin-top:6px;">
+            {% if credit is not None %}{{ credit }} <span style="font-size:13px; color:#86868B;">پیامک/ریال</span>
+            {% else %}<span style="color:#FF3B30; font-size:14px;">{{ credit_error }}</span>{% endif %}
+        </div>
+    </div>
+    <div class="glass-card" style="padding:18px;">
+        <div style="color:#86868B; font-size:12px;">کل ارسال‌ها</div>
+        <div style="font-size:22px; font-weight:700; margin-top:6px;">{{ total }}</div>
+    </div>
+    <div class="glass-card" style="padding:18px;">
+        <div style="color:#86868B; font-size:12px;">موفق</div>
+        <div style="font-size:22px; font-weight:700; margin-top:6px; color:#34C759;">{{ ok_count }}</div>
+    </div>
+    <div class="glass-card" style="padding:18px;">
+        <div style="color:#86868B; font-size:12px;">ناموفق</div>
+        <div style="font-size:22px; font-weight:700; margin-top:6px; color:#FF3B30;">{{ err_count }}</div>
+    </div>
+</div>
+
+<div class="glass-card">
+    <div class="card-header"><h2>تاریخچهٔ ارسال</h2></div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead><tr><th>زمان</th><th>نوع</th><th>گیرنده</th><th>وضعیت</th><th>پیام / خطا</th></tr></thead>
+            <tbody>
+            {% for log in logs %}
+            <tr>
+                <td style="white-space:nowrap;">{{ log.created_at|jalali_dt }}</td>
+                <td>{{ log.get_kind_display }}</td>
+                <td dir="ltr" style="text-align:right;">{{ log.mobile }}</td>
+                <td>
+                    {% if log.status == 'ok' %}<span class="status success">موفق</span>
+                    {% else %}<span class="status" style="background:#FFEBEB; color:#FF3B30;">ناموفق</span>{% endif %}
+                </td>
+                <td style="white-space:normal; max-width:340px;">{{ log.message }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" style="text-align:center; padding:32px; color:#86868B;">هنوز پیامکی ثبت نشده است</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if logs.paginator.num_pages > 1 %}
+    <div style="display:flex; gap:8px; justify-content:center; padding:16px;">
+        {% if logs.has_previous %}<a class="btn-secondary" href="?page={{ logs.previous_page_number }}">قبلی</a>{% endif %}
+        <span style="padding:6px 12px; color:#86868B;">صفحه {{ logs.number }} از {{ logs.paginator.num_pages }}</span>
+        {% if logs.has_next %}<a class="btn-secondary" href="?page={{ logs.next_page_number }}">بعدی</a>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

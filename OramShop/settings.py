@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'axes',
     'storages',
     'django_ckeditor_5',
+    'rest_framework',
 
     # local apps
     'accounts',
@@ -204,6 +205,17 @@ AXES_CLIENT_IP_CALLABLE = 'OramShop.security.axes_client_ip'
 # it would prevent - especially since mobile numbers are semi-guessable.
 AXES_LOCKOUT_PARAMETERS = ['ip_address']
 
+
+# DJANGO REST FRAMEWORK
+# The public JSON API (api/ app) handles its own X-API-Key gate and rate limit,
+# so DRF's default auth/permission/throttle layers are turned off here. Only the
+# JSON renderer is enabled (no browsable HTML API) so bot clients always get JSON.
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
+    'UNAUTHENTICATED_USER': None,
+}
 
 
 # REGION SETTINGS

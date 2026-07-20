@@ -72,3 +72,40 @@ class Address(models.Model):
 
     def __str__(self):
         return f'{self.user.mobile} - {self.city}'
+
+
+class SmsLog(models.Model):
+    """Record of every SMS the site tries to send through sms.ir.
+
+    Persisted so the superuser dashboard can show a Persian, human-readable
+    history (with delivery status and error text) without depending on logs.
+    """
+
+    KIND_CHOICES = [
+        ('otp', 'کد تأیید'),
+        ('order', 'وضعیت سفارش'),
+        ('newsletter', 'خبرنامه'),
+        ('other', 'سایر'),
+    ]
+    STATUS_CHOICES = [
+        ('ok', 'موفق'),
+        ('error', 'ناموفق'),
+    ]
+
+    kind = models.CharField(max_length=12, choices=KIND_CHOICES, default='other',
+                            verbose_name='نوع پیامک')
+    mobile = models.CharField(max_length=20, blank=True, verbose_name='موبایل')
+    status = models.CharField(max_length=6, choices=STATUS_CHOICES, default='ok',
+                              verbose_name='وضعیت')
+    code = models.IntegerField(null=True, blank=True, verbose_name='کد پاسخ sms.ir')
+    message = models.CharField(max_length=300, blank=True, verbose_name='پیام / خطا')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True,
+                                      verbose_name='زمان')
+
+    class Meta:
+        verbose_name = 'لاگ پیامک'
+        verbose_name_plural = 'لاگ‌های پیامک'
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f'{self.get_kind_display()} → {self.mobile} ({self.get_status_display()})'
