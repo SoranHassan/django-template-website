@@ -6579,6 +6579,15 @@ button:not([class]):hover { background: #000; color: var(--os-cyan); }
 .os-static-body a { color: #00798a; }
 @media (max-width: 576px) { .os-static-page { padding: 20px; } }
 
+/* ============ Global site alert on mobile ============ */
+/* The theme makes the header `position:fixed` under 992px, which floats it
+   over the panel-editable global alert and hides it. Use sticky instead so the
+   header flows below the alert when unscrolled (matching desktop); on scroll the
+   theme's .header-fixed class still pins it, by which point the alert is off-screen. */
+@media (max-width: 992px) {
+  .header:not(.header-fixed) { position: sticky !important; top: 0 !important; }
+}
+
 /* ============ Contact page ============ */
 .os-contact-info {
   background: linear-gradient(135deg, #1A1A1A, #0d3d44); border-radius: 14px;
