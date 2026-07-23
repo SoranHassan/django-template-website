@@ -282,6 +282,9 @@ DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER', default='info@example.com')
 SMS_IR_API_KEY = config('SMS_IR_API_KEY', default='')
 SMS_IR_LINE_NUMBER = config('SMS_IR_LINE_NUMBER', default='')
 SMS_IR_TEMPLATE_ID = config('SMS_IR_TEMPLATE_ID', default='')
+# Order-status notification template (verify/pattern). Must contain an
+# #ORDER_ID# variable. Overridable from .env without a code change.
+SMS_IR_ORDER_TEMPLATE_ID = config('SMS_IR_ORDER_TEMPLATE_ID', default='641503')
 
 
 # ZARINPAL TERMINAL

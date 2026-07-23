@@ -78,21 +78,31 @@ def send_newsletter_sms(mobiles, text):
 
 @shared_task
 def send_order_status_sms(mobile, order_id, status):
-    """Notify the customer about an order status change via SMS."""
-    status_messages = {
-        'paid': 'پرداخت شما تأیید شد',
-        'processing': 'سفارش شما در حال پردازش است',
-        'shipped': 'سفارش شما ارسال شد',
-        'delivered': 'سفارش شما تحویل داده شد',
-        'cancelled': 'سفارش شما لغو شد',
+    """Notify the customer about an order status change via SMS.
+
+    Uses the sms.ir *verify* (pattern) template in ``SMS_IR_ORDER_TEMPLATE_ID``.
+    The template must contain a single ``#ORDER_ID#`` variable — the send below
+    fills it with the order number. Unlike the old bulk send, this works on a
+    normal (non-service) line once the template is approved.
+    """
+    # Kept only for the internal log so the shop owner sees which change fired;
+    # the customer receives the fixed template text with the order number.
+    status_labels = {
+        'paid': 'پرداخت تأیید شد',
+        'processing': 'در حال پردازش',
+        'shipped': 'ارسال شد',
+        'delivered': 'تحویل داده شد',
+        'cancelled': 'لغو شد',
     }
-    message = status_messages.get(status, 'وضعیت سفارش تغییر کرد')
+    label = status_labels.get(status, 'به‌روزرسانی وضعیت')
+    tid = settings.SMS_IR_ORDER_TEMPLATE_ID
     ok, status_code, message_fa, _ = _post_sms(
-        'https://api.sms.ir/v1/send/bulk',
-        {'lineNumber': settings.SMS_IR_LINE_NUMBER,
-         'MessageTexts': [f'سفارش #{order_id}: {message}'],
-         'Mobiles': [mobile]})
-    log_sms('order', mobile, ok=ok, code=status_code, message=f'{message} — {message_fa}')
+        'https://api.sms.ir/v1/send/verify',
+        {'mobile': mobile,
+         'templateId': int(tid) if str(tid).isdigit() else tid,
+         'parameters': [{'name': 'ORDER_ID', 'value': str(order_id)}]})
+    log_sms('order', mobile, ok=ok, code=status_code,
+            message=f'#{order_id} ({label}) — {message_fa}')
     if ok:
         logger.info('order status SMS (%s) sent to %s for order %s', status, mobile, order_id)
         return {'status': 'ok'}
